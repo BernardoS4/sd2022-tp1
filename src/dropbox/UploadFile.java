@@ -16,7 +16,7 @@ public class UploadFile {
 
 	private static final String apiKey = "nyekq63jvq28jsq";
 	private static final String apiSecret = "cbsndqm28jogmbp";
-	private static final String accessTokenStr = "sl.BHzCD4P2kGWqGUnRH0P3wvgckWJMUbLmfW_9XwCdAjPHMg4MZhn087lhGYWaIadPq4lAuDKWJ-44SCfh8wSSLHqE_ANxdNAbbM4CbTdQZT7l7dUrPxQPXToxN8sNbCeipYOaYivB-BkK";
+	private static final String accessTokenStr = "sl.BHyMgji6HrDoretapwLgudNcbsaQKkZt0OYImKpO3rgy051NlswmLbbh2LHJTHCDzNXm0cOF9cwGXWX-HCubcHw_-dqe-t9hGfPMUooEFAh_dD-su_AKbiOXZ0M72QcwUAkRPJTVibo8";
 
 	private static final String UPLOAD_FILE_URL = "https://content.dropboxapi.com/2/files/upload";
 
@@ -39,7 +39,7 @@ public class UploadFile {
 
 		var uploadFile = new OAuthRequest(Verb.POST, UPLOAD_FILE_URL);
 		uploadFile.addHeader(CONTENT_TYPE_HDR, JSON_CONTENT_TYPE);
-		uploadFile.addHeader(DROPBOX_API_ARG_HDR, json.toJson(new UploadFileArgs(false, "add", false, path, false)));
+		uploadFile.addHeader(DROPBOX_API_ARG_HDR, json.toJson(new UploadFileArgs(false, "overwrite", false, path, false)));
 
 		uploadFile.setPayload(data);
 

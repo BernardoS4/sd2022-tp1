@@ -17,7 +17,7 @@ public class DownloadFile {
 	
 	private static final String apiKey = "nyekq63jvq28jsq";
 	private static final String apiSecret = "cbsndqm28jogmbp";
-	private static final String accessTokenStr = "sl.BHzCD4P2kGWqGUnRH0P3wvgckWJMUbLmfW_9XwCdAjPHMg4MZhn087lhGYWaIadPq4lAuDKWJ-44SCfh8wSSLHqE_ANxdNAbbM4CbTdQZT7l7dUrPxQPXToxN8sNbCeipYOaYivB-BkK";
+	private static final String accessTokenStr = "sl.BHyMgji6HrDoretapwLgudNcbsaQKkZt0OYImKpO3rgy051NlswmLbbh2LHJTHCDzNXm0cOF9cwGXWX-HCubcHw_-dqe-t9hGfPMUooEFAh_dD-su_AKbiOXZ0M72QcwUAkRPJTVibo8";
 	
 	private static final String DOWNLOAD_FILE_URL = "https://content.dropboxapi.com/2/files/download";
 	
@@ -48,6 +48,6 @@ public class DownloadFile {
 		if (r.getCode() != HTTP_SUCCESS) 
 			throw new RuntimeException(String.format("Failed to download file Status: %d, \nReason: %s\n",  r.getCode(), r.getBody()));
 		
-		return r.getBody().getBytes();
+		return r.getStream().readAllBytes();
 	}
 }
