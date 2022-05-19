@@ -1,8 +1,6 @@
 package tp1.impl.servers.rest;
 
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
@@ -17,8 +15,8 @@ import util.IP;
 
 public abstract class AbstractRestServer extends AbstractServer {
 	
-	protected static String SERVER_BASE_URI = "http://%s:%s/rest";
-	//protected static String SERVER_BASE_URI = "https://%s:%s/rest";
+	//protected static String SERVER_BASE_URI = "http://%s:%s/rest";
+	protected static String SERVER_BASE_URI = "https://%s:%s/rest";
 	
 	protected AbstractRestServer(Logger log, String service, int port) {
 		super(log, service, port);
@@ -27,7 +25,7 @@ public abstract class AbstractRestServer extends AbstractServer {
 
 	protected void start() {
 		//TROCAR PARA TLS
-		/*
+		
 		String ip = IP.hostAddress();
 		
 		String serverURI = String.format(SERVER_BASE_URI, ip, port);
@@ -44,10 +42,10 @@ public abstract class AbstractRestServer extends AbstractServer {
 		
 		Log.info(String.format("%s Server ready @ %s\n",  service, serverURI));
 		
-		Discovery.getInstance().announce(service, serverURI);*/
+		Discovery.getInstance().announce(service, serverURI);
 		
 		
-		String ip = IP.hostAddress();
+		/*String ip = IP.hostAddress();
 		String serverURI = String.format(SERVER_BASE_URI, ip, port);
 		
 		ResourceConfig config = new ResourceConfig();
@@ -58,7 +56,7 @@ public abstract class AbstractRestServer extends AbstractServer {
 
 		Log.info(String.format("%s Server ready @ %s\n",  service, serverURI));
 		
-		Discovery.getInstance().announce(service, serverURI);
+		Discovery.getInstance().announce(service, serverURI);*/
 	}
 	
 	abstract void registerResources( ResourceConfig config );
