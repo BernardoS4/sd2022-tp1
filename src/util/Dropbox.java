@@ -5,6 +5,8 @@ import dropbox.DownloadFile;
 import dropbox.UploadFile;
 
 final public class Dropbox {
+	
+	private Dropbox() {}
 
 	public static void write(String fileId, byte[] data) {
 		try {

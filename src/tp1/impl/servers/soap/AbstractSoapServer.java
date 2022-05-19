@@ -53,8 +53,8 @@ public class AbstractSoapServer extends AbstractServer{
 		Log.info(String.format("%s Soap Server ready @ %s\n", service, serverURI));
 		
 		
-		
-		/*var ip = IP.hostAddress();
+		/*
+		var ip = IP.hostAddress();
 		var serverURI = String.format(SERVER_BASE_URI, ip, port);
 
 		Endpoint.publish(serverURI.replace(ip, INETADDR_ANY), implementor );

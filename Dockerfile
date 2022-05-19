@@ -11,8 +11,8 @@ COPY target/*jar-with-dependencies.jar sd2122.jar
 COPY trab.props trab.props
 
 # copy the keystore and truststore to the docker image
-COPY tls tls
+COPY tls/*.jks /home/sd/
 
 # run Discovery when starting the docker image
 CMD ["java", "-cp", "/home/sd/sd2122.jar", \
-"sd2122.trab.server.RESTUserServer"]
+"tp1.impl.service.rest.DirectoryRestServer"]

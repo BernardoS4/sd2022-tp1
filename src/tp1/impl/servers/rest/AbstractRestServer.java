@@ -44,8 +44,8 @@ public abstract class AbstractRestServer extends AbstractServer {
 		
 		Discovery.getInstance().announce(service, serverURI);
 		
-		
-		/*String ip = IP.hostAddress();
+		/*
+		String ip = IP.hostAddress();
 		String serverURI = String.format(SERVER_BASE_URI, ip, port);
 		
 		ResourceConfig config = new ResourceConfig();

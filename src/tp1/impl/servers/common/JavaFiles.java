@@ -11,7 +11,7 @@ import util.Dropbox;
 public class JavaFiles implements Files {
 
 	static final String DELIMITER = "$$$";
-	private static final String ROOT = "/tmp/";
+
 	
 	public JavaFiles() {
 
