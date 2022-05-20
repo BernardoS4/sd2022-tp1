@@ -17,7 +17,7 @@ public class DownloadFile {
 	
 	private static final String apiKey = "nyekq63jvq28jsq";
 	private static final String apiSecret = "cbsndqm28jogmbp";
-	private static final String accessTokenStr = "sl.BH_r9l3FdmYq5J5GPRNkRxQ6jLCc8VwjtKcdi5F7yX6vpdB7fpgDQE4rlKcxmmObB38rKE4W9ncltDGgL4kiXQSG0or9e3YiBPXevzjJsEEPlU880C1NrwanKjteYWxPRTdWPhBXcswU";
+	private static final String accessTokenStr = "sl.BH8NxslMILSKOozo7_z5dd9nuc4_c00E-w3w46ARiGHJ_aKLgT5QD5K92qAcwG2BSKAkBU6ZlJNrqSM0bsrDu23hqrRCEQE5TBRwsJ2F4U8-EDdJ98RHgt1s616gr24T65TzKpQpOGwc";
 	
 	private static final String DOWNLOAD_FILE_URL = "https://content.dropboxapi.com/2/files/download";
 	
