@@ -16,7 +16,6 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
 import tp1.impl.clients.common.RetryClient;
@@ -42,14 +41,14 @@ abstract class RestClient extends RetryClient {
 
 	public RestClient(URI uri, String path) {
 		this.uri = uri;
+		HttpsURLConnection.setDefaultHostnameVerifier(new InsecureHostnameVerifier());
 		this.config = new ClientConfig();
 		this.config.property(ClientProperties.CONNECT_TIMEOUT, CONNECT_TIMEOUT);
 		this.config.property(ClientProperties.READ_TIMEOUT, READ_TIMEOUT);
 		this.config.property(ClientProperties.FOLLOW_REDIRECTS, true);
 
-//		config.register(new LoggingFeature(Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME), Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000));	
-		//adicionar
-		//HttpsURLConnection.setDefaultHostnameVerifier(new InsecureHostnameVerifier());
+		//config.register(new LoggingFeature(Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME), Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000));		  
+
 		this.client = ClientBuilder.newClient(config);
 		this.target = this.client.target(uri).path(path);
 	}

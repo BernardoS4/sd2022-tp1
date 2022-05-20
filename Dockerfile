@@ -15,4 +15,4 @@ COPY tls/*.jks /home/sd/
 
 # run Discovery when starting the docker image
 CMD ["java", "-cp", "/home/sd/sd2122.jar", \
-"tp1.impl.service.rest.DirectoryRestServer"]
+"tp1.impl.servers.rest.UsersRestServer"]

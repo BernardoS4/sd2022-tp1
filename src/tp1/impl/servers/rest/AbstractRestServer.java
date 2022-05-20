@@ -15,8 +15,8 @@ import util.IP;
 
 public abstract class AbstractRestServer extends AbstractServer {
 	
-	//protected static String SERVER_BASE_URI = "http://%s:%s/rest";
 	protected static String SERVER_BASE_URI = "https://%s:%s/rest";
+	//protected static String SERVER_BASE_URI = "http://%s:%s/rest";
 	
 	protected AbstractRestServer(Logger log, String service, int port) {
 		super(log, service, port);
@@ -24,10 +24,7 @@ public abstract class AbstractRestServer extends AbstractServer {
 
 
 	protected void start() {
-		//TROCAR PARA TLS
-		
 		String ip = IP.hostAddress();
-		
 		String serverURI = String.format(SERVER_BASE_URI, ip, port);
 		
 		ResourceConfig config = new ResourceConfig();
@@ -35,28 +32,16 @@ public abstract class AbstractRestServer extends AbstractServer {
 		registerResources( config );
 		
 		try {
-			JdkHttpServerFactory.createHttpServer( URI.create(serverURI), config, SSLContext.getDefault());
+			JdkHttpServerFactory.createHttpServer( URI.create(serverURI.replace(ip, INETADDR_ANY)), config, SSLContext.getDefault());
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 		
-		Log.info(String.format("%s Server ready @ %s\n",  service, serverURI));
-		
-		Discovery.getInstance().announce(service, serverURI);
-		
-		/*
-		String ip = IP.hostAddress();
-		String serverURI = String.format(SERVER_BASE_URI, ip, port);
-		
-		ResourceConfig config = new ResourceConfig();
-		
-		registerResources( config );
-		
-		JdkHttpServerFactory.createHttpServer( URI.create(serverURI.replace(ip, INETADDR_ANY)), config);
+		// JdkHttpServerFactory.createHttpServer( URI.create(serverURI.replace(ip, INETADDR_ANY)), config);
 
 		Log.info(String.format("%s Server ready @ %s\n",  service, serverURI));
 		
-		Discovery.getInstance().announce(service, serverURI);*/
+		Discovery.getInstance().announce(service, serverURI);
 	}
 	
 	abstract void registerResources( ResourceConfig config );
