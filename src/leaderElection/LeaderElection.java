@@ -29,20 +29,26 @@ public class LeaderElection {
 
 		List<String> children = zooKeeper.getChildren(root, false);
 		Collections.sort(children);
+		String leader = getCurrentLeader();
 
 		String currentNode = children.get(0).replace(root + "/", "");
 		setCurrentLeader(currentNode);
 		
-		System.out.println("Leader is " + getCurrentLeader());
-		zooKeeper.exists(root + "/" + getCurrentLeader(), (Watcher) this);
+		System.out.println("Leader is " + leader);
+		//sempre que lider e alterado e apenas ele, notificar Watcher
+		zooKeeper.exists(root + "/" + leader, (Watcher) this);
 	}
 
+	//so fazer caso o no que falhar for o leader
 	public void reelectLeader(WatchedEvent watchedEvent) throws KeeperException, InterruptedException {
 
+		//watchedEvent.getPath() -> contem o caminho do no que falhou
+		//replace(root + "/", "") -> /directory/guid-n_i vai ficar guid-n_i
 		String affectedNode = watchedEvent.getPath().replace(root + "/", "");
 
 		System.out.println("Node " + affectedNode + " crashed");
 
+		//se o no que falhou nao for o current leader
 		if (!getCurrentLeader().equalsIgnoreCase(affectedNode)) {
 			System.out.println("No change in leader, some member nodes got partitioned or crashed");
 			// e preciso apagar?
@@ -53,11 +59,13 @@ public class LeaderElection {
 		List<String> children = zooKeeper.getChildren(root, false);
 		Collections.sort(children);
 
+		//se der true, nao existe nos para fazer reeleicao logo todos crasharam
 		if (children.isEmpty()) {
 			System.out.println("Re-election not possible. Add nodes please.");
 			return;
 		}
 
+		//print dos nomeados
 		for (String nominee : children) {
 			System.out.println("Nominee " + nominee);
 		}

@@ -19,10 +19,10 @@ import leaderElection.LeaderElection;
 public class Zookeeper implements Watcher {
 
 	private ZooKeeper _client;
-	private final int TIMEOUT = 5000;
+	private int timeout = 5000;
 
 	public Zookeeper(String servers) throws Exception {
-		this.connect(servers, TIMEOUT);
+		this.connect(servers, timeout);
 	}
 
 	public synchronized ZooKeeper client() {
@@ -34,7 +34,7 @@ public class Zookeeper implements Watcher {
 
 	private void connect(String host, int timeout) throws IOException, InterruptedException {
 		var connectedSignal = new CountDownLatch(1);
-		_client = new ZooKeeper(host, TIMEOUT, (e) -> {
+		_client = new ZooKeeper(host, timeout, (e) -> {
 			System.err.println( e );
 			if (e.getState().equals(Watcher.Event.KeeperState.SyncConnected)) {
 				connectedSignal.countDown();
@@ -86,9 +86,10 @@ public class Zookeeper implements Watcher {
 		zk.getChildren(root).forEach(System.out::println);
 
 		//main vai ter que ser feita na classe do servidor que comunica com o zookeper
-			// o newByte e por um valor que nos da jeito (tipo URL). 
-			var newpath = zk.createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
-			System.err.println( newpath );
+		// o newByte e por um valor que nos da jeito (tipo URL). 
+		//criar nos efemeros e sequencias, filhos da raiz (/directory)
+		var newpath = zk.createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
+		System.err.println( newpath );
 		
 
 		zk.getChildren(root, (e) -> {
