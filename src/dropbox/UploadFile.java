@@ -16,7 +16,7 @@ public class UploadFile {
 
 	private static final String apiKey = "nyekq63jvq28jsq";
 	private static final String apiSecret = "cbsndqm28jogmbp";
-	private static final String accessTokenStr = "sl.BH8NxslMILSKOozo7_z5dd9nuc4_c00E-w3w46ARiGHJ_aKLgT5QD5K92qAcwG2BSKAkBU6ZlJNrqSM0bsrDu23hqrRCEQE5TBRwsJ2F4U8-EDdJ98RHgt1s616gr24T65TzKpQpOGwc";
+	private static final String accessTokenStr = "sl.BILQjYgY5W6XPDMpeDOduQgyJIeQ2UlIyM4aZKDDVFLJVUeXIw9AUg7AqsOlcBCmPmiZPJ3C49qeHSA7Dmm0ygw3F8vmTmkzcU54tKoqpw_Vb3dsLf3H7nqohDzm8Bhy0hWUfRgHYXOw";
 
 	private static final String UPLOAD_FILE_URL = "https://content.dropboxapi.com/2/files/upload";
 

@@ -12,6 +12,8 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 
+import leaderElection.LeaderElection;
+
 
 
 public class Zookeeper implements Watcher {
@@ -83,13 +85,15 @@ public class Zookeeper implements Watcher {
 		
 		zk.getChildren(root).forEach(System.out::println);
 
-		for( int i = 0; i < 10; i++) {
-			var newpath = zk.createNode(root + "/", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
+		//main vai ter que ser feita na classe do servidor que comunica com o zookeper
+			// o newByte e por um valor que nos da jeito (tipo URL). 
+			var newpath = zk.createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
 			System.err.println( newpath );
-		}
+		
 
 		zk.getChildren(root, (e) -> {
-			zk.getChildren(root).forEach( System.out::println );
+			//zk.getChildren(root).forEach( process(e) );
+			zk.getChildren(root).forEach( System.out::println ) ;
 		});
 
 		Thread.sleep(Integer.MAX_VALUE);
@@ -97,7 +101,40 @@ public class Zookeeper implements Watcher {
 
 	@Override
 	public void process(WatchedEvent event) {
-		// TODO Auto-generated method stub
+		
+		LeaderElection leaderElection = new LeaderElection();
+		
+		switch (event.getType()) {
+        case None:
+            if (event.getState() == Event.KeeperState.SyncConnected) {
+                System.out.println("Successfully connected to Zookeeper");
+            } else {
+                synchronized (_client) {
+                    System.out.println("Disconnected from Zookeeper event");
+                    _client.notifyAll();
+                }
+            }
+            break;
+        case NodeDeleted:
+            try {
+            	leaderElection.reelectLeader(event);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } 
+            break;
+        case NodeCreated:
+            try {
+            	leaderElection.electLeader();
+            } catch (Exception e) {
+            	e.printStackTrace();
+            } 
+            break;
+        case NodeDataChanged:
+            System.out.println("Leader updated progress of task");
+            break;
+		default:
+			break;
+    }
 		System.err.println(event);
 	}
 }
