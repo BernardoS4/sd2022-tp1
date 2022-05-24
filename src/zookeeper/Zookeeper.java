@@ -11,6 +11,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 
 import leaderElection.LeaderElection;
 
@@ -72,29 +73,24 @@ public class Zookeeper implements Watcher {
 		return Collections.emptyList();
 	}
 
-	public static void main(String[] args) throws Exception {
-
-		String host = args.length == 0 ? "localhost" : args[0];
-		
-		var zk = new Zookeeper(host);
+	public void initiate() throws Exception {
 
 		String root = "/directory";
-
-		var path = zk.createNode(root, new byte[0], CreateMode.PERSISTENT);
-		System.err.println( path );
-
-		//main vai ter que ser feita na classe do servidor que comunica com o zookeper
-		// o newByte e por um valor que nos da jeito (tipo versao). 
-		//criar nos efemeros e sequencias, filhos da raiz (/directory)
-		var newpath = zk.createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
-		System.err.println( newpath );
-
-		//LeaderElection leaderElection = new LeaderElection();
-		//leaderElection.firstElection();
-		//tirar o caso de se criar no no process
 		
-		zk.getChildren(root, (e) -> {
-			zk.process(e)  ;
+		//precisamos de verificar se a diretoria ja existe?
+		/*Stat stat = new Stat();
+		stat = _client.exists(root , false);
+		if(stat == null) {
+		
+			var path = zk.createNode(root, new byte[0], CreateMode.PERSISTENT);
+			System.err.println( path );
+		}*/
+		createNode(root, new byte[0], CreateMode.PERSISTENT);
+		var newpath = createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
+		System.err.println( newpath );
+		
+		getChildren(root, (e) -> {
+			process(e)  ;
 		});
 
 		Thread.sleep(Integer.MAX_VALUE);
