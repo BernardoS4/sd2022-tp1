@@ -1,7 +1,9 @@
 package leaderElection;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.zookeeper.*;
 
@@ -10,13 +12,14 @@ public class LeaderElection {
 	private String root = "/directory";
 	private ZooKeeper zooKeeper;
 	private String currentLeader;
+	private Map<String, Integer> nodeVersion;
 
 	public LeaderElection() {
 
 		currentLeader = "";
+		nodeVersion = new HashMap<>();
 	}
 
-	
 	public String getCurrentLeader() {
 		return this.currentLeader;
 	}
@@ -25,55 +28,50 @@ public class LeaderElection {
 		this.currentLeader = currentLeader;
 	}
 
-	public void electLeader() throws KeeperException, InterruptedException {
+	public void electLeader(WatchedEvent watchedEvent) throws KeeperException, InterruptedException {
 
-		List<String> children = zooKeeper.getChildren(root, false);
-		Collections.sort(children);
-		String leader = getCurrentLeader();
-
-		String currentNode = children.get(0).replace(root + "/", "");
-		setCurrentLeader(currentNode);
-		
-		System.out.println("Leader is " + leader);
-		//sempre que lider e alterado e apenas ele, notificar Watcher
-		zooKeeper.exists(root + "/" + leader, (Watcher) this);
-	}
-
-	//so fazer caso o no que falhar for o leader
-	public void reelectLeader(WatchedEvent watchedEvent) throws KeeperException, InterruptedException {
-
-		//watchedEvent.getPath() -> contem o caminho do no que falhou
-		//replace(root + "/", "") -> /directory/guid-n_i vai ficar guid-n_i
-		String affectedNode = watchedEvent.getPath().replace(root + "/", "");
+		// watchedEvent.getPath() -> contem o caminho do no que falhou
+		// replace(root + "/", "") -> /directory/guid-n_i vai ficar guid-n_i
+		String affectedNode = replaceSubString(watchedEvent.getPath());
 
 		System.out.println("Node " + affectedNode + " crashed");
 
-		//se o no que falhou nao for o current leader
+		// se o no que falhou nao for o current leader
 		if (!getCurrentLeader().equalsIgnoreCase(affectedNode)) {
 			System.out.println("No change in leader, some member nodes got partitioned or crashed");
-			// e preciso apagar?
-			zooKeeper.delete(affectedNode, -1);
 			return;
 		}
-
-		List<String> children = zooKeeper.getChildren(root, false);
+	
+		List<String> children = zooKeeper.getChildren(root, (Watcher) this);
 		Collections.sort(children);
 
-		//se der true, nao existe nos para fazer reeleicao logo todos crasharam
-		if (children.isEmpty()) {
-			System.out.println("Re-election not possible. Add nodes please.");
-			return;
-		}
-
-		//print dos nomeados
+		// print dos nomeados
 		for (String nominee : children) {
 			System.out.println("Nominee " + nominee);
 		}
-		
-		setCurrentLeader(children.get(0).replace(root + "/", ""));
+
+		setCurrentLeader(replaceSubString(children.get(0)));
 
 		System.out.println("Successful re-election. Elected " + getCurrentLeader());
 
-		zooKeeper.exists(root + "/" + getCurrentLeader(), (Watcher) this);
+		zooKeeper.exists(root + "/" + getCurrentLeader(), false);
+	}
+
+	public void firstElection() throws KeeperException, InterruptedException {
+
+		List<String> children = zooKeeper.getChildren(root, (Watcher) this);
+		Collections.sort(children);
+		String leader = getCurrentLeader();
+
+		String currentNode = replaceSubString(children.get(0));
+		setCurrentLeader(currentNode);
+
+		System.out.println("Leader is " + leader);
+		zooKeeper.exists(root + "/" + leader, false);
+	}
+
+	private String replaceSubString(String path) {
+
+		return path.replace(root + "/", "");
 	}
 }

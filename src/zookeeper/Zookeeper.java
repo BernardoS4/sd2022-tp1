@@ -82,19 +82,19 @@ public class Zookeeper implements Watcher {
 
 		var path = zk.createNode(root, new byte[0], CreateMode.PERSISTENT);
 		System.err.println( path );
-		
-		zk.getChildren(root).forEach(System.out::println);
 
 		//main vai ter que ser feita na classe do servidor que comunica com o zookeper
-		// o newByte e por um valor que nos da jeito (tipo URL). 
+		// o newByte e por um valor que nos da jeito (tipo versao). 
 		//criar nos efemeros e sequencias, filhos da raiz (/directory)
 		var newpath = zk.createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.err.println( newpath );
-		
 
+		//LeaderElection leaderElection = new LeaderElection();
+		//leaderElection.firstElection();
+		//tirar o caso de se criar no no process
+		
 		zk.getChildren(root, (e) -> {
-			//zk.getChildren(root).forEach( process(e) );
-			zk.getChildren(root).forEach( System.out::println ) ;
+			zk.process(e)  ;
 		});
 
 		Thread.sleep(Integer.MAX_VALUE);
@@ -118,14 +118,15 @@ public class Zookeeper implements Watcher {
             break;
         case NodeDeleted:
             try {
-            	leaderElection.reelectLeader(event);
+            	leaderElection.electLeader(event);
             } catch (Exception e) {
                 e.printStackTrace();
             } 
             break;
+            // so na primeira vez em que se tem de escolher 1 lider
         case NodeCreated:
             try {
-            	leaderElection.electLeader();
+            	leaderElection.firstElection();
             } catch (Exception e) {
             	e.printStackTrace();
             } 
