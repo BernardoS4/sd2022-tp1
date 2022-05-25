@@ -8,7 +8,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import tp1.api.service.java.Files;
 import tp1.impl.servers.rest.util.GenericExceptionMapper;
 import util.Debug;
-import util.Token;
+import util.FlagState;
 
 public class DropboxRestServer extends AbstractRestServer {
 
@@ -28,11 +28,12 @@ public static final int PORT = 5678;
 //		config.register( CustomLoggingFilter.class);
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 
 		Debug.setLogLevel( Level.INFO, Debug.TP1);
 		
-		Token.set( args.length == 0 ? "" : args[0] );
+		FlagState.set(Boolean.parseBoolean(args[0]));
+		Log.info("Flag: " + args[0]);
 
 		new DropboxRestServer().start();
 	}	

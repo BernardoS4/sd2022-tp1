@@ -1,7 +1,6 @@
 package tp1.impl.clients.rest;
 
 import java.net.URI;
-
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;

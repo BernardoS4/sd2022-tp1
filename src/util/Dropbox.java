@@ -11,7 +11,7 @@ final public class Dropbox {
     public static void write(String fileId, byte[] data) {
         try {
             UploadFile createFile = new UploadFile();
-            createFile.execute("/" + fileId, data);
+            createFile.execute("/main/" + fileId, data);
         } catch (Exception x) {
             x.printStackTrace();
         }
@@ -20,7 +20,7 @@ final public class Dropbox {
     public static byte[] read(String fileId) {
         try {
             DownloadFile getFile = new DownloadFile();
-            return getFile.execute("/" + fileId);
+            return getFile.execute("/main/" + fileId);
         } catch (Exception x) {
             x.printStackTrace();
             return null;
@@ -30,7 +30,18 @@ final public class Dropbox {
     public static boolean delete(String fileId) {
         try {
             DeleteDirectory deleteFile = new DeleteDirectory();
-            deleteFile.execute("/" + fileId);
+            deleteFile.execute("/main/" + fileId);
+            return true;
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+        return false;
+    }
+    
+    public static boolean deleteAllFiles() {
+        try {
+            DeleteDirectory deleteFile = new DeleteDirectory();
+            deleteFile.execute("/main");
             return true;
         } catch (Exception x) {
             x.printStackTrace();

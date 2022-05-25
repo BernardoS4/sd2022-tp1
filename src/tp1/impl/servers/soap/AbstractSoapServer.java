@@ -16,7 +16,6 @@ import zookeeper.Zookeeper;
 
 public class AbstractSoapServer extends AbstractServer {
 	private static String SERVER_BASE_URI = "https://%s:%s/soap";
-	// private static String SERVER_BASE_URI = "http://%s:%s/soap";
 
 	final Object implementor;
 
@@ -41,8 +40,8 @@ public class AbstractSoapServer extends AbstractServer {
 			server.setExecutor(Executors.newCachedThreadPool());        
 			server.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()));
 			var endpoint = Endpoint.create(implementor);
-			Zookeeper zk = new Zookeeper(serverURI);
-			zk.initiate();
+			//Zookeeper zk = new Zookeeper(serverURI);
+			//zk.initiate();
 			
 			endpoint.publish(server.createContext("/soap"));
 			server.start();

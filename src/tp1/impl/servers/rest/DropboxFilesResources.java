@@ -1,11 +1,12 @@
 package tp1.impl.servers.rest;
 
 import java.util.logging.Logger;
-
 import jakarta.inject.Singleton;
 import tp1.api.service.java.Files;
 import tp1.api.service.rest.RestFiles;
 import tp1.impl.servers.common.DropboxFiles;
+import util.Dropbox;
+import util.FlagState;
 
 @Singleton
 public class DropboxFilesResources extends RestResource implements RestFiles {
@@ -16,6 +17,7 @@ public class DropboxFilesResources extends RestResource implements RestFiles {
 
 	public DropboxFilesResources() {
 		impl = new DropboxFiles();
+		if(FlagState.get()) Dropbox.deleteAllFiles();
 	}
 
 	@Override

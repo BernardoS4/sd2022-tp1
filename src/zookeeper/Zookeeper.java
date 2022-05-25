@@ -89,6 +89,9 @@ public class Zookeeper implements Watcher {
 		var newpath = createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.err.println( newpath );
 		
+		LeaderElection leaderElection = new LeaderElection();
+		leaderElection.firstElection();
+		
 		getChildren(root, (e) -> {
 			process(e)  ;
 		});
@@ -118,15 +121,7 @@ public class Zookeeper implements Watcher {
             } catch (Exception e) {
                 e.printStackTrace();
             } 
-            break;
-            // so na primeira vez em que se tem de escolher 1 lider
-        case NodeCreated:
-            try {
-            	leaderElection.firstElection();
-            } catch (Exception e) {
-            	e.printStackTrace();
-            } 
-            break;
+            break;        
         case NodeDataChanged:
             System.out.println("Leader updated progress of task");
             break;
