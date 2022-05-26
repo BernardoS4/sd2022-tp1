@@ -14,9 +14,9 @@ import dropbox.msgs.UploadFileArgs;
 
 public class UploadFile {
 
-	private static final String apiKey = "nyekq63jvq28jsq";
-	private static final String apiSecret = "cbsndqm28jogmbp";
-	private static final String accessTokenStr = "sl.BIR6QU6z__zVFl6TyyO4YHYBDPbBCpzn2z-Lc3QInpuITS9PH9FWGOZRtomZ1gxdDYbmgPaUgQdOmjdfqcUSjq62R8rgSbSiWtjJreJGXejjmcYYbt8So_obVfZjJ1rMuaMr1-D6fzYw";
+	//private static final String apiKey = "nyekq63jvq28jsq";
+	//private static final String apiSecret = "cbsndqm28jogmbp";
+	private static final String accessTokenStr = "sl.BIUwns933jo6Urn9ISbENp_2qgCYta9CRWbXH0q4dTFFXwjI8cdfVcEX5BJlMQ5JdZI3_Ps89DdPmXO3sPbr-4k4JJMQ9ucQoFvu_Z0TMfj9rErKi-MEKG4VbKY5wYJs3Sif1jtGJ8jA";
 
 	private static final String UPLOAD_FILE_URL = "https://content.dropboxapi.com/2/files/upload";
 
@@ -29,7 +29,7 @@ public class UploadFile {
 	private final OAuth20Service service;
 	private final OAuth2AccessToken accessToken;
 
-	public UploadFile() {
+	public UploadFile(String apiKey, String apiSecret) {
 		json = new Gson();
 		accessToken = new OAuth2AccessToken(accessTokenStr);
 		service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);

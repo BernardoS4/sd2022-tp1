@@ -4,15 +4,11 @@ import static tp1.api.service.java.Result.error;
 import static tp1.api.service.java.Result.ok;
 import static tp1.api.service.java.Result.ErrorCode.INTERNAL_ERROR;
 import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.sql.Timestamp;
 import java.util.Comparator;
-
 import org.apache.commons.codec.digest.DigestUtils;
-
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 import util.IO;
@@ -29,21 +25,21 @@ public class JavaFiles implements Files {
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
 		fileId = fileId.replace(DELIMITER, "/");
-		byte[] data = IO.read(new File(ROOT + fileId));
+		byte[] data = IO.read(new File(ROOT + "main/" + fileId));
 		return data != null ? ok(data) : error(NOT_FOUND);
 	}
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
 		fileId = fileId.replace(DELIMITER, "/");
-		boolean res = IO.delete(new File(ROOT + fileId));
+		boolean res = IO.delete(new File(ROOT + "main/" + fileId));
 		return res ? ok() : error(NOT_FOUND);
 	}
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		fileId = fileId.replace(DELIMITER, "/");
-		File file = new File(ROOT + fileId);
+		File file = new File(ROOT + "main/" + fileId);
 		file.getParentFile().mkdirs();
 		IO.write(file, data);
 		return ok();
@@ -51,7 +47,7 @@ public class JavaFiles implements Files {
 
 	@Override
 	public Result<Void> deleteUserFiles(String userId, String token) {
-		File file = new File(ROOT + userId);
+		File file = new File(ROOT + "main/" + userId);
 		try {
 			java.nio.file.Files.walk(file.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile)
 					.forEach(File::delete);
