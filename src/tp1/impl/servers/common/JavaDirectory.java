@@ -10,6 +10,7 @@ import static tp1.impl.clients.Clients.FilesClients;
 import static tp1.impl.clients.Clients.UsersClients;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -42,25 +43,24 @@ public class JavaDirectory implements Directory {
 	static final long USER_CACHE_EXPIRATION = 3000;
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
-			.expireAfterWrite( Duration.ofMillis(USER_CACHE_EXPIRATION))
-			.build(new CacheLoader<>() {
+			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
 				@Override
 				public Result<User> load(UserInfo info) throws Exception {
-					var res = UsersClients.get().getUser( info.userId(), info.password());
-					if( res.error() == ErrorCode.TIMEOUT)
+					var res = UsersClients.get().getUser(info.userId(), info.password());
+					if (res.error() == ErrorCode.TIMEOUT)
 						return error(BAD_REQUEST);
 					else
 						return res;
 				}
 			});
-	
+
 	final static Logger Log = Logger.getLogger(JavaDirectory.class.getName());
 	final ExecutorService executor = Executors.newCachedThreadPool();
 
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
-	
+
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
 
@@ -76,35 +76,38 @@ public class JavaDirectory implements Directory {
 			var fileId = fileId(filename, userId);
 			var file = files.get(fileId);
 			var info = file != null ? file.info() : new FileInfo();
-			int countWrites = 0;		
+			int countWrites = 0;
 			Set<URI> uriSet = new HashSet<>();
-			for (var uri :  orderCandidateFileServers(file)) {
+			for (var uri : orderCandidateFileServers(file)) {
 				var result = FilesClients.get(uri).writeFile(fileId, data, Token.get());
 				if (result.isOK()) {
 					info.setOwner(userId);
 					info.setFilename(filename);
 					info.setFileURL(String.format("%s/files/%s", uri, fileId));
-					uriSet.add(uri);
+					try {
+						uriSet.add(new URI(info.getFileURL()));
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					}
+					//uriSet.add(uri);
 					files.put(fileId, file = new ExtendedFileInfo(uriSet, fileId, info));
-					if( uf.owned().add(fileId))
-						for(URI tmp : file.uri) {
+					if (uf.owned().add(fileId))
+						for (URI tmp : file.uri) {
 							getFileCounts(tmp, true).numFiles().incrementAndGet();
 						}
 					countWrites++;
-					if(countWrites == 2) break;
+					if (countWrites == 2)
+						break;
 				} else
 					Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 			}
-			if(countWrites > 0) 
+			if (countWrites > 0)
 				return ok(file.info);
-			
+
 			return error(BAD_REQUEST);
 		}
 	}
-	
-	
 
-	
 	@Override
 	public Result<Void> deleteFile(String filename, String userId, String password) {
 		if (badParam(filename) || badParam(userId))
@@ -127,11 +130,11 @@ public class JavaDirectory implements Directory {
 
 			executor.execute(() -> {
 				this.removeSharesOfFile(info);
-				for(URI uri : file.uri)
+				for (URI uri : file.uri)
 					FilesClients.get(uri).deleteFile(fileId, password);
 			});
-			
-			for(URI uri : file.uri)
+
+			for (URI uri : file.uri)
 				getFileCounts(uri, false).numFiles().decrementAndGet();
 		}
 		return ok();
@@ -201,13 +204,19 @@ public class JavaDirectory implements Directory {
 
 		if (!file.info().hasAccess(accUserId))
 			return error(FORBIDDEN);
-		
+
 		Result<byte[]> result = null;
-		
-		for(URI uri : file.uri) {
+
+		for (URI uri : file.uri) {
 			
-			 result = redirect( uri.toString() );
-			 if(result.isOK()) break;
+			Log.info(String.format("AQUIIIIIIIIII_1: %s \n", uri));
+			result = redirect(uri.toString());
+			
+			/* nunca vai entrar aqui
+			if (result.isOK()) {
+				break;}
+			*/
+			
 		}
 		return result;
 	}
@@ -240,23 +249,23 @@ public class JavaDirectory implements Directory {
 
 	private Result<User> getUser(String userId, String password) {
 		try {
-			return users.get( new UserInfo( userId, password));
-		} catch( Exception x ) {
+			return users.get(new UserInfo(userId, password));
+		} catch (Exception x) {
 			x.printStackTrace();
-			return error( ErrorCode.INTERNAL_ERROR);
+			return error(ErrorCode.INTERNAL_ERROR);
 		}
 	}
-	
+
 	@Override
 	public Result<Void> deleteUserFiles(String userId, String password, String token) {
-		users.invalidate( new UserInfo(userId, password));
-		
+		users.invalidate(new UserInfo(userId, password));
+
 		var fileIds = userFiles.remove(userId);
 		if (fileIds != null)
 			for (var id : fileIds.owned()) {
 				var file = files.remove(id);
 				removeSharesOfFile(file);
-				for(URI uri : file.uri)
+				for (URI uri : file.uri)
 					getFileCounts(uri, false).numFiles().decrementAndGet();
 			}
 		return ok();
@@ -267,40 +276,32 @@ public class JavaDirectory implements Directory {
 			userFiles.getOrDefault(userId, new UserFiles()).shared().remove(file.fileId());
 	}
 
-
 	private Queue<URI> orderCandidateFileServers(ExtendedFileInfo file) {
-		int MAX_SIZE=3;
+		int MAX_SIZE = 3;
 		Queue<URI> result = new ArrayDeque<>();
-		
-		if( file != null ) {
-		
-			result.addAll( file.uri() );
+
+		if (file != null) {
+
+			result.addAll(file.uri());
 		}
 
-		FilesClients.all()
-				.stream()
-				.filter( u -> ! result.contains(u))
-				.map(u -> getFileCounts(u, false))
-				.sorted( FileCounts::ascending )
-				.map(FileCounts::uri)
-				.limit(MAX_SIZE)
-				.forEach( result::add );
-		
-		while( result.size() < MAX_SIZE )
-			result.add( result.peek() );
-		
-		Log.info("Candidate files servers: " + result+ "\n");
+		FilesClients.all().stream().filter(u -> !result.contains(u)).map(u -> getFileCounts(u, false))
+				.sorted(FileCounts::ascending).map(FileCounts::uri).limit(MAX_SIZE).forEach(result::add);
+
+		while (result.size() < MAX_SIZE)
+			result.add(result.peek());
+
+		Log.info("Candidate files servers: " + result + "\n");
 		return result;
 	}
-	
-	private FileCounts getFileCounts( URI uri, boolean create ) {
-		if( create )
-			return fileCounts.computeIfAbsent(uri,  FileCounts::new);
+
+	private FileCounts getFileCounts(URI uri, boolean create) {
+		if (create)
+			return fileCounts.computeIfAbsent(uri, FileCounts::new);
 		else
-			return fileCounts.getOrDefault( uri, new FileCounts(uri) );
+			return fileCounts.getOrDefault(uri, new FileCounts(uri));
 	}
-	
-	
+
 	static record ExtendedFileInfo(Set<URI> uri, String fileId, FileInfo info) {
 	}
 
@@ -312,15 +313,15 @@ public class JavaDirectory implements Directory {
 	}
 
 	static record FileCounts(URI uri, AtomicLong numFiles) {
-		FileCounts( URI uri) {
-			this(uri, new AtomicLong(0L) );
+		FileCounts(URI uri) {
+			this(uri, new AtomicLong(0L));
 		}
 
 		static int ascending(FileCounts a, FileCounts b) {
-			return Long.compare( a.numFiles().get(), b.numFiles().get());
+			return Long.compare(a.numFiles().get(), b.numFiles().get());
 		}
-	}	
-	
-	static record UserInfo(String userId, String password) {		
+	}
+
+	static record UserInfo(String userId, String password) {
 	}
 }
