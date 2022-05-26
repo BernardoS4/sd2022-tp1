@@ -13,6 +13,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -75,22 +76,33 @@ public class JavaDirectory implements Directory {
 			var fileId = fileId(filename, userId);
 			var file = files.get(fileId);
 			var info = file != null ? file.info() : new FileInfo();
+			int countWrites = 0;		
+			Set<URI> uriSet = new HashSet<>();
 			for (var uri :  orderCandidateFileServers(file)) {
 				var result = FilesClients.get(uri).writeFile(fileId, data, Token.get());
 				if (result.isOK()) {
 					info.setOwner(userId);
 					info.setFilename(filename);
 					info.setFileURL(String.format("%s/files/%s", uri, fileId));
-					files.put(fileId, file = new ExtendedFileInfo(uri, fileId, info));
+					uriSet.add(uri);
+					files.put(fileId, file = new ExtendedFileInfo(uriSet, fileId, info));
 					if( uf.owned().add(fileId))
-						getFileCounts(file.uri(), true).numFiles().incrementAndGet();
-					return ok(file.info());
+						for(URI tmp : file.uri) {
+							getFileCounts(tmp, true).numFiles().incrementAndGet();
+						}
+					countWrites++;
+					if(countWrites == 2) break;
 				} else
 					Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 			}
+			if(countWrites > 0) 
+				return ok(file.info);
+			
 			return error(BAD_REQUEST);
 		}
 	}
+	
+	
 
 	
 	@Override
@@ -115,10 +127,12 @@ public class JavaDirectory implements Directory {
 
 			executor.execute(() -> {
 				this.removeSharesOfFile(info);
-				FilesClients.get(file.uri()).deleteFile(fileId, password);
+				for(URI uri : file.uri)
+					FilesClients.get(uri).deleteFile(fileId, password);
 			});
 			
-			getFileCounts(info.uri(), false).numFiles().decrementAndGet();
+			for(URI uri : file.uri)
+				getFileCounts(uri, false).numFiles().decrementAndGet();
 		}
 		return ok();
 	}
@@ -188,7 +202,14 @@ public class JavaDirectory implements Directory {
 		if (!file.info().hasAccess(accUserId))
 			return error(FORBIDDEN);
 		
-		return redirect( file.info().getFileURL() );
+		Result<byte[]> result = null;
+		
+		for(URI uri : file.uri) {
+			
+			 result = redirect( uri.toString() );
+			 if(result.isOK()) break;
+		}
+		return result;
 	}
 
 	@Override
@@ -235,7 +256,8 @@ public class JavaDirectory implements Directory {
 			for (var id : fileIds.owned()) {
 				var file = files.remove(id);
 				removeSharesOfFile(file);
-				getFileCounts(file.uri(), false).numFiles().decrementAndGet();
+				for(URI uri : file.uri)
+					getFileCounts(uri, false).numFiles().decrementAndGet();
 			}
 		return ok();
 	}
@@ -250,8 +272,10 @@ public class JavaDirectory implements Directory {
 		int MAX_SIZE=3;
 		Queue<URI> result = new ArrayDeque<>();
 		
-		if( file != null )
-			result.add( file.uri() );
+		if( file != null ) {
+		
+			result.addAll( file.uri() );
+		}
 
 		FilesClients.all()
 				.stream()
@@ -277,7 +301,7 @@ public class JavaDirectory implements Directory {
 	}
 	
 	
-	static record ExtendedFileInfo(URI uri, String fileId, FileInfo info) {
+	static record ExtendedFileInfo(Set<URI> uri, String fileId, FileInfo info) {
 	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {

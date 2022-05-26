@@ -11,13 +11,14 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.gson.Gson;
 
 import dropbox.msgs.DownloadFileArgs;
+import util.DropboxArguments;
 
 public class DownloadFile {
 
 	
 	//private static final String apiKey = "nyekq63jvq28jsq";
 	//private static final String apiSecret = "cbsndqm28jogmbp";
-	private static final String accessTokenStr = "sl.BIUwns933jo6Urn9ISbENp_2qgCYta9CRWbXH0q4dTFFXwjI8cdfVcEX5BJlMQ5JdZI3_Ps89DdPmXO3sPbr-4k4JJMQ9ucQoFvu_Z0TMfj9rErKi-MEKG4VbKY5wYJs3Sif1jtGJ8jA";
+	//private static final String accessTokenStr = "sl.BIUwns933jo6Urn9ISbENp_2qgCYta9CRWbXH0q4dTFFXwjI8cdfVcEX5BJlMQ5JdZI3_Ps89DdPmXO3sPbr-4k4JJMQ9ucQoFvu_Z0TMfj9rErKi-MEKG4VbKY5wYJs3Sif1jtGJ8jA";
 	
 	private static final String DOWNLOAD_FILE_URL = "https://content.dropboxapi.com/2/files/download";
 	
@@ -30,10 +31,10 @@ public class DownloadFile {
 	private final OAuth20Service service;
 	private final OAuth2AccessToken accessToken;
 		
-	public DownloadFile(String apiKey, String apiSecret) {
+	public DownloadFile() {
 		json = new Gson();
-		accessToken = new OAuth2AccessToken(accessTokenStr);
-		service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
+		accessToken = new OAuth2AccessToken(DropboxArguments.getAccessTokenStr());
+		service = new ServiceBuilder(DropboxArguments.getApiKey()).apiSecret(DropboxArguments.getApiSecret()).build(DropboxApi20.INSTANCE);
 	}
 	
 	public byte[] execute( String filePath ) throws Exception {

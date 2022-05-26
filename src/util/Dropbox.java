@@ -8,18 +8,18 @@ final public class Dropbox {
 	
 	private Dropbox() {}
 
-    public static void write(String apiKey, String apiSecret, String fileId, byte[] data) {
+    public static void write(String fileId, byte[] data) {
         try {
-            UploadFile createFile = new UploadFile(apiKey, apiSecret);
+            UploadFile createFile = new UploadFile();
             createFile.execute("/main/" + fileId, data);
         } catch (Exception x) {
             x.printStackTrace();
         }
     }
 
-    public static byte[] read(String apiKey, String apiSecret, String fileId) {
+    public static byte[] read(String fileId) {
         try {
-            DownloadFile getFile = new DownloadFile(apiKey, apiSecret);
+            DownloadFile getFile = new DownloadFile();
             return getFile.execute("/main/" + fileId);
         } catch (Exception x) {
             x.printStackTrace();
@@ -27,9 +27,9 @@ final public class Dropbox {
         }
     }
 
-    public static boolean delete(String apiKey, String apiSecret, String fileId) {
+    public static boolean delete(String fileId) {
         try {
-            DeleteDirectory deleteFile = new DeleteDirectory(apiKey, apiSecret);
+            DeleteDirectory deleteFile = new DeleteDirectory();
             deleteFile.execute("/main/" + fileId);
             return true;
         } catch (Exception x) {
@@ -38,9 +38,9 @@ final public class Dropbox {
         return false;
     }
     
-    public static boolean deleteAllFiles(String apiKey, String apiSecret) {
+    public static boolean deleteAllFiles() {
         try {
-            DeleteDirectory deleteFile = new DeleteDirectory(apiKey, apiSecret);
+            DeleteDirectory deleteFile = new DeleteDirectory();
             deleteFile.execute("/main");
             return true;
         } catch (Exception x) {
