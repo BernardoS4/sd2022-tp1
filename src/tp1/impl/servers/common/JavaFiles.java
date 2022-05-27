@@ -7,6 +7,8 @@ import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import org.apache.commons.codec.digest.DigestUtils;
 import tp1.api.service.java.Files;
@@ -76,9 +78,9 @@ public class JavaFiles implements Files {
 	  }
 	 */
 
-	public boolean isTokenValid(String timeStamp, String validTimestamp) {
-
-		return timeStamp.compareTo(validTimestamp) < 0;
+	public boolean isTokenValid(String timeStamp) {
+		String ts = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new java.util.Date());
+		return timeStamp.compareTo(ts) < 0;
 	}
 
 	public boolean checkConfidentiality(String newHash, String oldHash) {
