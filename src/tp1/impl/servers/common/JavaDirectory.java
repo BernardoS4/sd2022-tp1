@@ -71,6 +71,8 @@ public class JavaDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
+		//FALTA FAZER COM 2 ESCRITAS
+		//NA PRIMEIRA ESCRITA NAO QUERO COM $ MAS NA SEGUNDA QUERO URI1$URI2
 		var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
 		synchronized (uf) {
 			var fileId = fileId(filename, userId);
@@ -81,15 +83,15 @@ public class JavaDirectory implements Directory {
 			for (var uri : orderCandidateFileServers(file)) {
 				var result = FilesClients.get(uri).writeFile(fileId, data, Token.get());
 				if (result.isOK()) {
-					info.setOwner(userId);
-					info.setFilename(filename);
-					info.setFileURL(String.format("%s/files/%s", uri, fileId));
-					try {
-						uriSet.add(new URI(info.getFileURL()));
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-					}
-					//uriSet.add(uri);
+					//FAZER 2X
+						info.setOwner(userId);
+						info.setFilename(filename);
+						info.setFileURL(String.format("%s$%s/files/%s", info.getFileURL(),uri,fileId));
+					//
+					Log.info("PRINTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT " + uri);
+					uriSet.add(uri);
+					for(URI u : uriSet)
+						Log.info("uriSet VETORRRRRRRRRRRRR: " + u);
 					files.put(fileId, file = new ExtendedFileInfo(uriSet, fileId, info));
 					if (uf.owned().add(fileId))
 						for (URI tmp : file.uri) {
@@ -212,10 +214,11 @@ public class JavaDirectory implements Directory {
 			Log.info(String.format("AQUIIIIIIIIII_1: %s \n", uri));
 			result = redirect(uri.toString());
 			
-			/* nunca vai entrar aqui
-			if (result.isOK()) {
-				break;}
-			*/
+			if (!result.isOK()) {
+				//swap uris -> info.getFileURL() = swap uri
+				
+			}
+			
 			
 		}
 		return result;
