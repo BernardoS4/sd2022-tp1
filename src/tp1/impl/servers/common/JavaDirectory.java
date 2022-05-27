@@ -72,8 +72,6 @@ public class JavaDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-		//FALTA FAZER COM 2 ESCRITAS
-		//NA PRIMEIRA ESCRITA NAO QUERO COM $ MAS NA SEGUNDA QUERO URI1$URI2
 		var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
 		synchronized (uf) {
 			var fileId = fileId(filename, userId);
@@ -95,13 +93,11 @@ public class JavaDirectory implements Directory {
 						info.setFileURL(ulr1);
 						Log.info("FIRST TIME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FILE URL: " + info.getFileURL());
 					}
-					
-					//vai fazer a segunda escrita
-					else if(countWrites == 1) {
+
+					else {
 						
-						Log.info("SECOND TIME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FILE URL: " + info.getFileURL());
 						url2 = String.format("%s/files/%s", uri,fileId);
-						info.setFileURL(url2);
+						//info.setFileURL(url2);
 						fileUrls.put(fileId, new FileUrls(ulr1 ,url2));
 						Log.info("SECOND TIME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FILE URL2: " + url2);
 					}					
@@ -112,7 +108,6 @@ public class JavaDirectory implements Directory {
 							getFileCounts(tmp, true).numFiles().incrementAndGet();
 						}
 					countWrites++;
-					Log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Counter: " + countWrites);
 					if (countWrites == 2)
 						break;
 				}else
@@ -233,6 +228,7 @@ public class JavaDirectory implements Directory {
 			Log.info("-------------------------------------------------FAILED URL " + fUrls.url1);
 			Log.info("--------------------------------------------------URL TO RETRY: " + urlToRetry);
 			file.info().setFileURL(urlToRetry);
+			Log.info(file.info().getFileURL());
 		}	
 		
 		return result;
