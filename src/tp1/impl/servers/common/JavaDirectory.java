@@ -60,6 +60,7 @@ public class JavaDirectory implements Directory {
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
+	final Map<String, FileUrls> fileUrls = new ConcurrentHashMap<>();
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
@@ -80,27 +81,41 @@ public class JavaDirectory implements Directory {
 			var info = file != null ? file.info() : new FileInfo();
 			int countWrites = 0;
 			Set<URI> uriSet = new HashSet<>();
+			String ulr1 = null;
+			String url2;
 			for (var uri : orderCandidateFileServers(file)) {
 				var result = FilesClients.get(uri).writeFile(fileId, data, Token.get());
 				if (result.isOK()) {
-					//FAZER 2X
-						info.setOwner(userId);
-						info.setFilename(filename);
-						info.setFileURL(String.format("%s$%s/files/%s", info.getFileURL(),uri,fileId));
-					//
-					Log.info("PRINTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT " + uri);
+					
+					info.setOwner(userId);
+					info.setFilename(filename);
+					if(countWrites == 0) {
+					
+						ulr1 = String.format("%s/files/%s", uri, fileId);
+						info.setFileURL(ulr1);
+						Log.info("FIRST TIME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FILE URL: " + info.getFileURL());
+					}
+					
+					//vai fazer a segunda escrita
+					else if(countWrites == 1) {
+						
+						Log.info("SECOND TIME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FILE URL: " + info.getFileURL());
+						url2 = String.format("%s/files/%s", uri,fileId);
+						info.setFileURL(url2);
+						fileUrls.put(fileId, new FileUrls(ulr1 ,url2));
+						Log.info("SECOND TIME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FILE URL2: " + url2);
+					}					
 					uriSet.add(uri);
-					for(URI u : uriSet)
-						Log.info("uriSet VETORRRRRRRRRRRRR: " + u);
 					files.put(fileId, file = new ExtendedFileInfo(uriSet, fileId, info));
 					if (uf.owned().add(fileId))
 						for (URI tmp : file.uri) {
 							getFileCounts(tmp, true).numFiles().incrementAndGet();
 						}
 					countWrites++;
+					Log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Counter: " + countWrites);
 					if (countWrites == 2)
 						break;
-				} else
+				}else
 					Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 			}
 			if (countWrites > 0)
@@ -208,20 +223,21 @@ public class JavaDirectory implements Directory {
 			return error(FORBIDDEN);
 
 		Result<byte[]> result = null;
-
-		for (URI uri : file.uri) {
-			
-			Log.info(String.format("AQUIIIIIIIIII_1: %s \n", uri));
-			result = redirect(uri.toString());
-			
-			if (!result.isOK()) {
-				//swap uris -> info.getFileURL() = swap uri
-				
-			}
-			
-			
-		}
+		
+		result = redirect(file.info().getFileURL());
+		
+		if (!result.isOK()) {
+			//swap uris -> info.getFileURL() = swap uri
+			FileUrls fUrls = fileUrls.get(fileId);
+			String urlToRetry = fUrls.url2;
+			Log.info("-------------------------------------------------FAILED URL " + fUrls.url1);
+			Log.info("--------------------------------------------------URL TO RETRY: " + urlToRetry);
+			file.info().setFileURL(urlToRetry);
+		}	
+		
 		return result;
+		
+		//return redirect( file.info().getFileURL() );
 	}
 
 	@Override
@@ -306,6 +322,9 @@ public class JavaDirectory implements Directory {
 	}
 
 	static record ExtendedFileInfo(Set<URI> uri, String fileId, FileInfo info) {
+	}
+	
+	static record FileUrls(String url1, String url2) {
 	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {

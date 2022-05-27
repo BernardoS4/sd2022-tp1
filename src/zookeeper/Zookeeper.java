@@ -77,14 +77,6 @@ public class Zookeeper implements Watcher {
 
 		String root = "/directory";
 		
-		//precisamos de verificar se a diretoria ja existe?
-		/*Stat stat = new Stat();
-		stat = _client.exists(root , false);
-		if(stat == null) {
-		
-			var path = zk.createNode(root, new byte[0], CreateMode.PERSISTENT);
-			System.err.println( path );
-		}*/
 		createNode(root, new byte[0], CreateMode.PERSISTENT);
 		var newpath = createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.err.println( newpath );
