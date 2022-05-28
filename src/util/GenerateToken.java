@@ -1,17 +1,34 @@
 package util;
 
-import java.text.SimpleDateFormat;
-
 public class GenerateToken {
 	
 	//set to 30min
-	private static final int EXPIRE_TIME = 3600*500;
+	private static final long EXPIRE_TIME = 1000*60*30;
+	private long from;
+	private long to;
+	private String fileId;
+	private int hash;
 	
+
 	public GenerateToken(String fileId) {
 		
-		//mysecret
-		TokenSecret.get();
-		String ts = new SimpleDateFormat("2022.05..HH.mm.ss").format(new java.util.Date());
-		fileId.concat(EXPIRE_TIME);
+		this.fileId = fileId;
+		//TokenSecret.get() -> mysecret
+		from = System.currentTimeMillis(); 
+		to = from + EXPIRE_TIME;
+		//nao vai ser este hash mas e so para a logica
+		hash = fileId.concat(String.valueOf(to)).concat(TokenSecret.get()).hashCode();
+	}
+	
+	public String getFileId() {
+		return fileId;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+	
+	public long getTo() {
+		return to;
 	}
 }

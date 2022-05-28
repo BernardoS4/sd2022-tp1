@@ -7,14 +7,12 @@ import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
-
-import org.apache.commons.codec.digest.DigestUtils;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
+import util.GenerateToken;
 import util.IO;
 
 public class JavaFiles implements Files {
@@ -66,25 +64,18 @@ public class JavaFiles implements Files {
 		return userId + JavaFiles.DELIMITER + filename;
 	}
 
-	/*
-	 * public String[] hashInfo(String token) {
-	 * 
-	 * //pos 0 -> fileId; pos 1-> Timestamp; pos 2-> hash String[] info =
-	 * token.split(" "); String[] result = null; result[0] =
-	 * DigestUtils.sha512Hex(info[0].concat(info[1].toString()).concat(key));
-	 * result[1] = info[2]; result[2] = info[1]
-	 * 
-	 * return result; }
-	 */
-
-	public boolean isTokenValid(String timeStamp) {
-		// quando criamos o token, definimos a validade dele como sendo a data de criacao + o tempo de validade
-		String ts = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-		return timeStamp.compareTo(ts) < 0;
+	//na chamada do metodo
+	//parametro e o (GenerateToken) gt.getTo()
+	public boolean isTokenValid(long timeStamp) {
+	
+		return timeStamp <= System.currentTimeMillis();
 	}
 
-	public boolean checkConfidentiality(String newHash, String oldHash) {
+	//na chamada do metodo
+	//1º parametro e -> new GenerateToken(...)
+	public boolean checkConfidentiality(GenerateToken gt, String fileId) {
 
-		return newHash.equalsIgnoreCase(oldHash);
+		GenerateToken newToken = new GenerateToken(fileId);
+		return gt.getHash() == newToken.getHash();
 	}
 }
