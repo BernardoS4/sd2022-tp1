@@ -8,7 +8,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import tp1.api.service.java.Directory;
 import tp1.impl.servers.rest.util.GenericExceptionMapper;
 import util.Debug;
-import util.Token;
+import util.TokenSecret;
 
 public class DirectoryRestServer extends AbstractRestServer {
 	
@@ -31,7 +31,7 @@ public class DirectoryRestServer extends AbstractRestServer {
 
 		Debug.setLogLevel( Level.INFO, Debug.TP1);
 
-		Token.set( args.length > 0 ? args[0] : "");
+		TokenSecret.set( args.length > 0 ? args[0] : "");
 
 		new DirectoryRestServer().start();
 	}	

@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -36,7 +36,7 @@ import tp1.api.User;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
-import util.Token;
+import util.TokenSecret;
 
 public class JavaDirectory implements Directory {
 
@@ -60,10 +60,9 @@ public class JavaDirectory implements Directory {
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
-	// final Map<String, FileUrls> fileUrls = new ConcurrentHashMap<>();
 
 	@Override
-	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
+	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
 
 		if (badParam(filename) || badParam(userId))
 			return error(BAD_REQUEST);
@@ -81,7 +80,8 @@ public class JavaDirectory implements Directory {
 			URI[] uris = new URI[2];
 
 			for (var uri : orderCandidateFileServers(file)) {
-				var result = FilesClients.get(uri).writeFile(fileId, data, Token.get());
+				
+				var result = FilesClients.get(uri).writeFile(fileId, data, TokenSecret.get());
 				if (result.isOK()) {
 
 					info.setOwner(userId);
@@ -116,7 +116,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteFile(String filename, String userId, String password) {
+	public Result<Void> deleteFile(Long version, String filename, String userId, String password) {
 		if (badParam(filename) || badParam(userId))
 			return error(BAD_REQUEST);
 
@@ -148,7 +148,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) {
+	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
 			return error(BAD_REQUEST);
 
@@ -172,7 +172,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) {
+	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
 			return error(BAD_REQUEST);
 
@@ -216,14 +216,16 @@ public class JavaDirectory implements Directory {
 
 		Result<byte[]> result = redirect(file.info().getFileURL());
 		
-		Log.info(file.uri[0].toString());
+		String url = file.uri[0].toString();
+		String url2 =file.uri[1].toString();
+		Log.info(url);
 		Log.info(file.info().getFileURL());
-		if (file.uri[0].toString().equalsIgnoreCase(file.info().getFileURL())) {
-			file.info().setFileURL(file.uri[1].toString());
-			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 1 " + file.uri[1]);
+		if (url.equalsIgnoreCase(file.info().getFileURL())) {
+			file.info().setFileURL(url2);
+			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 1 " + url2);
 		} else {
-			file.info().setFileURL(file.uri[0].toString());
-			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 2 " + file.uri[0]);
+			file.info().setFileURL(url);
+			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 2 " + url);
 		}
 
 		return result;
@@ -289,14 +291,7 @@ public class JavaDirectory implements Directory {
 		int MAX_SIZE = 3;
 		Queue<URI> result = new ArrayDeque<>();
 
-		if (file != null) {
-
-			URI[] uris = file.uri();
-			for (int i = 0; i < uris.length; i++) {
-				result.add(uris[i]);
-			}
-
-		}
+		if (file != null) Collections.addAll(result, file.uri());
 
 		FilesClients.all().stream().filter(u -> !result.contains(u)).map(u -> getFileCounts(u, false))
 				.sorted(FileCounts::ascending).map(FileCounts::uri).limit(MAX_SIZE).forEach(result::add);
@@ -318,8 +313,6 @@ public class JavaDirectory implements Directory {
 	static record ExtendedFileInfo(URI[] uri, String fileId, FileInfo info) {
 	}
 
-	static record FileUrls(String url1, String url2) {
-	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {
 

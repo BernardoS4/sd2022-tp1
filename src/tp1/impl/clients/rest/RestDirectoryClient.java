@@ -22,46 +22,50 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
+	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
 		Response r = target.path(userId)
 				.path(filename)
 				.queryParam(RestDirectory.PASSWORD, password)
 				.request()
+				.header(RestDirectory.HEADER_VERSION, version)
 				.accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity( data, MediaType.APPLICATION_OCTET_STREAM));
 		return super.toJavaResult(r, new GenericType<FileInfo>() {});
 	}
 
 	@Override
-	public Result<Void> deleteFile(String filename, String userId, String password) {
+	public Result<Void> deleteFile(Long version, String filename, String userId, String password) {
 		Response r = target.path(userId)
 				.path(filename)
 				.queryParam(RestDirectory.PASSWORD, password)
 				.request()
+				.header(RestDirectory.HEADER_VERSION, version)
 				.delete();
 		return super.toJavaResult(r);
 	}
 
 	@Override
-	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) {
+	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		Response r = target.path(userId)
 				.path(filename)
 				.path(SHARE)
 				.path( userIdShare)
 				.queryParam(RestDirectory.PASSWORD, password)
 				.request()
+				.header(RestDirectory.HEADER_VERSION, version)
 				.post(Entity.json(null));		
 		return super.toJavaResult(r);
 	}
 
 	@Override
-	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) {
+	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		Response r = target.path(userId)
 				.path(filename)
 				.path(SHARE)
 				.path( userIdShare)
 				.queryParam(RestDirectory.PASSWORD, password)
 				.request()
+				.header(RestDirectory.HEADER_VERSION, version)
 				.delete();
 		return super.toJavaResult(r);
 	}

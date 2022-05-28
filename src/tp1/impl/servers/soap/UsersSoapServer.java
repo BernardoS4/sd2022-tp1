@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import tp1.api.service.java.Users;
 import util.Debug;
-import util.Token;
+import util.TokenSecret;
 
 
 public class UsersSoapServer extends AbstractSoapServer{
@@ -21,7 +21,7 @@ public class UsersSoapServer extends AbstractSoapServer{
 	public static void main(String[] args) throws Exception {
 
 		Debug.setLogLevel( Level.INFO, Debug.TP1);
-		Token.set( args.length > 0 ? args[0] : "");
+		TokenSecret.set( args.length > 0 ? args[0] : "");
 		
 		new UsersSoapServer().start();
 	}

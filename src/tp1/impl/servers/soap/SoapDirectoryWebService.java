@@ -25,37 +25,37 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException {
+	public FileInfo writeFile(Long version, String filename, byte[] data, String userId, String password) throws DirectoryException {
 		Log.info(String.format("SOAP writeFile: filename = %s, data.length = %d, userId = %s, password = %s \n",
 				filename, data.length, userId, password));
 
-		return super.resultOrThrow(impl.writeFile(filename, data, userId, password), DirectoryException::new);
+		return super.resultOrThrow(impl.writeFile(version, filename, data, userId, password), DirectoryException::new);
 	}
 
 	@Override
-	public void deleteFile(String filename, String userId, String password) throws DirectoryException {
+	public void deleteFile(Long version, String filename, String userId, String password) throws DirectoryException {
 		Log.info(String.format("SOAP deleteFile: filename = %s, userId = %s, password =%s\n", filename, userId,
 				password));
 
-		super.resultOrThrow(impl.deleteFile(filename, userId, password), DirectoryException::new);
+		super.resultOrThrow(impl.deleteFile(version, filename, userId, password), DirectoryException::new);
 	}
 
 	@Override
-	public void shareFile(String filename, String userId, String userIdShare, String password)
+	public void shareFile(Long version, String filename, String userId, String userIdShare, String password)
 			throws DirectoryException {
 		Log.info(String.format("SOAP shareFile: filename = %s, userId = %s, userIdShare = %s, password =%s\n", filename,
 				userId, userIdShare, password));
 
-		super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password), DirectoryException::new);
+		super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare, password), DirectoryException::new);
 	}
 
 	@Override
-	public void unshareFile(String filename, String userId, String userIdShare, String password)
+	public void unshareFile(Long version, String filename, String userId, String userIdShare, String password)
 			throws DirectoryException {
 		Log.info(String.format("SOAP unshareFile: filename = %s, userId = %s, userIdShare = %s, password =%s\n",
 				filename, userId, userIdShare, password));
 
-		super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password), DirectoryException::new);
+		super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare, password), DirectoryException::new);
 	}
 
 	@Override

@@ -24,35 +24,35 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		impl = new JavaDirectory();
 	}
 
-	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
+	public FileInfo writeFile(Long version, String filename, byte[] data, String userId, String password) {
 		Log.info(String.format("REST writeFile: filename = %s, data.length = %d, userId = %s, password = %s \n",
 				filename, data.length, userId, password));
 
-		return super.resultOrThrow(impl.writeFile(filename, data, userId, password));
+		return super.resultOrThrow(impl.writeFile(version, filename, data, userId, password));
 	}
 
 	@Override
-	public void deleteFile(String filename, String userId, String password) {
+	public void deleteFile(Long version, String filename, String userId, String password) {
 		Log.info(String.format("REST deleteFile: filename = %s, userId = %s, password =%s\n", filename, userId,
 				password));
 
-		super.resultOrThrow(impl.deleteFile(filename, userId, password));
+		super.resultOrThrow(impl.deleteFile(version, filename, userId, password));
 	}
 
 	@Override
-	public void shareFile(String filename, String userId, String userIdShare, String password) {
+	public void shareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		Log.info(String.format("REST shareFile: filename = %s, userId = %s, userIdShare = %s, password =%s\n", filename,
 				userId, userIdShare, password));
 
-		super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password));
+		super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare, password));
 	}
 
 	@Override
-	public void unshareFile(String filename, String userId, String userIdShare, String password) {
+	public void unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		Log.info(String.format("REST unshareFile: filename = %s, userId = %s, userIdShare = %s, password =%s\n",
 				filename, userId, userIdShare, password));
 
-		super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password));
+		super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare, password));
 	}
 
 	@Override

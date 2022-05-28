@@ -1,6 +1,6 @@
 package util;
 
-public class Token {
+public class TokenSecret {
 
 	private static String token;
 	
