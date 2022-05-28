@@ -60,7 +60,7 @@ public class JavaDirectory implements Directory {
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
-	final Map<String, FileUrls> fileUrls = new ConcurrentHashMap<>();
+	// final Map<String, FileUrls> fileUrls = new ConcurrentHashMap<>();
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
@@ -78,41 +78,36 @@ public class JavaDirectory implements Directory {
 			var file = files.get(fileId);
 			var info = file != null ? file.info() : new FileInfo();
 			int countWrites = 0;
-			Set<URI> uriSet = new HashSet<>();
-			String ulr1 = null;
-			String url2;
+			URI[] uris = new URI[2];
+
 			for (var uri : orderCandidateFileServers(file)) {
 				var result = FilesClients.get(uri).writeFile(fileId, data, Token.get());
 				if (result.isOK()) {
-					
+
 					info.setOwner(userId);
 					info.setFilename(filename);
-					if(countWrites == 0) {
-					
-						ulr1 = String.format("%s/files/%s", uri, fileId);
-						info.setFileURL(ulr1);
-						Log.info("FIRST TIME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FILE URL: " + info.getFileURL());
+					info.setFileURL(String.format("%s/files/%s", uri, fileId));
+					try {
+						uris[countWrites++] = (new URI(info.getFileURL()));
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
 					}
+					Log.info("URI ATUAL   " + uri);
+					Log.info("URI GUARDADO   " + info.getFileURL());
 
-					else {
-						
-						url2 = String.format("%s/files/%s", uri,fileId);
-						//info.setFileURL(url2);
-						fileUrls.put(fileId, new FileUrls(ulr1 ,url2));
-						Log.info("SECOND TIME>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FILE URL2: " + url2);
-					}					
-					uriSet.add(uri);
-					files.put(fileId, file = new ExtendedFileInfo(uriSet, fileId, info));
-					if (uf.owned().add(fileId))
-						for (URI tmp : file.uri) {
-							getFileCounts(tmp, true).numFiles().incrementAndGet();
-						}
-					countWrites++;
+					files.put(fileId, file = new ExtendedFileInfo(uris, fileId, info));
+
 					if (countWrites == 2)
 						break;
-				}else
+				} else
 					Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 			}
+			if (uf.owned().add(fileId))
+				for (URI tmp : file.uri) {
+					Log.info("AQUIIIIIIIII   " + tmp);
+					getFileCounts(tmp, true).numFiles().incrementAndGet();
+				}
+
 			if (countWrites > 0)
 				return ok(file.info);
 
@@ -217,23 +212,22 @@ public class JavaDirectory implements Directory {
 		if (!file.info().hasAccess(accUserId))
 			return error(FORBIDDEN);
 
-		Result<byte[]> result = null;
+		Log.info("URL A TESTAR " + file.info().getFileURL());
+
+		Result<byte[]> result = redirect(file.info().getFileURL());
 		
-		result = redirect(file.info().getFileURL());
-		
-		if (!result.isOK()) {
-			//swap uris -> info.getFileURL() = swap uri
-			FileUrls fUrls = fileUrls.get(fileId);
-			String urlToRetry = fUrls.url2;
-			Log.info("-------------------------------------------------FAILED URL " + fUrls.url1);
-			Log.info("--------------------------------------------------URL TO RETRY: " + urlToRetry);
-			file.info().setFileURL(urlToRetry);
-			Log.info(file.info().getFileURL());
-		}	
-		
+		Log.info(file.uri[0].toString());
+		Log.info(file.info().getFileURL());
+		if (file.uri[0].toString().equalsIgnoreCase(file.info().getFileURL())) {
+			file.info().setFileURL(file.uri[1].toString());
+			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 1 " + file.uri[1]);
+		} else {
+			file.info().setFileURL(file.uri[0].toString());
+			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 2 " + file.uri[0]);
+		}
+
 		return result;
-		
-		//return redirect( file.info().getFileURL() );
+
 	}
 
 	@Override
@@ -297,7 +291,11 @@ public class JavaDirectory implements Directory {
 
 		if (file != null) {
 
-			result.addAll(file.uri());
+			URI[] uris = file.uri();
+			for (int i = 0; i < uris.length; i++) {
+				result.add(uris[i]);
+			}
+
 		}
 
 		FilesClients.all().stream().filter(u -> !result.contains(u)).map(u -> getFileCounts(u, false))
@@ -317,9 +315,9 @@ public class JavaDirectory implements Directory {
 			return fileCounts.getOrDefault(uri, new FileCounts(uri));
 	}
 
-	static record ExtendedFileInfo(Set<URI> uri, String fileId, FileInfo info) {
+	static record ExtendedFileInfo(URI[] uri, String fileId, FileInfo info) {
 	}
-	
+
 	static record FileUrls(String url1, String url2) {
 	}
 
