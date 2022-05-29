@@ -37,10 +37,13 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
 import util.TokenSecret;
+import zookeeper.Zookeeper;
 
 public class JavaDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
+	static final int MAX_URLS = 2;
+	private static Zookeeper zooKeeper;
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
@@ -61,6 +64,21 @@ public class JavaDirectory implements Directory {
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
 
+	
+	public JavaDirectory() {
+		
+		//LeaderElection le = new LeaderElection();
+	
+		
+		/*if (zooKeeper == null) {
+			zooKeeper = new Zookeeper(server);
+		}
+		zooKeeper.buildNodes();
+		zooKeeper.electLeader();
+		zooKeeper.watchEvents();*/
+	}
+	
+
 	@Override
 	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
 
@@ -77,7 +95,7 @@ public class JavaDirectory implements Directory {
 			var file = files.get(fileId);
 			var info = file != null ? file.info() : new FileInfo();
 			int countWrites = 0;
-			URI[] uris = new URI[2];
+			URI[] uris = new URI[MAX_URLS];
 
 			for (var uri : orderCandidateFileServers(file)) {
 				

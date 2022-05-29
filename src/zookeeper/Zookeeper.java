@@ -11,13 +11,13 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.data.Stat;
 
+import jakarta.inject.Singleton;
 import leaderElection.LeaderElection;
 
 
-
-public class Zookeeper implements Watcher {
+@Singleton
+public class Zookeeper /*implements Watcher*/ {
 
 	private ZooKeeper _client;
 	private int timeout = 5000;
@@ -71,55 +71,5 @@ public class Zookeeper implements Watcher {
 			x.printStackTrace();
 		}
 		return Collections.emptyList();
-	}
-
-	public void initiate() throws Exception {
-
-		String root = "/directory";
-		
-		createNode(root, new byte[0], CreateMode.PERSISTENT);
-		var newpath = createNode(root + "/guid-n_", new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
-		System.err.println( newpath );
-		
-		LeaderElection leaderElection = new LeaderElection();
-		leaderElection.firstElection();
-		
-		getChildren(root, (e) -> {
-			process(e)  ;
-		});
-
-		Thread.sleep(Integer.MAX_VALUE);
-	}
-
-	@Override
-	public void process(WatchedEvent event) {
-		
-		LeaderElection leaderElection = new LeaderElection();
-		
-		switch (event.getType()) {
-        case None:
-            if (event.getState() == Event.KeeperState.SyncConnected) {
-                System.out.println("Successfully connected to Zookeeper");
-            } else {
-                synchronized (_client) {
-                    System.out.println("Disconnected from Zookeeper event");
-                    _client.notifyAll();
-                }
-            }
-            break;
-        case NodeDeleted:
-            try {
-            	leaderElection.electLeader(event);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } 
-            break;        
-        case NodeDataChanged:
-            System.out.println("Leader updated progress of task");
-            break;
-		default:
-			break;
-    }
-		System.err.println(event);
 	}
 }
