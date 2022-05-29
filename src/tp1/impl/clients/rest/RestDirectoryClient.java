@@ -11,6 +11,7 @@ import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.rest.RestDirectory;
+import util.GenerateToken;
 
 public class RestDirectoryClient extends RestClient implements Directory {
 
@@ -93,7 +94,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, String token) {
+	public Result<Void> deleteUserFiles(String userId, String password, GenerateToken token) {
 		Response r = target.path(userId)
 				.queryParam(RestDirectory.PASSWORD, password)
 				.queryParam(RestDirectory.TOKEN, token)

@@ -10,6 +10,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import util.GenerateToken;
 
 @Path(RestFiles.PATH)
 public interface RestFiles {
@@ -31,7 +32,7 @@ public interface RestFiles {
 	@POST
 	@Path("/{" + FILE_ID + "}")
 	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
-	void writeFile(@PathParam(FILE_ID) String fileId, byte[] data, @QueryParam(TOKEN) @DefaultValue("") String token);
+	void writeFile(@PathParam(FILE_ID) String fileId, byte[] data, @QueryParam(TOKEN) @DefaultValue("") GenerateToken token);
 
 	/**
 	 * Delete an existing file.
@@ -45,7 +46,7 @@ public interface RestFiles {
 	 */
 	@DELETE
 	@Path("/{" + FILE_ID + "}")
-	void deleteFile(@PathParam(FILE_ID) String fileId, @QueryParam(TOKEN) @DefaultValue("") String token);
+	void deleteFile(@PathParam(FILE_ID) String fileId, @QueryParam(TOKEN) @DefaultValue("") GenerateToken token);
 
 	/**
 	 * Get the contents of the file.
@@ -61,10 +62,10 @@ public interface RestFiles {
 	@GET
 	@Path("/{" + FILE_ID + "}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	byte[] getFile(@PathParam(FILE_ID) String fileId, @QueryParam(TOKEN) @DefaultValue("") String token);
+	byte[] getFile(@PathParam(FILE_ID) String fileId, @QueryParam(TOKEN) @DefaultValue("") GenerateToken token);
 
 	@DELETE
 	@Path("/user/{" + USER_ID + "}")
-	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(TOKEN) @DefaultValue("") String token);
+	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(TOKEN) @DefaultValue("") GenerateToken token);
 
 }

@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.Response;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 import tp1.api.service.rest.RestFiles;
+import util.GenerateToken;
 
 public class RestFilesClient extends RestClient implements Files {
 
@@ -18,7 +19,7 @@ public class RestFilesClient extends RestClient implements Files {
 	}
 	
 	@Override
-	public Result<byte[]> getFile(String fileId, String token) {
+	public Result<byte[]> getFile(String fileId, GenerateToken token) {
 		Response r = target.path(fileId)
 				.queryParam(RestFiles.TOKEN, token)
 				.request()
@@ -28,7 +29,7 @@ public class RestFilesClient extends RestClient implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteFile(String fileId, String token) {
+	public Result<Void> deleteFile(String fileId, GenerateToken token) {
 		Response r = target.path(fileId)
 				.queryParam(RestFiles.TOKEN, token)
 				.request()
@@ -38,7 +39,7 @@ public class RestFilesClient extends RestClient implements Files {
 	}
 
 	@Override
-	public Result<Void> writeFile(String fileId, byte[] data, String token) {
+	public Result<Void> writeFile(String fileId, byte[] data, GenerateToken token) {
 		Response r = target.path(fileId)
 				.queryParam(RestFiles.TOKEN, token)
 				.request()
@@ -48,7 +49,7 @@ public class RestFilesClient extends RestClient implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
+	public Result<Void> deleteUserFiles(String userId, GenerateToken token) {
 		Response r = target.path(USER)
 				.path(userId)
 				.queryParam(RestFiles.TOKEN, token)

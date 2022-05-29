@@ -8,6 +8,7 @@ import tp1.api.service.rest.RestFiles;
 import tp1.impl.servers.common.DropboxFiles;
 import util.Dropbox;
 import util.FlagState;
+import util.GenerateToken;
 
 @Singleton
 public class DropboxFilesResources extends RestResource implements RestFiles {
@@ -22,28 +23,28 @@ public class DropboxFilesResources extends RestResource implements RestFiles {
 	}
 
 	@Override
-	public void writeFile(String fileId, byte[] data, String token) {
+	public void writeFile(String fileId, byte[] data, GenerateToken token) {
 		Log.info(String.format("REST writeFile: fileId = %s, data.length = %d, token = %s \n", fileId, data.length, token));
 
 		super.resultOrThrow( impl.writeFile(fileId, data, token));
 	}
 
 	@Override
-	public void deleteFile(String fileId, String token) {
+	public void deleteFile(String fileId, GenerateToken token) {
 		Log.info(String.format("REST deleteFile: fileId = %s, token = %s \n", fileId, token));
 
 		super.resultOrThrow( impl.deleteFile(fileId, token));
 	}
 
 	@Override
-	public byte[] getFile(String fileId, String token) {
+	public byte[] getFile(String fileId, GenerateToken token) {
 		Log.info(String.format("REST getFile: fileId = %s,  token = %s \n", fileId, token));
 
 		return resultOrThrow( impl.getFile(fileId, token));
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String token) {
+	public void deleteUserFiles(String userId, GenerateToken token) {
 		Log.info(String.format("REST deleteUserFiles: userId = %s, token = %s \n", userId, token));
 
 		super.resultOrThrow( impl.deleteUserFiles(userId, token));

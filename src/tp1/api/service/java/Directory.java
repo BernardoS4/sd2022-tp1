@@ -3,6 +3,7 @@ package tp1.api.service.java;
 import java.util.List;
 
 import tp1.api.FileInfo;
+import util.GenerateToken;
 
 public interface Directory {
 
@@ -20,5 +21,5 @@ public interface Directory {
 
 	Result<List<FileInfo>> lsFile(String userId, String password);
 		
-	Result<Void> deleteUserFiles(String userId, String password, String token);
+	Result<Void> deleteUserFiles(String userId, String password, GenerateToken token);
 }

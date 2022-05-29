@@ -32,7 +32,7 @@ public class LeaderElection implements Watcher {
 			zooKeeper = new Zookeeper(server);
 		}
 		buildNodes();
-		electLeader();
+		//electLeader();
 		watchEvents();
 	}
 	

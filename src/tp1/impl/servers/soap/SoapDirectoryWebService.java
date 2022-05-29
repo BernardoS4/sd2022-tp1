@@ -12,6 +12,7 @@ import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
 import tp1.impl.servers.common.JavaDirectory;
+import util.GenerateToken;
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public class SoapDirectoryWebService extends SoapWebService implements SoapDirectory {
@@ -67,7 +68,8 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 		var res = impl.getFile(filename, userId, accUserId, password);
 		if( res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
-			res = FilesClients.get( location ).getFile( JavaDirectory.fileId(filename, userId), password);
+			String fileId = JavaDirectory.fileId(filename, userId);
+			res = FilesClients.get( location ).getFile( fileId, new GenerateToken(fileId));
 		}
 		return super.resultOrThrow(res, DirectoryException::new);
 	}
@@ -80,7 +82,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String password, String token) throws DirectoryException {
+	public void deleteUserFiles(String userId, String password, GenerateToken token) throws DirectoryException {
 		Log.info(
 				String.format("SOAP deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
 

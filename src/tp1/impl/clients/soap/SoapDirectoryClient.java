@@ -10,6 +10,7 @@ import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.soap.SoapDirectory;
+import util.GenerateToken;
 import util.Url;
 
 public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Directory {
@@ -53,7 +54,7 @@ public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Di
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, String token) {
+	public Result<Void> deleteUserFiles(String userId, String password, GenerateToken token) {
 		return super.toJavaResult(() -> impl.deleteUserFiles(userId, password, token));
 	}
 }

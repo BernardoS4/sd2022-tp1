@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 import tp1.api.FileInfo;
+import util.GenerateToken;
 
 @WebService(serviceName=SoapDirectory.NAME, targetNamespace=SoapDirectory.NAMESPACE, endpointInterface=SoapDirectory.INTERFACE)
 public interface SoapDirectory {
@@ -33,5 +34,5 @@ public interface SoapDirectory {
 	List<FileInfo> lsFile(String userId, String password) throws DirectoryException;
 
 	@WebMethod
-	void deleteUserFiles(String userId, String password, String token) throws DirectoryException;
+	void deleteUserFiles(String userId, String password, GenerateToken token) throws DirectoryException;
 }

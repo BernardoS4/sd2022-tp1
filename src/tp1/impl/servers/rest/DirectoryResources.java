@@ -11,6 +11,7 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaDirectory;
+import util.GenerateToken;
 
 @Singleton
 public class DirectoryResources extends RestResource implements RestDirectory {
@@ -63,8 +64,10 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		var res = impl.getFile(filename, userId, accUserId, password);
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
-			if (!location.contains(REST))
-				res = FilesClients.get(location).getFile(JavaDirectory.fileId(filename, userId), password);
+			if (!location.contains(REST)) {
+				String fileId = JavaDirectory.fileId(filename, userId);
+				res = FilesClients.get(location).getFile(fileId, new GenerateToken(fileId));
+			}
 		}
 		return super.resultOrThrow(res);
 
@@ -84,7 +87,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String password, String token) {
+	public void deleteUserFiles(String userId, String password, GenerateToken token) {
 		Log.info(
 				String.format("REST deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
 

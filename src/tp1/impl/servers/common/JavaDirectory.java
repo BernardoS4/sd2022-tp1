@@ -36,6 +36,7 @@ import tp1.api.User;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
+import util.GenerateToken;
 import util.TokenSecret;
 import zookeeper.Zookeeper;
 
@@ -99,7 +100,7 @@ public class JavaDirectory implements Directory {
 
 			for (var uri : orderCandidateFileServers(file)) {
 				
-				var result = FilesClients.get(uri).writeFile(fileId, data, TokenSecret.get());
+				var result = FilesClients.get(uri).writeFile(fileId, data, new GenerateToken(fileId(filename, userId)));
 				if (result.isOK()) {
 
 					info.setOwner(userId);
@@ -156,7 +157,7 @@ public class JavaDirectory implements Directory {
 			executor.execute(() -> {
 				this.removeSharesOfFile(info);
 				for (URI uri : file.uri)
-					FilesClients.get(uri).deleteFile(fileId, password);
+					FilesClients.get(uri).deleteFile(fileId, new GenerateToken(fileId(filename, userId)));
 			});
 
 			for (URI uri : file.uri)
@@ -286,7 +287,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, String token) {
+	public Result<Void> deleteUserFiles(String userId, String password, GenerateToken token) {
 		users.invalidate(new UserInfo(userId, password));
 
 		var fileIds = userFiles.remove(userId);

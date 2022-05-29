@@ -7,6 +7,7 @@ import tp1.api.service.java.Files;
 import tp1.api.service.soap.FilesException;
 import tp1.api.service.soap.SoapFiles;
 import tp1.impl.servers.common.JavaFiles;
+import util.GenerateToken;
 
 @WebService(serviceName = SoapFiles.NAME, targetNamespace = SoapFiles.NAMESPACE, endpointInterface = SoapFiles.INTERFACE)
 public class SoapFilesWebService extends SoapWebService implements SoapFiles {
@@ -21,28 +22,28 @@ public class SoapFilesWebService extends SoapWebService implements SoapFiles {
 
 
 	@Override
-	public void writeFile(String fileId, byte[] data, String token) throws FilesException {
+	public void writeFile(String fileId, byte[] data, GenerateToken token) throws FilesException {
 		Log.info(String.format("SOAP writeFile: fileId = %s, data.length = %d, token = %s \n", fileId, data.length, token));
 
 		super.resultOrThrow( impl.writeFile(fileId, data, token), FilesException::new );
 	}
 	
 	@Override
-	public void deleteFile(String fileId, String token) throws FilesException {
+	public void deleteFile(String fileId, GenerateToken token) throws FilesException {
 		Log.info(String.format("SOAP deleteFile: fileId = %s, token = %s \n", fileId, token));
 
 		super.resultOrThrow( impl.deleteFile(fileId, token), FilesException::new);
 	}
 	
 	@Override
-	public byte[] getFile(String fileId, String token) throws FilesException {
+	public byte[] getFile(String fileId, GenerateToken token) throws FilesException {
 		Log.info(String.format("SOAP getFile: fileId = %s,  token = %s \n", fileId, token));
 
 		return super.resultOrThrow( impl.getFile(fileId, token), FilesException::new);
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String token) throws FilesException {
+	public void deleteUserFiles(String userId, GenerateToken token) throws FilesException {
 		Log.info(String.format("SOAP deleteUserFiles: userId = %s, token = %s \n", userId, token));
 
 		super.resultOrThrow( impl.deleteUserFiles(userId, token), FilesException::new);
