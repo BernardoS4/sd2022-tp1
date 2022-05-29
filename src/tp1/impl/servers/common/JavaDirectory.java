@@ -115,17 +115,16 @@ public class JavaDirectory implements Directory {
 					Log.info("URI GUARDADO   " + info.getFileURL());
 
 					files.put(fileId, file = new ExtendedFileInfo(uris, fileId, info));
-
+					if (uf.owned().add(fileId))
+						for (int i = 0; i < countWrites; i++) {
+							Log.info("AQUIIIIIIIII   " + file.uri[i]);
+							getFileCounts(file.uri[i], true).numFiles().incrementAndGet();
+						}
 					if (countWrites == 2)
 						break;
 				} else
 					Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 			}
-			if (uf.owned().add(fileId))
-				for (URI tmp : file.uri) {
-					Log.info("AQUIIIIIIIII   " + tmp);
-					getFileCounts(tmp, true).numFiles().incrementAndGet();
-				}
 
 			if (countWrites > 0)
 				return ok(file.info);
@@ -243,7 +242,7 @@ public class JavaDirectory implements Directory {
 			file.info().setFileURL(url2);
 			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 1 " + url2);
 		} else {
-			file.info().setFileURL(url);
+			file.info().setFileURL("");
 			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 2 " + url);
 		}
 
@@ -317,7 +316,6 @@ public class JavaDirectory implements Directory {
 
 		while (result.size() < MAX_SIZE)
 			result.add(result.peek());
-
 		Log.info("Candidate files servers: " + result + "\n");
 		return result;
 	}
