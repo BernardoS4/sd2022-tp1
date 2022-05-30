@@ -37,14 +37,15 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
 import util.GenerateToken;
-import util.TokenSecret;
-import zookeeper.Zookeeper;
+import util.Operation;
 
 public class JavaDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
 	static final int MAX_URLS = 2;
-	private static Zookeeper zooKeeper;
+	private Map<Long, Operation> results;
+	private long version = -1L;
+	
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
@@ -65,19 +66,6 @@ public class JavaDirectory implements Directory {
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
 
-	
-	public JavaDirectory() {
-		
-		//LeaderElection le = new LeaderElection();
-	
-		
-		/*if (zooKeeper == null) {
-			zooKeeper = new Zookeeper(server);
-		}
-		zooKeeper.buildNodes();
-		zooKeeper.electLeader();
-		zooKeeper.watchEvents();*/
-	}
 	
 
 	@Override
@@ -242,7 +230,7 @@ public class JavaDirectory implements Directory {
 			file.info().setFileURL(url2);
 			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 1 " + url2);
 		} else {
-			file.info().setFileURL("");
+			file.info().setFileURL(url);
 			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 2 " + url);
 		}
 

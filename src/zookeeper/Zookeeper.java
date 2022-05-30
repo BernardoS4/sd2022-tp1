@@ -11,20 +11,33 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
-
 import jakarta.inject.Singleton;
-import leaderElection.LeaderElection;
 
 
 @Singleton
-public class Zookeeper /*implements Watcher*/ {
+public class Zookeeper implements Watcher {
 
 	private ZooKeeper _client;
 	private int timeout = 5000;
+	private static final String LOCALHOST = "localhost";
+	private String root = "/directory";
+	private String sufix = "/guid-n_";
+	private String currentLeader = "";
+	private static Zookeeper inst = null;
+	
 
-	public Zookeeper(String servers) throws Exception {
-		this.connect(servers, timeout);
+	private Zookeeper() throws Exception {
+		this.connect(LOCALHOST, timeout);
+		createPersistent();
 	}
+	
+	public static Zookeeper getInstance() throws Exception
+    {
+        if (inst == null)
+        	inst = new Zookeeper();
+ 
+        return inst;
+    }
 
 	public synchronized ZooKeeper client() {
 		if (_client == null || !_client.getState().equals(ZooKeeper.States.CONNECTED)) {
@@ -71,5 +84,103 @@ public class Zookeeper /*implements Watcher*/ {
 			x.printStackTrace();
 		}
 		return Collections.emptyList();
+	}
+	
+	@Override
+	public void process(WatchedEvent event) {
+		
+		switch (event.getType()) {
+        case None:
+            if (event.getState() == Event.KeeperState.SyncConnected) {
+                System.out.println("Successfully connected to Zookeeper");
+            } else {
+                synchronized (_client) {
+                    System.out.println("Disconnected from Zookeeper event");
+                    _client.notifyAll();
+                }
+            }
+            break;
+        case NodeDeleted:
+            try {
+            	electLeader(event);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } 
+            break;
+        case NodeCreated:
+        	try {
+        		electLeader(event);
+        	}
+        	catch (Exception e) {
+                e.printStackTrace();
+            } 
+        	break;
+        case NodeDataChanged:
+            System.out.println("Leader updated progress of task");
+            break;
+		default:
+			break;
+    }
+		System.err.println(event);
+	}
+	
+	private void createPersistent() {
+		createNode(root, new byte[0], CreateMode.PERSISTENT);
+	}
+	
+	public void createEphemerals() {
+		var newpath = createNode(root + sufix, new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
+		System.err.println(newpath);
+	}
+	
+	public void watchEvents() {
+		getChildren(root, (e) -> {
+			process(e);
+		});
+	}
+	
+	public String getCurrentLeader() {
+		return this.currentLeader;
+	}
+
+	public void setCurrentLeader(String currentLeader) {
+		this.currentLeader = currentLeader;
+	}
+
+	public void electLeader(WatchedEvent watchedEvent) {
+
+		List<String> children = getChildren(root, (Watcher) this);
+		Collections.sort(children);
+		
+		if(currentLeader.equals("")) {
+			setCurrentLeader(replaceSubString(children.get(0)));
+			return;
+		}
+		
+		// watchedEvent.getPath() -> contem o caminho do no que falhou
+		// replace(root + "/", "") -> /directory/guid-n_i vai ficar guid-n_i
+		String affectedNode = replaceSubString(watchedEvent.getPath());
+
+		System.out.println("Node " + affectedNode + " crashed");
+
+		// se o no que falhou nao for o current leader
+		if (!getCurrentLeader().equalsIgnoreCase(affectedNode)) {
+			System.out.println("No change in leader, some member nodes got partitioned or crashed");
+			return;
+		}
+
+		// print dos nomeados
+		for (String nominee : children) {
+			System.out.println("Nominee " + nominee);
+		}
+
+		setCurrentLeader(replaceSubString(children.get(0)));
+		System.out.println("Successful re-election. Elected " + getCurrentLeader());
+		// zooKeeper.exists(root + "/" + getCurrentLeader(), false);
+	}
+
+	private String replaceSubString(String path) {
+
+		return path.replace(root + "/", "");
 	}
 }
