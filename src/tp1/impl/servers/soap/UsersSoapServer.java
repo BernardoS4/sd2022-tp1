@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import tp1.api.service.java.Users;
 import util.Debug;
-import util.TokenSecret;
+import token.TokenSecret;
 
 
 public class UsersSoapServer extends AbstractSoapServer{

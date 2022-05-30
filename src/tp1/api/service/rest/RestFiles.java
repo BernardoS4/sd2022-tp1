@@ -10,7 +10,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import util.GenerateToken;
+import token.GenerateToken;
 
 @Path(RestFiles.PATH)
 public interface RestFiles {

@@ -8,7 +8,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import tp1.api.service.java.Users;
 import tp1.impl.servers.rest.util.GenericExceptionMapper;
 import util.Debug;
-import util.TokenSecret;
+import token.TokenSecret;
 
 
 public class UsersRestServer extends AbstractRestServer {

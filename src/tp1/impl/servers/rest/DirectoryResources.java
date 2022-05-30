@@ -11,7 +11,10 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaDirectory;
-import util.GenerateToken;
+import util.IP;
+import util.Operation;
+import zookeeper.Zookeeper;
+import token.GenerateToken;
 
 @Singleton
 public class DirectoryResources extends RestResource implements RestDirectory {
@@ -21,8 +24,18 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 
 	final Directory impl;
 
-	public DirectoryResources() {
+	public DirectoryResources() throws Exception {
 		impl = new JavaDirectory();
+		startZookeeper();
+	}
+	
+	private void startZookeeper() throws Exception {
+		String serverURI = String.format(DirectoryRestServer.SERVER_BASE_URI, IP.hostAddress(), DirectoryRestServer.PORT);
+		byte[] svrURIinBytes = serverURI.getBytes();
+		Zookeeper zk = Zookeeper.getInstance();
+		zk.createPersistent(svrURIinBytes);
+		zk.createEphemerals(svrURIinBytes);
+		zk.watchEvents();
 	}
 
 	public FileInfo writeFile(Long version, String filename, byte[] data, String userId, String password) {
@@ -92,5 +105,12 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 				String.format("REST deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
 
 		super.resultOrThrow(impl.deleteUserFiles(userId, password, token));
+	}
+
+	@Override
+	public Operation getOperation(Long version) {
+		Log.info(String.format("REST getOperation: version = %s", version));
+
+		return super.resultOrThrow(impl.getOperation(version));
 	}
 }

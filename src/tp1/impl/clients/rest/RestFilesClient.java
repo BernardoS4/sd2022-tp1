@@ -8,7 +8,7 @@ import jakarta.ws.rs.core.Response;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 import tp1.api.service.rest.RestFiles;
-import util.GenerateToken;
+import token.GenerateToken;
 
 public class RestFilesClient extends RestClient implements Files {
 

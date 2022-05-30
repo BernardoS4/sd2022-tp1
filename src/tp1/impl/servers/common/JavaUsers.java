@@ -18,8 +18,8 @@ import java.util.concurrent.Executors;
 import tp1.api.User;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Users;
-import util.GenerateToken;
-import util.TokenSecret;
+import token.GenerateToken;
+
 
 public class JavaUsers implements Users {
 	final protected Map<String, User> users = new ConcurrentHashMap<>();

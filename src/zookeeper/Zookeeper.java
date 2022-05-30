@@ -1,6 +1,7 @@
 package zookeeper;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -23,12 +24,12 @@ public class Zookeeper implements Watcher {
 	private String root = "/directory";
 	private String sufix = "/guid-n_";
 	private String currentLeader = "";
+	private String primaryPath = "";
 	private static Zookeeper inst = null;
 	
 
 	private Zookeeper() throws Exception {
 		this.connect(LOCALHOST, timeout);
-		createPersistent();
 	}
 	
 	public static Zookeeper getInstance() throws Exception
@@ -124,12 +125,12 @@ public class Zookeeper implements Watcher {
 		System.err.println(event);
 	}
 	
-	private void createPersistent() {
-		createNode(root, new byte[0], CreateMode.PERSISTENT);
+	public void createPersistent(byte[] serverURI) {
+		createNode(root, serverURI, CreateMode.PERSISTENT);
 	}
 	
-	public void createEphemerals() {
-		var newpath = createNode(root + sufix, new byte[0], CreateMode.EPHEMERAL_SEQUENTIAL);
+	public void createEphemerals(byte[] serverURI) {
+		var newpath = createNode(root + sufix, serverURI, CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.err.println(newpath);
 	}
 	
@@ -154,12 +155,14 @@ public class Zookeeper implements Watcher {
 		
 		if(currentLeader.equals("")) {
 			setCurrentLeader(replaceSubString(children.get(0)));
+			primaryPath = children.get(0);
 			return;
 		}
 		
 		// watchedEvent.getPath() -> contem o caminho do no que falhou
 		// replace(root + "/", "") -> /directory/guid-n_i vai ficar guid-n_i
 		String affectedNode = replaceSubString(watchedEvent.getPath());
+		primaryPath = affectedNode;
 
 		System.out.println("Node " + affectedNode + " crashed");
 
@@ -169,7 +172,6 @@ public class Zookeeper implements Watcher {
 			return;
 		}
 
-		// print dos nomeados
 		for (String nominee : children) {
 			System.out.println("Nominee " + nominee);
 		}
@@ -182,5 +184,14 @@ public class Zookeeper implements Watcher {
 	private String replaceSubString(String path) {
 
 		return path.replace(root + "/", "");
+	}
+
+	public String getPrimaryPath() {
+		try {
+			return new String(client().getData(primaryPath, false, null), StandardCharsets.UTF_8);
+		} catch (KeeperException | InterruptedException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

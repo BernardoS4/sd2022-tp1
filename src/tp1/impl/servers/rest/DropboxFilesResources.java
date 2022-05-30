@@ -8,7 +8,7 @@ import tp1.api.service.rest.RestFiles;
 import tp1.impl.servers.common.DropboxFiles;
 import util.Dropbox;
 import util.FlagState;
-import util.GenerateToken;
+import token.GenerateToken;
 
 @Singleton
 public class DropboxFilesResources extends RestResource implements RestFiles {

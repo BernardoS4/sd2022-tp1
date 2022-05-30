@@ -32,8 +32,6 @@ public abstract class AbstractRestServer extends AbstractServer {
 		
 		try {
 			JdkHttpServerFactory.createHttpServer( URI.create(serverURI.replace(ip, INETADDR_ANY)), config, SSLContext.getDefault());
-			//Zookeeper zk = new Zookeeper(serverURI);
-			//zk.initiate();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

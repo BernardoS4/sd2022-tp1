@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import tp1.api.service.java.Directory;
 import util.Debug;
-import util.TokenSecret;
+import token.TokenSecret;
 
 
 public class DirectorySoapServer extends AbstractSoapServer {

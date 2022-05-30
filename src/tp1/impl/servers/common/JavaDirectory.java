@@ -8,6 +8,7 @@ import static tp1.api.service.java.Result.ErrorCode.FORBIDDEN;
 import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import static tp1.impl.clients.Clients.FilesClients;
 import static tp1.impl.clients.Clients.UsersClients;
+import static tp1.impl.clients.Clients.DirectoryClients;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,16 +37,15 @@ import tp1.api.User;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
-import util.GenerateToken;
+import token.GenerateToken;
 import util.Operation;
+import zookeeper.Zookeeper;
 
 public class JavaDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
 	static final int MAX_URLS = 2;
-	private Map<Long, Operation> results;
 	private long version = -1L;
-	
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
@@ -65,8 +65,7 @@ public class JavaDirectory implements Directory {
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
-
-	
+	private Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
 
 	@Override
 	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
@@ -87,7 +86,7 @@ public class JavaDirectory implements Directory {
 			URI[] uris = new URI[MAX_URLS];
 
 			for (var uri : orderCandidateFileServers(file)) {
-				
+
 				var result = FilesClients.get(uri).writeFile(fileId, data, new GenerateToken(fileId(filename, userId)));
 				if (result.isOK()) {
 
@@ -113,6 +112,8 @@ public class JavaDirectory implements Directory {
 				} else
 					Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 			}
+			for(URI uri : DirectoryClients.all())
+				
 
 			if (countWrites > 0)
 				return ok(file.info);
@@ -120,6 +121,8 @@ public class JavaDirectory implements Directory {
 			return error(BAD_REQUEST);
 		}
 	}
+	
+	
 
 	@Override
 	public Result<Void> deleteFile(Long version, String filename, String userId, String password) {
@@ -221,9 +224,9 @@ public class JavaDirectory implements Directory {
 		Log.info("URL A TESTAR " + file.info().getFileURL());
 
 		Result<byte[]> result = redirect(file.info().getFileURL());
-		
+
 		String url = file.uri[0].toString();
-		String url2 =file.uri[1].toString();
+		String url2 = file.uri[1].toString();
 		Log.info(url);
 		Log.info(file.info().getFileURL());
 		if (url.equalsIgnoreCase(file.info().getFileURL())) {
@@ -297,7 +300,8 @@ public class JavaDirectory implements Directory {
 		int MAX_SIZE = 3;
 		Queue<URI> result = new ArrayDeque<>();
 
-		if (file != null) Collections.addAll(result, file.uri());
+		if (file != null)
+			Collections.addAll(result, file.uri());
 
 		FilesClients.all().stream().filter(u -> !result.contains(u)).map(u -> getFileCounts(u, false))
 				.sorted(FileCounts::ascending).map(FileCounts::uri).limit(MAX_SIZE).forEach(result::add);
@@ -315,9 +319,29 @@ public class JavaDirectory implements Directory {
 			return fileCounts.getOrDefault(uri, new FileCounts(uri));
 	}
 
-	static record ExtendedFileInfo(URI[] uri, String fileId, FileInfo info) {
+	private void addOperation(Long version, Operation op) {
+		opVersion.put(version, op);
 	}
 
+	//para obter a versao do primario -> faz pedido ao primario
+	@Override
+	public Result<Operation> getOperation(Long version) {
+		return null;
+		
+	}
+	
+	public synchronized void updateVersion(long newVersion) throws Exception {
+		Zookeeper zk = Zookeeper.getInstance();
+		while (version < newVersion) {
+			
+			Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
+			op.execute();
+		}
+	}
+	
+
+	static record ExtendedFileInfo(URI[] uri, String fileId, FileInfo info) {
+	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {
 

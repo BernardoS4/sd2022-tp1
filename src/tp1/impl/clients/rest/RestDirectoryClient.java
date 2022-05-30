@@ -11,7 +11,8 @@ import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.rest.RestDirectory;
-import util.GenerateToken;
+import util.Operation;
+import token.GenerateToken;
 
 public class RestDirectoryClient extends RestClient implements Directory {
 
@@ -101,5 +102,13 @@ public class RestDirectoryClient extends RestClient implements Directory {
 				.request()
 				.delete();
 		return super.toJavaResult(r);
+	}
+	
+	@Override
+	public Result<Operation> getOperation(Long version) {
+		Response r = target.path(version.toString())
+				.request()
+				.get();
+		return super.toJavaResult(r, new GenericType<Operation>() {});
 	}
 }

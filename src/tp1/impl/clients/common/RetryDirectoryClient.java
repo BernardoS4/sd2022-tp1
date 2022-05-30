@@ -5,7 +5,7 @@ import java.util.List;
 import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
-import util.GenerateToken;
+import token.GenerateToken;
 
 public class RetryDirectoryClient extends RetryClient implements Directory {
 

@@ -2,7 +2,7 @@ package tp1.api.service.soap;
 
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
-import util.GenerateToken;
+import token.GenerateToken;
 
 @WebService(serviceName=SoapFiles.NAME, targetNamespace=SoapFiles.NAMESPACE, endpointInterface=SoapFiles.INTERFACE)
 public interface SoapFiles {

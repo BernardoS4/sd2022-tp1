@@ -2,7 +2,7 @@ package tp1.impl.clients.common;
 
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
-import util.GenerateToken;
+import token.GenerateToken;;
 
 public class RetryFilesClient extends RetryClient implements Files {
 

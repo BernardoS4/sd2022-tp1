@@ -6,7 +6,7 @@ import jakarta.inject.Singleton;
 import tp1.api.service.java.Files;
 import tp1.api.service.rest.RestFiles;
 import tp1.impl.servers.common.JavaFiles;
-import util.GenerateToken;
+import token.GenerateToken;
 
 
 @Singleton

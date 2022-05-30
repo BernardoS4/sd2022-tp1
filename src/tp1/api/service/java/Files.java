@@ -1,6 +1,6 @@
 package tp1.api.service.java;
 
-import util.GenerateToken;
+import token.GenerateToken;
 
 public interface Files {
 	public static String SERVICE_NAME = "files";

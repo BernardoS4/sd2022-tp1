@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
-import util.GenerateToken;
+import token.GenerateToken;
 import util.IO;
 
 public class JavaFiles implements Files {

@@ -1,4 +1,4 @@
-package util;
+package token;
 
 public class TokenSecret {
 

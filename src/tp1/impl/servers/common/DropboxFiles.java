@@ -6,7 +6,7 @@ import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 import util.Dropbox;
-import util.GenerateToken;
+import token.GenerateToken;
 
 public class DropboxFiles implements Files {
 

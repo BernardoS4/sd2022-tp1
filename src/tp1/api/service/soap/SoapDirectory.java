@@ -5,7 +5,7 @@ import java.util.List;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 import tp1.api.FileInfo;
-import util.GenerateToken;
+import token.GenerateToken;
 
 @WebService(serviceName=SoapDirectory.NAME, targetNamespace=SoapDirectory.NAMESPACE, endpointInterface=SoapDirectory.INTERFACE)
 public interface SoapDirectory {

@@ -12,7 +12,7 @@ import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
 import tp1.impl.servers.common.JavaDirectory;
-import util.GenerateToken;
+import token.GenerateToken;
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public class SoapDirectoryWebService extends SoapWebService implements SoapDirectory {

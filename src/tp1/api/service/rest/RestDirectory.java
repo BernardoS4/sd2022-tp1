@@ -14,7 +14,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import tp1.api.FileInfo;
-import util.GenerateToken;
+import util.Operation;
+import token.GenerateToken;
 
 @Path(RestDirectory.PATH)
 public interface RestDirectory {
@@ -22,6 +23,7 @@ public interface RestDirectory {
 	public static final String PATH = "/dir";
 	public static final String TOKEN = "token";
 	public static final String USER_ID = "userId";
+	public static final String VERSION = "version";
 	public static final String FILENAME = "filename";
 	public static final String PASSWORD = "password";
 	public static final String ACC_USER_ID = "accUserId";
@@ -147,5 +149,10 @@ public interface RestDirectory {
 	@DELETE
 	@Path("{" + USER_ID + "}")
 	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) @DefaultValue("") String password, @QueryParam(TOKEN) GenerateToken token);
+	
+	@GET
+	@Path("/{" + VERSION + "}")
+	@Produces(MediaType.APPLICATION_JSON)
+	Operation getOperation(@PathParam(VERSION) Long version);
 
 }

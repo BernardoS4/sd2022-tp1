@@ -8,7 +8,7 @@ import jakarta.xml.ws.Service;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 import tp1.api.service.soap.SoapFiles;
-import util.GenerateToken;
+import token.GenerateToken;
 import util.Url;
 
 public class SoapFilesClient extends SoapClient<SoapFiles> implements Files {
