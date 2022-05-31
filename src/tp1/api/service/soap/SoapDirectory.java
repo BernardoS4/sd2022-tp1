@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 import tp1.api.FileInfo;
+import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import token.GenerateToken;
 
 @WebService(serviceName=SoapDirectory.NAME, targetNamespace=SoapDirectory.NAMESPACE, endpointInterface=SoapDirectory.INTERFACE)
@@ -35,4 +36,19 @@ public interface SoapDirectory {
 
 	@WebMethod
 	void deleteUserFiles(String userId, String password, GenerateToken token) throws DirectoryException;
+
+	@WebMethod
+	void writeFile(long dEFAULT_VERSION, String filename, String userId, ExtendedFileInfo file);
+
+	@WebMethod
+	void deleteFile(long dEFAULT_VERSION, String filename, String userId);
+
+	@WebMethod
+	void shareFile(long dEFAULT_VERSION, String filename, String userId, String userIdShare);
+
+	@WebMethod
+	void unshareFile(long dEFAULT_VERSION, String filename, String userId, String userIdShare);
+
+	@WebMethod
+	void lsFile(long dEFAULT_VERSION, String userId);
 }
