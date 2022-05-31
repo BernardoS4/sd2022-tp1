@@ -7,7 +7,7 @@ public class GenerateToken {
 	private long from;
 	private long to;
 	private String fileId;
-	private int hash;
+	private String hash;
 	
 
 	public GenerateToken(String fileId) {
@@ -16,16 +16,14 @@ public class GenerateToken {
 		//TokenSecret.get() -> mysecret
 		from = System.currentTimeMillis(); 
 		to = from + EXPIRE_TIME;
-		//nao vai ser este hash mas e so para a logica
-		hash = fileId.concat(String.valueOf(to)).concat(TokenSecret.get()).hashCode();
+		hash = Hash.of(fileId, String.valueOf(to), TokenSecret.get());
 	}
 	
 	public GenerateToken() {
 		//TokenSecret.get() -> mysecret
 		from = System.currentTimeMillis(); 
 		to = from + EXPIRE_TIME;
-		//nao vai ser este hash mas e so para a logica
-		hash = fileId.concat(String.valueOf(to)).concat(TokenSecret.get()).hashCode();
+		hash = Hash.of(fileId, String.valueOf(to), TokenSecret.get());
 	}
 	
 	public String getFileId() {
@@ -37,7 +35,7 @@ public class GenerateToken {
 		this.fileId = fileId;
 	}
 
-	public int getHash() {
+	public String getHash() {
 		return hash;
 	}
 	
