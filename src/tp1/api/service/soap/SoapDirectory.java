@@ -38,17 +38,17 @@ public interface SoapDirectory {
 	void deleteUserFiles(String userId, String password, GenerateToken token) throws DirectoryException;
 
 	@WebMethod
-	void writeFile(long dEFAULT_VERSION, String filename, String userId, ExtendedFileInfo file);
+	void writeFile(long version, String filename, String userId, ExtendedFileInfo file);
 
 	@WebMethod
-	void deleteFile(long dEFAULT_VERSION, String filename, String userId);
+	void deleteFile(long version, String filename, String userId);
 
 	@WebMethod
-	void shareFile(long dEFAULT_VERSION, String filename, String userId, String userIdShare);
+	void shareFile(long version, String filename, String userId, String userIdShare);
 
 	@WebMethod
-	void unshareFile(long dEFAULT_VERSION, String filename, String userId, String userIdShare);
+	void unshareFile(long version, String filename, String userId, String userIdShare);
 
 	@WebMethod
-	void lsFile(long dEFAULT_VERSION, String userId);
+	void lsFile(long version, String userId);
 }
