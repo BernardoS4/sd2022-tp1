@@ -20,7 +20,7 @@ public class Zookeeper implements Watcher {
 
 	private ZooKeeper _client;
 	private int timeout = 5000;
-	private static final String LOCALHOST = "localhost";
+	private static final String KAFKA = "kafka";
 	private String root = "/directory";
 	private String sufix = "/guid-n_";
 	private String currentLeader = "";
@@ -29,7 +29,7 @@ public class Zookeeper implements Watcher {
 	
 
 	private Zookeeper() throws Exception {
-		this.connect(LOCALHOST, timeout);
+		this.connect(KAFKA, timeout);
 	}
 	
 	public static Zookeeper getInstance() throws Exception
