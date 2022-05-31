@@ -33,10 +33,10 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	private void startZookeeper() throws Exception {
 		String serverURI = String.format(DirectoryRestServer.SERVER_BASE_URI, IP.hostAddress(), DirectoryRestServer.PORT);
 		byte[] svrURIinBytes = serverURI.getBytes();
-		/*Zookeeper zk = Zookeeper.getInstance();
+		Zookeeper zk = Zookeeper.getInstance();
 		zk.createPersistent(svrURIinBytes);
 		zk.createEphemerals(svrURIinBytes);
-		zk.watchEvents();*/
+		zk.watchEvents();
 	}
 	@Override
 	public FileInfo writeFile(Long version, String filename, byte[] data, String userId, String password) {

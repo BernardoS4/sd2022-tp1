@@ -18,160 +18,106 @@ import token.GenerateToken;
 public class RestDirectoryClient extends RestClient implements Directory {
 
 	private static final String SHARE = "share";
-	
-	
+
 	public RestDirectoryClient(URI serverUri) {
 		super(serverUri, RestDirectory.PATH);
 	}
 
 	@Override
 	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
-		Response r = target.path(userId)
-				.path(filename)
-				.queryParam(RestDirectory.PASSWORD, password)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.accept(MediaType.APPLICATION_JSON)
-				.post(Entity.entity( data, MediaType.APPLICATION_OCTET_STREAM));
-		return super.toJavaResult(r, new GenericType<FileInfo>() {});
+		Response r = target.path(userId).path(filename).queryParam(RestDirectory.PASSWORD, password).request()
+				.header(RestDirectory.HEADER_VERSION, version).accept(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
+		return super.toJavaResult(r, new GenericType<FileInfo>() {
+		});
 	}
-	
+
 	@Override
 	public Result<Void> writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
-		Response r = target.path(RestDirectory.PREFIX)
-				.path(userId)
-				.path(filename)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.accept(MediaType.APPLICATION_JSON)
+		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).request()
+				.header(RestDirectory.HEADER_VERSION, version).accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(file, MediaType.APPLICATION_JSON));
 		return super.toJavaResult(r);
 	}
 
 	@Override
 	public Result<Void> deleteFile(Long version, String filename, String userId, String password) {
-		Response r = target.path(userId)
-				.path(filename)
-				.queryParam(RestDirectory.PASSWORD, password)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.delete();
+		Response r = target.path(userId).path(filename).queryParam(RestDirectory.PASSWORD, password).request()
+				.header(RestDirectory.HEADER_VERSION, version).delete();
 		return super.toJavaResult(r);
 	}
-	
+
 	@Override
 	public Result<Void> deleteFile(Long version, String filename, String userId) {
-		Response r = target.path(RestDirectory.PREFIX)
-				.path(userId)
-				.path(filename)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.delete();
+		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).request()
+				.header(RestDirectory.HEADER_VERSION, version).delete();
 		return super.toJavaResult(r);
 	}
 
 	@Override
 	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare, String password) {
-		Response r = target.path(userId)
-				.path(filename)
-				.path(SHARE)
-				.path( userIdShare)
-				.queryParam(RestDirectory.PASSWORD, password)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.post(Entity.json(null));		
+		Response r = target.path(userId).path(filename).path(SHARE).path(userIdShare)
+				.queryParam(RestDirectory.PASSWORD, password).request().header(RestDirectory.HEADER_VERSION, version)
+				.post(Entity.json(null));
 		return super.toJavaResult(r);
 	}
-	
+
 	@Override
 	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare) {
-		Response r = target.path(RestDirectory.PREFIX)
-				.path(userId)
-				.path(filename)
-				.path(SHARE)
-				.path( userIdShare)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.post(Entity.json(null));	
+		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).path(SHARE).path(userIdShare)
+				.request().header(RestDirectory.HEADER_VERSION, version).post(Entity.json(null));
 		return super.toJavaResult(r);
 	}
 
 	@Override
 	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
-		Response r = target.path(userId)
-				.path(filename)
-				.path(SHARE)
-				.path( userIdShare)
-				.queryParam(RestDirectory.PASSWORD, password)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
+		Response r = target.path(userId).path(filename).path(SHARE).path(userIdShare)
+				.queryParam(RestDirectory.PASSWORD, password).request().header(RestDirectory.HEADER_VERSION, version)
 				.delete();
 		return super.toJavaResult(r);
 	}
-	
+
 	@Override
 	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare) {
-		Response r = target.path(RestDirectory.PREFIX)
-				.path(userId)
-				.path(filename)
-				.path(SHARE)
-				.path( userIdShare)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.delete();
+		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).path(SHARE).path(userIdShare)
+				.request().header(RestDirectory.HEADER_VERSION, version).delete();
 		return super.toJavaResult(r);
 	}
 
 	@Override
 	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
-		Response r = target.path(userId)
-				.path(filename)
-				.queryParam(RestDirectory.ACC_USER_ID, accUserId)
-				.queryParam(RestDirectory.PASSWORD, password)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.accept(MediaType.APPLICATION_OCTET_STREAM)
-				.get();
-		return super.toJavaResult(r, new GenericType<byte[]>() {});
+		Response r = target.path(userId).path(filename).queryParam(RestDirectory.ACC_USER_ID, accUserId)
+				.queryParam(RestDirectory.PASSWORD, password).request().header(RestDirectory.HEADER_VERSION, version)
+				.accept(MediaType.APPLICATION_OCTET_STREAM).get();
+		return super.toJavaResult(r, new GenericType<byte[]>() {
+		});
 	}
-	
 
 	@Override
 	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
-		Response r = target.path(userId)
-				.queryParam(RestDirectory.PASSWORD, password)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.accept(MediaType.APPLICATION_JSON)
-				.get();
-		return super.toJavaResult(r, new GenericType<List<FileInfo>>() {});
+		Response r = target.path(userId).queryParam(RestDirectory.PASSWORD, password).request()
+				.header(RestDirectory.HEADER_VERSION, version).accept(MediaType.APPLICATION_JSON).get();
+		return super.toJavaResult(r, new GenericType<List<FileInfo>>() {
+		});
 	}
-	
+
 	@Override
 	public Result<Void> lsFile(Long version, String userId) {
-		Response r = target.path(RestDirectory.PREFIX)
-				.path(userId)
-				.request()
-				.header(RestDirectory.HEADER_VERSION, version)
-				.get();
+		Response r = target.path(userId).request().header(RestDirectory.HEADER_VERSION, version).get();
 		return super.toJavaResult(r);
 	}
 
 	@Override
 	public Result<Void> deleteUserFiles(String userId, String password, GenerateToken token) {
-		Response r = target.path(userId)
-				.queryParam(RestDirectory.PASSWORD, password)
-				.queryParam(RestDirectory.TOKEN, token)
-				.request()
-				.delete();
+		Response r = target.path(userId).queryParam(RestDirectory.PASSWORD, password)
+				.queryParam(RestDirectory.TOKEN, token).request().delete();
 		return super.toJavaResult(r);
 	}
-	
+
 	@Override
 	public Result<Operation> getOperation(Long version) {
-		Response r = target.path(version.toString())
-				.request()
-				.get();
-		return super.toJavaResult(r, new GenericType<Operation>() {});
+		Response r = target.path(RestDirectory.PREFIX).path(version.toString()).request().get();
+		return super.toJavaResult(r, new GenericType<Operation>() {
+		});
 	}
 }
