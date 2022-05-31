@@ -28,10 +28,10 @@ public interface SoapDirectory {
 	void unshareFile(Long version, String filename, String userId, String userIdShare, String password) throws DirectoryException;
 
 	@WebMethod
-	byte[] getFile(String filename,  String userId, String accUserId, String password) throws DirectoryException;
+	byte[] getFile(Long version, String filename,  String userId, String accUserId, String password) throws DirectoryException;
 
 	@WebMethod
-	List<FileInfo> lsFile(String userId, String password) throws DirectoryException;
+	List<FileInfo> lsFile(Long version, String userId, String password) throws DirectoryException;
 
 	@WebMethod
 	void deleteUserFiles(String userId, String password, GenerateToken token) throws DirectoryException;

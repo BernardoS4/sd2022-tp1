@@ -60,12 +60,12 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public byte[] getFile(String filename, String userId, String accUserId, String password) throws DirectoryException {
-		Log.info(String.format("SOAP getFile: filename = %s, userId = %s, accUserId = %s, password =%s\n", filename,
+	public byte[] getFile(Long version, String filename, String userId, String accUserId, String password) throws DirectoryException {
+		Log.info(String.format("SOAP getFile: version = %d, filename = %s, userId = %s, accUserId = %s, password =%s\n", version, filename,
 				userId, accUserId, password));
 
 		
-		var res = impl.getFile(filename, userId, accUserId, password);
+		var res = impl.getFile(version, filename, userId, accUserId, password);
 		if( res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
 			String fileId = JavaDirectory.fileId(filename, userId);
@@ -75,10 +75,10 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public List<FileInfo> lsFile(String userId, String password) throws DirectoryException {
+	public List<FileInfo> lsFile(Long version, String userId, String password) throws DirectoryException {
 		Log.info(String.format("SOAP lsFile: userId = %s, password = %s\n", userId, password));
 
-		return super.resultOrThrow(impl.lsFile(userId, password), DirectoryException::new);
+		return super.resultOrThrow(impl.lsFile(version, userId, password), DirectoryException::new);
 	}
 
 	@Override

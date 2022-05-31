@@ -14,6 +14,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import tp1.api.FileInfo;
+import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import util.Operation;
 import token.GenerateToken;
 
@@ -22,6 +23,7 @@ public interface RestDirectory {
 
 	public static final String PATH = "/dir";
 	public static final String TOKEN = "token";
+	public static final String PREFIX = "prefix";
 	public static final String USER_ID = "userId";
 	public static final String VERSION = "version";
 	public static final String FILENAME = "filename";
@@ -50,6 +52,10 @@ public interface RestDirectory {
 	@Produces(MediaType.APPLICATION_JSON)
 	FileInfo writeFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, byte[] data, @PathParam(USER_ID) String userId,
 			@QueryParam(PASSWORD) String password);
+	
+	@POST
+	@Path("/{" + PREFIX + "}/{" + USER_ID + "}/{" + FILENAME + "}")
+	void writeFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId, ExtendedFileInfo file);
 
 	/**
 	 * Delete an existing file ("userId/filename"). Only the owner (userId) can
@@ -66,6 +72,10 @@ public interface RestDirectory {
 	@Path("/{" + USER_ID + "}/{" + FILENAME + "}")
 	void deleteFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
 			@QueryParam(PASSWORD) String password);
+	
+	@DELETE
+	@Path("/{" + PREFIX + "}/{" + USER_ID + "}/{" + FILENAME + "}")
+	void deleteFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId);
 
 	/**
 	 * Share the file "userId/filename" with another user. Only the owner (userId)
@@ -87,6 +97,11 @@ public interface RestDirectory {
 	@Path("/{" + USER_ID + "}/{" + FILENAME + "}/share/{" + USER_ID_SHARE + "}")
 	void shareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
 			@PathParam(USER_ID_SHARE) String userIdShare, @QueryParam(PASSWORD) String password);
+	
+	@POST
+	@Path("/{" + PREFIX + "}/{" + USER_ID + "}/{" + FILENAME + "}/share/{" + USER_ID_SHARE + "}")
+	void shareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
+			@PathParam(USER_ID_SHARE) String userIdShare);
 
 	/**
 	 * Unshare the file "userId/filename" with another user. Only the owner (userId)
@@ -108,6 +123,11 @@ public interface RestDirectory {
 	@Path("/{" + USER_ID + "}/{" + FILENAME + "}/share/{" + USER_ID_SHARE + "}")
 	void unshareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
 			@PathParam(USER_ID_SHARE) String userIdShare, @QueryParam(PASSWORD) String password);
+	
+	@DELETE
+	@Path("/{" + PREFIX + "}/{" + USER_ID + "}/{" + FILENAME + "}/share/{" + USER_ID_SHARE + "}")
+	void unshareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
+			@PathParam(USER_ID_SHARE) String userIdShare);
 
 	/**
 	 * Get the contents of the file "userId/filename". Who can read a file: the
@@ -128,8 +148,9 @@ public interface RestDirectory {
 	@GET
 	@Path("/{" + USER_ID + "}/{" + FILENAME + "}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	byte[] getFile(@PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
+	byte[] getFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
 			@QueryParam(ACC_USER_ID) String accUserId, @QueryParam(PASSWORD) String password);
+	
 
 	/**
 	 * List the files a given user ("userId") has access to - this includes both its
@@ -144,14 +165,19 @@ public interface RestDirectory {
 	@GET
 	@Path("/{" + USER_ID + "}")
 	@Produces(MediaType.APPLICATION_JSON)
-	List<FileInfo> lsFile(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) String password);
+	List<FileInfo> lsFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(USER_ID) String userId, @QueryParam(PASSWORD) String password);
+	
+	@GET
+	@Path("/{" + PREFIX + "}/{" + USER_ID + "}")
+	@Produces(MediaType.APPLICATION_JSON)
+	void lsFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(USER_ID) String userId);
 
 	@DELETE
 	@Path("{" + USER_ID + "}")
 	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) @DefaultValue("") String password, @QueryParam(TOKEN) GenerateToken token);
 	
 	@GET
-	@Path("/{" + VERSION + "}")
+	@Path("/{" + PREFIX + "}/{" + VERSION + "}")
 	@Produces(MediaType.APPLICATION_JSON)
 	Operation getOperation(@PathParam(VERSION) Long version);
 

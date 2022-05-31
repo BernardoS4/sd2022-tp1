@@ -11,6 +11,7 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaDirectory;
+import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import util.IP;
 import util.Operation;
 import zookeeper.Zookeeper;
@@ -32,49 +33,79 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	private void startZookeeper() throws Exception {
 		String serverURI = String.format(DirectoryRestServer.SERVER_BASE_URI, IP.hostAddress(), DirectoryRestServer.PORT);
 		byte[] svrURIinBytes = serverURI.getBytes();
-		Zookeeper zk = Zookeeper.getInstance();
+		/*Zookeeper zk = Zookeeper.getInstance();
 		zk.createPersistent(svrURIinBytes);
 		zk.createEphemerals(svrURIinBytes);
-		zk.watchEvents();
+		zk.watchEvents();*/
 	}
-
+	@Override
 	public FileInfo writeFile(Long version, String filename, byte[] data, String userId, String password) {
-		Log.info(String.format("REST writeFile: filename = %s, data.length = %d, userId = %s, password = %s \n",
-				filename, data.length, userId, password));
+		Log.info(String.format("REST writeFile: version = %d, filename = %s, data.length = %d, userId = %s, password = %s \n",
+				version, filename, data.length, userId, password));
 
 		return super.resultOrThrow(impl.writeFile(version, filename, data, userId, password));
+	}
+	
+	@Override
+	public void writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
+		Log.info(String.format("REST writeFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
+
+		super.resultOrThrow(impl.writeFile(version, filename, userId, file));
 	}
 
 	@Override
 	public void deleteFile(Long version, String filename, String userId, String password) {
-		Log.info(String.format("REST deleteFile: filename = %s, userId = %s, password =%s\n", filename, userId,
+		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s, password =%s\n", version, filename, userId,
 				password));
 
 		super.resultOrThrow(impl.deleteFile(version, filename, userId, password));
 	}
+	
+	@Override
+	public void deleteFile(Long version, String filename, String userId) {
+		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
+
+		super.resultOrThrow(impl.deleteFile(version, filename, userId));
+	}
 
 	@Override
 	public void shareFile(Long version, String filename, String userId, String userIdShare, String password) {
-		Log.info(String.format("REST shareFile: filename = %s, userId = %s, userIdShare = %s, password =%s\n", filename,
+		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s, password =%s\n", version, filename,
 				userId, userIdShare, password));
 
 		super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare, password));
 	}
-
+	
 	@Override
-	public void unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
-		Log.info(String.format("REST unshareFile: filename = %s, userId = %s, userIdShare = %s, password =%s\n",
-				filename, userId, userIdShare, password));
+	public void shareFile(Long version, String filename, String userId, String userIdShare) {
+		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version, filename,
+				userId, userIdShare));
 
-		super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare, password));
+		super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare));
 	}
 
 	@Override
-	public byte[] getFile(String filename, String userId, String accUserId, String password) {
-		Log.info(String.format("REST getFile: filename = %s, userId = %s, accUserId = %s, password =%s\n", filename,
+	public void unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
+		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s, password =%s\n",
+				version, filename, userId, userIdShare, password));
+
+		super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare, password));
+	}
+	
+	@Override
+	public void unshareFile(Long version, String filename, String userId, String userIdShare) {
+		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
+				version, filename, userId, userIdShare));
+
+		super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare));
+	}
+
+	@Override
+	public byte[] getFile(Long version, String filename, String userId, String accUserId, String password) {
+		Log.info(String.format("REST getFile: version = %d, filename = %s, userId = %s, accUserId = %s, password =%s\n", version, filename,
 				userId, accUserId, password));
 
-		var res = impl.getFile(filename, userId, accUserId, password);
+		var res = impl.getFile(version, filename, userId, accUserId, password);
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
 			if (!location.contains(REST)) {
@@ -87,13 +118,26 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	}
 
 	@Override
-	public List<FileInfo> lsFile(String userId, String password) {
+	public List<FileInfo> lsFile(Long version, String userId, String password) {
 		long T0 = System.currentTimeMillis();
 		try {
 
-			Log.info(String.format("REST lsFile: userId = %s, password = %s\n", userId, password));
+			Log.info(String.format("REST lsFile: version = %d, userId = %s, password = %s\n", version, userId, password));
 
-			return super.resultOrThrow(impl.lsFile(userId, password));
+			return super.resultOrThrow(impl.lsFile(version, userId, password));
+		} finally {
+			System.err.println("TOOK:" + (System.currentTimeMillis() - T0));
+		}
+	}
+	
+	@Override
+	public void lsFile(Long version, String userId) {
+		long T0 = System.currentTimeMillis();
+		try {
+
+			Log.info(String.format("REST lsFile: version = %d, userId = %s\n", version, userId));
+
+			super.resultOrThrow(impl.lsFile(version, userId));
 		} finally {
 			System.err.println("TOOK:" + (System.currentTimeMillis() - T0));
 		}

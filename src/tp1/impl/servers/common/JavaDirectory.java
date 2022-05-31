@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -67,6 +68,7 @@ public class JavaDirectory implements Directory {
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
 	private Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
 
+
 	@Override
 	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
 
@@ -83,46 +85,54 @@ public class JavaDirectory implements Directory {
 			var file = files.get(fileId);
 			var info = file != null ? file.info() : new FileInfo();
 			int countWrites = 0;
-			URI[] uris = new URI[MAX_URLS];
+			List<URI> uris = new LinkedList<>();
+			String fileURL;
 
 			for (var uri : orderCandidateFileServers(file)) {
-
 				var result = FilesClients.get(uri).writeFile(fileId, data, new GenerateToken(fileId(filename, userId)));
 				if (result.isOK()) {
-
-					info.setOwner(userId);
-					info.setFilename(filename);
-					info.setFileURL(String.format("%s/files/%s", uri, fileId));
+					fileURL = String.format("%s/files/%s", uri, fileId);
 					try {
-						uris[countWrites++] = (new URI(info.getFileURL()));
+						uris.add(new URI(fileURL));
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
 					}
-					Log.info("URI ATUAL   " + uri);
-					Log.info("URI GUARDADO   " + info.getFileURL());
-
-					files.put(fileId, file = new ExtendedFileInfo(uris, fileId, info));
-					if (uf.owned().add(fileId))
-						for (int i = 0; i < countWrites; i++) {
-							Log.info("AQUIIIIIIIII   " + file.uri[i]);
-							getFileCounts(file.uri[i], true).numFiles().incrementAndGet();
-						}
-					if (countWrites == 2)
+					countWrites++;
+					if (countWrites < 2) {
+						info.setOwner(userId);
+						info.setFilename(filename);
+						info.setFileURL(fileURL);
+					} else {
+						files.put(fileId, file = new ExtendedFileInfo(uris, fileId, info));
+						if (uf.owned().add(fileId)) 
+							for (URI fileUri : file.uri()) 
+								getFileCounts(fileUri, true).numFiles().incrementAndGet();
 						break;
+					}
 				} else
 					Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 			}
-			for(URI uri : DirectoryClients.all())
-				
-
-			if (countWrites > 0)
-				return ok(file.info);
-
-			return error(BAD_REQUEST);
+			
+			// for(URI uri : DirectoryClients.all())
+			// DirectoryClients.get(uri).writeFile(version, fileId, file);
+			
+			if (countWrites > 0) return ok(file.info);
+			else return error(BAD_REQUEST);
 		}
 	}
 	
-	
+	@Override
+	public Result<Void> writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
+
+		//guardar operaçao e incrementar
+		var fileId = fileId(filename, userId);
+		files.put(fileId, file);
+		var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
+		if (uf.owned().add(fileId)) 
+			for (URI fileUri : file.uri()) 
+				getFileCounts(fileUri, true).numFiles().incrementAndGet();
+		return ok();
+	}
 
 	@Override
 	public Result<Void> deleteFile(Long version, String filename, String userId, String password) {
@@ -147,10 +157,32 @@ public class JavaDirectory implements Directory {
 			executor.execute(() -> {
 				this.removeSharesOfFile(info);
 				for (URI uri : file.uri)
-					FilesClients.get(uri).deleteFile(fileId, new GenerateToken(fileId(filename, userId)));
+					FilesClients.get(uri).deleteFile(fileId, new GenerateToken(fileId));
 			});
 
 			for (URI uri : file.uri)
+				getFileCounts(uri, false).numFiles().decrementAndGet();
+		}
+
+		// for(URI uri : DirectoryClients.all())
+		// DirectoryClients.get(uri).writeFile(version, fileId, file);
+
+		return ok();
+	}
+
+	@Override
+	public Result<Void> deleteFile(Long version, String filename, String userId) {
+		var uf = userFiles.getOrDefault(userId, new UserFiles());
+		var fileId = fileId(filename, userId);
+		synchronized (uf) {
+			var info = files.remove(fileId);
+			uf.owned().remove(fileId);
+
+			executor.execute(() -> {
+				this.removeSharesOfFile(info);
+			});
+
+			for (URI uri : info.uri)
 				getFileCounts(uri, false).numFiles().decrementAndGet();
 		}
 		return ok();
@@ -179,6 +211,18 @@ public class JavaDirectory implements Directory {
 
 		return ok();
 	}
+	
+	@Override
+	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare) {
+		var fileId = fileId(filename, userId);
+		var file = files.get(fileId);
+		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
+		synchronized (uf) {
+			uf.shared().add(fileId);
+			file.info().getSharedWith().add(userIdShare);
+		}
+		return ok();
+	}
 
 	@Override
 	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
@@ -203,9 +247,21 @@ public class JavaDirectory implements Directory {
 
 		return ok();
 	}
+	
+	@Override
+	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare) {
+		var fileId = fileId(filename, userId);
+		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
+		var file = files.get(fileId);
+		synchronized (uf) {
+			uf.shared().remove(fileId);
+			file.info().getSharedWith().remove(userIdShare);
+		}
+		return ok();
+	}
 
 	@Override
-	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) {
+	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
 		if (badParam(filename))
 			return error(BAD_REQUEST);
 
@@ -221,28 +277,23 @@ public class JavaDirectory implements Directory {
 		if (!file.info().hasAccess(accUserId))
 			return error(FORBIDDEN);
 
-		Log.info("URL A TESTAR " + file.info().getFileURL());
-
 		Result<byte[]> result = redirect(file.info().getFileURL());
 
-		String url = file.uri[0].toString();
-		String url2 = file.uri[1].toString();
-		Log.info(url);
-		Log.info(file.info().getFileURL());
-		if (url.equalsIgnoreCase(file.info().getFileURL())) {
-			file.info().setFileURL(url2);
-			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 1 " + url2);
-		} else {
-			file.info().setFileURL(url);
-			Log.info("FALHEI VOU TENTAR DE NOVO NESTE 2 " + url);
-		}
+		String url = file.uri.get(0).toString();
+		String url2 = file.uri.get(1).toString();
+
+		if (url.equalsIgnoreCase(file.info().getFileURL())) 
+			file.info().setFileURL(url2);	
+		else 
+			file.info().setFileURL(url);	
 
 		return result;
 
 	}
+	
 
 	@Override
-	public Result<List<FileInfo>> lsFile(String userId, String password) {
+	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
 		if (badParam(userId))
 			return error(BAD_REQUEST);
 
@@ -257,6 +308,16 @@ public class JavaDirectory implements Directory {
 
 			return ok(new ArrayList<>(infos));
 		}
+	}
+	
+	@Override
+	public Result<Void> lsFile(Long version, String userId) {
+		var uf = userFiles.getOrDefault(userId, new UserFiles());
+		synchronized (uf) {
+			Stream.concat(uf.owned().stream(), uf.shared().stream()).map(f -> files.get(f).info())
+					.collect(Collectors.toSet());
+		}
+		return ok();
 	}
 
 	public static String fileId(String filename, String userId) {
@@ -301,7 +362,7 @@ public class JavaDirectory implements Directory {
 		Queue<URI> result = new ArrayDeque<>();
 
 		if (file != null)
-			Collections.addAll(result, file.uri());
+			result.addAll(file.uri());
 
 		FilesClients.all().stream().filter(u -> !result.contains(u)).map(u -> getFileCounts(u, false))
 				.sorted(FileCounts::ascending).map(FileCounts::uri).limit(MAX_SIZE).forEach(result::add);
@@ -323,24 +384,23 @@ public class JavaDirectory implements Directory {
 		opVersion.put(version, op);
 	}
 
-	//para obter a versao do primario -> faz pedido ao primario
+	// para obter a versao do primario -> faz pedido ao primario
 	@Override
 	public Result<Operation> getOperation(Long version) {
 		return null;
-		
+
 	}
-	
+
 	public synchronized void updateVersion(long newVersion) throws Exception {
 		Zookeeper zk = Zookeeper.getInstance();
 		while (version < newVersion) {
-			
+
 			Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
 			op.execute();
 		}
 	}
-	
 
-	static record ExtendedFileInfo(URI[] uri, String fileId, FileInfo info) {
+	public static record ExtendedFileInfo(List<URI> uri, String fileId, FileInfo info) {
 	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {

@@ -16,14 +16,14 @@ public class GenerateToken {
 		//TokenSecret.get() -> mysecret
 		from = System.currentTimeMillis(); 
 		to = from + EXPIRE_TIME;
-		hash = Hash.of(fileId, String.valueOf(to), TokenSecret.get());
+		hash = Hash.of(fileId, to, TokenSecret.get());
 	}
 	
 	public GenerateToken() {
 		//TokenSecret.get() -> mysecret
 		from = System.currentTimeMillis(); 
 		to = from + EXPIRE_TIME;
-		hash = Hash.of(fileId, String.valueOf(to), TokenSecret.get());
+		hash = Hash.of(fileId, to, TokenSecret.get());
 	}
 	
 	public String getFileId() {
