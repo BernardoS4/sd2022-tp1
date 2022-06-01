@@ -47,7 +47,4 @@ public interface SoapDirectory {
 
 	@WebMethod
 	void unshareFile(String filename, String userId, String userIdShare);
-
-	@WebMethod
-	void lsFile(String userId);
 }

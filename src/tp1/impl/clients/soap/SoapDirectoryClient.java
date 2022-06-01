@@ -78,9 +78,4 @@ public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Di
 	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare) {
 		return super.toJavaResult(() -> impl.unshareFile(filename, userId, userIdShare));
 	}
-
-	@Override
-	public Result<Void> lsFile(Long version, String userId) {
-		return super.toJavaResult(() -> impl.lsFile(userId));
-	}
 }

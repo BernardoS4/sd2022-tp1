@@ -102,12 +102,6 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> lsFile(Long version, String userId) {
-		Response r = target.path(userId).request().header(RestDirectory.HEADER_VERSION, version).get();
-		return super.toJavaResult(r);
-	}
-
-	@Override
 	public Result<Void> deleteUserFiles(String userId, String password, String token) {
 		Response r = target.path(userId).queryParam(RestDirectory.PASSWORD, password)
 				.queryParam(RestDirectory.TOKEN, token).request().delete();

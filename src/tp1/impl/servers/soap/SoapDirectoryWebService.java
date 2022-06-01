@@ -137,15 +137,4 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	public void lsFile(String userId) {
-		Log.info(String.format("SOAP lsFile: userId = %s\n", userId));
-		try {
-			super.resultOrThrow(impl.lsFile(DEFAULT_VERSION, userId), DirectoryException::new);
-		} catch (DirectoryException e) {
-			e.printStackTrace();
-		}
-
-	}
 }

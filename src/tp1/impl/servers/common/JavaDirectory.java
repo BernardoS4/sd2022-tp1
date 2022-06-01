@@ -88,8 +88,7 @@ public class JavaDirectory implements Directory {
 		List<URI> uris = new LinkedList<>();
 		String fileURL;
 		/*GenerateToken token = new GenerateToken();
-		 * String tokenId = token.setTokenId();
-		 * 
+		String tokenId = token.setTokenId();
 		token.buildToken(fileId);*/
 
 		for (var uri : orderCandidateFileServers(file)) {
@@ -106,7 +105,7 @@ public class JavaDirectory implements Directory {
 					info.setOwner(userId);
 					info.setFilename(filename);
 					info.setFileURL(fileURL);
-					//break;
+					file = new ExtendedFileInfo(uris, fileId, info);
 				} /*else {
 					files.put(fileId, file = new ExtendedFileInfo(uris, fileId, info));
 					if (uf.owned().add(fileId)) 

@@ -68,10 +68,6 @@ public class RetryDirectoryClient extends RetryClient implements Directory {
 		return super.reTry( ()-> impl.lsFile(version, userId, password));
 	}
 	
-	@Override
-	public Result<Void> lsFile(Long version, String userId) {
-		return super.reTry( ()-> impl.lsFile(version, userId));
-	}
 
 	@Override
 	public Result<Void> deleteUserFiles(String userId, String password, String token) {
