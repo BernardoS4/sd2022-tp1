@@ -6,7 +6,6 @@ import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 import tp1.api.FileInfo;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
-import token.GenerateToken;
 
 @WebService(serviceName=SoapDirectory.NAME, targetNamespace=SoapDirectory.NAMESPACE, endpointInterface=SoapDirectory.INTERFACE)
 public interface SoapDirectory {
@@ -17,38 +16,38 @@ public interface SoapDirectory {
 
 
 	@WebMethod
-	FileInfo writeFile(Long version, String filename, byte []data, String userId, String password) throws DirectoryException;
+	FileInfo writeFile(String filename, byte []data, String userId, String password) throws DirectoryException;
 
 	@WebMethod
-	void deleteFile(Long version, String filename, String userId, String password) throws DirectoryException;
+	void deleteFile(String filename, String userId, String password) throws DirectoryException;
 
 	@WebMethod
-	void shareFile(Long version, String filename, String userId, String userIdShare, String password) throws DirectoryException;
+	void shareFile(String filename, String userId, String userIdShare, String password) throws DirectoryException;
 
 	@WebMethod
-	void unshareFile(Long version, String filename, String userId, String userIdShare, String password) throws DirectoryException;
+	void unshareFile(String filename, String userId, String userIdShare, String password) throws DirectoryException;
 
 	@WebMethod
-	byte[] getFile(Long version, String filename,  String userId, String accUserId, String password) throws DirectoryException;
+	byte[] getFile(String filename,  String userId, String accUserId, String password) throws DirectoryException;
 
 	@WebMethod
-	List<FileInfo> lsFile(Long version, String userId, String password) throws DirectoryException;
+	List<FileInfo> lsFile(String userId, String password) throws DirectoryException;
 
 	@WebMethod
 	void deleteUserFiles(String userId, String password, String token) throws DirectoryException;
 
 	@WebMethod
-	void writeFile(long version, String filename, String userId, ExtendedFileInfo file);
+	void writeFile(String filename, String userId, ExtendedFileInfo file);
 
 	@WebMethod
-	void deleteFile(long version, String filename, String userId);
+	void deleteFile(String filename, String userId);
 
 	@WebMethod
-	void shareFile(long version, String filename, String userId, String userIdShare);
+	void shareFile(String filename, String userId, String userIdShare);
 
 	@WebMethod
-	void unshareFile(long version, String filename, String userId, String userIdShare);
+	void unshareFile(String filename, String userId, String userIdShare);
 
 	@WebMethod
-	void lsFile(long version, String userId);
+	void lsFile(String userId);
 }
