@@ -455,8 +455,6 @@ public class JavaDirectory implements Directory {
 			return fileCounts.getOrDefault(uri, new FileCounts(uri));
 	}
 
-
-	// para obter a versao do primario -> faz pedido ao primario
 	@Override
 	public Result<Operation> getOperation(Long version) {
 		return ok(opVersion.get(version));
@@ -468,14 +466,29 @@ public class JavaDirectory implements Directory {
 		try {
 			zk = Zookeeper.getInstance();
 			while (version < newVersion) {
-				Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(version++).value();
-				op.execute(op.getType());
+				Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
+				//execute(op.getType(), op);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 	}
+	
+	/*public void execute(OperationType operationType, Operation op) {
+		switch (operationType) {	
+			case WRITE_FILE: writeFile(, op.getOpParams(Operation.FILENAME), op.getOpParams(Operation.USERID), op.getOpParams(Operation.FILE));
+				break;
+			case DELETE_FILE: deleteFile(version, op.getOpParams(Operation.FILENAME), op.getOpParams(Operation.USERID));
+				break;
+			case SHARE_FILE: shareFile(version, op.getOpParams(Operation.FILENAME), op.getOpParams(Operation.USERID), op.getOpParams(Operation.USERID_SHARE));
+				break;
+			case UNSHARE_FILE: unshareFile(version, op.getOpParams(Operation.FILENAME), op.getOpParams(Operation.USERID), op.getOpParams(Operation.USERID_SHARE);
+				break;
+			case LIST_FILES: lsFile(version, op.getOpParams(Operation.USERID));
+				break;
+		}
+	}*/
 
 	public static record ExtendedFileInfo(List<URI> uri, String fileId, FileInfo info) {
 	}
