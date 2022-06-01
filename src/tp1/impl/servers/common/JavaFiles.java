@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
-import token.GenerateToken;
 import util.IO;
 
 public class JavaFiles implements Files {
@@ -24,7 +23,7 @@ public class JavaFiles implements Files {
 	}
 
 	@Override
-	public Result<byte[]> getFile(String fileId, GenerateToken token) {
+	public Result<byte[]> getFile(String fileId, String token) {
 		//if(!isTokenValid(token.getTo(), token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
 		byte[] data = IO.read(new File(ROOT + "main/" + fileId));
@@ -32,7 +31,7 @@ public class JavaFiles implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteFile(String fileId, GenerateToken token) {
+	public Result<Void> deleteFile(String fileId, String token) {
 		//if(!isTokenValid(token.getTo(), token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
 		boolean res = IO.delete(new File(ROOT + "main/" + fileId));
@@ -40,7 +39,7 @@ public class JavaFiles implements Files {
 	}
 
 	@Override
-	public Result<Void> writeFile(String fileId, byte[] data, GenerateToken token) {
+	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		//if(!isTokenValid(token.getTo(), token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
 		File file = new File(ROOT + "main/" + fileId);
@@ -50,7 +49,7 @@ public class JavaFiles implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, GenerateToken token) {
+	public Result<Void> deleteUserFiles(String userId, String token) {
 		//if(!isTokenValid(token.getTo(), token, fileId)) return error(FORBIDDEN);
 		File file = new File(ROOT + "main/" + userId);
 		try {
@@ -68,22 +67,23 @@ public class JavaFiles implements Files {
 	}
 
 	//na chamada do metodo
-	//parametro e o (GenerateToken) gt.getTo()
+	//parametro e o (String) gt.getTo()
 	private boolean isTokenExpired(long timeStamp) {
 	
 		return timeStamp <= System.currentTimeMillis();
 	}
 
 	//na chamada do metodo
-	//1º parametro e -> new GenerateToken(...)
-	private boolean checkConfidentiality(GenerateToken gt, String fileId) {
+	//1º parametro e -> new String(...)
+	/*private boolean checkConfidentiality(String gt, String fileId) {
 
-		GenerateToken newToken = new GenerateToken(fileId);
+		String newToken = new String();
+		newToken.buildToken(fileId);
 		return gt.getHash().equalsIgnoreCase(newToken.getHash());
 	}
 	
-	private boolean isTokenValid(long timeStamp, GenerateToken gt, String fileId) {
+	private boolean isTokenValid(long timeStamp, String gt, String fileId) {
 		
 		return isTokenExpired(timeStamp) && checkConfidentiality(gt, fileId);
-	}
+	}*/
 }

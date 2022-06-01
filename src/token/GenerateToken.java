@@ -9,20 +9,14 @@ public class GenerateToken {
 	private String fileId;
 	private String hash;
 	
-
-	public GenerateToken(String fileId) {
-		
-		this.fileId = fileId;
-		//TokenSecret.get() -> mysecret
-		from = System.currentTimeMillis(); 
-		to = from + EXPIRE_TIME;
-		hash = Hash.of(fileId, to, TokenSecret.get());
-	}
 	
 	public GenerateToken() {
 		//TokenSecret.get() -> mysecret
 		from = System.currentTimeMillis(); 
 		to = from + EXPIRE_TIME;
+	}
+	
+	public void hashToken() {
 		hash = Hash.of(fileId, to, TokenSecret.get());
 	}
 	
@@ -41,5 +35,10 @@ public class GenerateToken {
 	
 	public long getTo() {
 		return to;
+	}
+	
+	public void buildToken(String fileId) {
+		this.fileId = fileId;
+		hash = Hash.of(fileId, to, TokenSecret.get());
 	}
 }

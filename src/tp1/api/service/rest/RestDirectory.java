@@ -168,13 +168,12 @@ public interface RestDirectory {
 	List<FileInfo> lsFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(USER_ID) String userId, @QueryParam(PASSWORD) String password);
 	
 	@GET
-	@Path("/{" + USER_ID + "}")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{" + PREFIX + "}/{" + USER_ID + "}")
 	void lsFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(USER_ID) String userId);
 
 	@DELETE
 	@Path("{" + USER_ID + "}")
-	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) @DefaultValue("") String password, @QueryParam(TOKEN) GenerateToken token);
+	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) @DefaultValue("") String password, @QueryParam(TOKEN) String token);
 	
 	@GET
 	@Path("/{" + PREFIX + "}/{" + VERSION + "}")

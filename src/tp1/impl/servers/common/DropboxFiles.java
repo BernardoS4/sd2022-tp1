@@ -6,7 +6,7 @@ import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 import util.Dropbox;
-import token.GenerateToken;
+
 
 public class DropboxFiles implements Files {
 
@@ -16,28 +16,28 @@ public class DropboxFiles implements Files {
 	}
 
 	@Override
-	public Result<byte[]> getFile(String fileId, GenerateToken token) {
+	public Result<byte[]> getFile(String fileId, String token) {
 		fileId = fileId.replace(DELIMITER, "/");
 		byte[] data = Dropbox.read(fileId);
 		return data != null ? ok(data) : error(NOT_FOUND);
 	}
 
 	@Override
-	public Result<Void> deleteFile(String fileId, GenerateToken token) {
+	public Result<Void> deleteFile(String fileId, String token) {
 		fileId = fileId.replace(DELIMITER, "/");
 		boolean res = Dropbox.delete(fileId);
 		return res ? ok() : error(NOT_FOUND);
 	}
 
 	@Override
-	public Result<Void> writeFile(String fileId, byte[] data, GenerateToken token) {
+	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		fileId = fileId.replace(DELIMITER, "/");
 		Dropbox.write(fileId, data);
 		return ok();
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, GenerateToken token) {
+	public Result<Void> deleteUserFiles(String userId, String token) {
 		Dropbox.delete(userId);
 		return ok();
 	}

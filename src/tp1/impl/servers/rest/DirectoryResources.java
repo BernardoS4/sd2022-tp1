@@ -110,7 +110,9 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 			String location = res.errorValue();
 			if (!location.contains(REST)) {
 				String fileId = JavaDirectory.fileId(filename, userId);
-				res = FilesClients.get(location).getFile(fileId, new GenerateToken(fileId));
+				/*var token = new GenerateToken();
+				token.setTokenFileId(fileId);*/
+				res = FilesClients.get(location).getFile(fileId, "");
 			}
 		}
 		return super.resultOrThrow(res);
@@ -144,11 +146,11 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String password, GenerateToken token) {
+	public void deleteUserFiles(String userId, String password, String token) {
 		Log.info(
 				String.format("REST deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
 
-		super.resultOrThrow(impl.deleteUserFiles(userId, password, token));
+		super.resultOrThrow(impl.deleteUserFiles(userId, password, ""));
 	}
 
 	@Override

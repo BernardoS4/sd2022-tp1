@@ -40,9 +40,6 @@ public class AbstractSoapServer extends AbstractServer {
 			server.setExecutor(Executors.newCachedThreadPool());        
 			server.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()));
 			var endpoint = Endpoint.create(implementor);
-			//Zookeeper zk = new Zookeeper(serverURI);
-			//zk.initiate();
-			
 			endpoint.publish(server.createContext("/soap"));
 			server.start();
 		} catch (Exception e) {

@@ -8,7 +8,6 @@ import jakarta.xml.ws.Service;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 import tp1.api.service.soap.SoapFiles;
-import token.GenerateToken;
 import util.Url;
 
 public class SoapFilesClient extends SoapClient<SoapFiles> implements Files {
@@ -22,22 +21,22 @@ public class SoapFilesClient extends SoapClient<SoapFiles> implements Files {
 	}
 	
 	@Override
-	public Result<byte[]> getFile(String fileId, GenerateToken token) {
+	public Result<byte[]> getFile(String fileId, String token) {
 		return super.toJavaResult(() -> impl.getFile(fileId, token));
 	}
 
 	@Override
-	public Result<Void> deleteFile(String fileId, GenerateToken token) {
+	public Result<Void> deleteFile(String fileId, String token) {
 		return super.toJavaResult(() -> impl.deleteFile(fileId, token));
 	}
 
 	@Override
-	public Result<Void> writeFile(String fileId, byte[] data, GenerateToken token) {
+	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		return super.toJavaResult(() -> impl.writeFile(fileId, data, token));
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, GenerateToken token) {
+	public Result<Void> deleteUserFiles(String userId, String token) {
 		return super.toJavaResult(() -> impl.deleteUserFiles(userId, token));
 	}
 }
