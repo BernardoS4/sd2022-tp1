@@ -155,18 +155,6 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		}
 	}
 	
-	@Override
-	public void lsFile(Long version, String userId) {
-		long T0 = System.currentTimeMillis();
-		try {
-
-			Log.info(String.format("REST lsFile: version = %d, userId = %s\n", version, userId));
-
-			super.resultOrThrow(impl.lsFile(version, userId));
-		} finally {
-			System.err.println("TOOK:" + (System.currentTimeMillis() - T0));
-		}
-	}
 
 	@Override
 	public void deleteUserFiles(String userId, String password, String token) {

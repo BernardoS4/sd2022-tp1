@@ -32,8 +32,6 @@ public interface Directory {
 	Result<byte[]> getFile(Long version, String filename,  String userId, String accUserId, String password);
 
 	Result<List<FileInfo>> lsFile(Long version, String userId, String password);
-	
-	Result<Void> lsFile(Long version, String userId);
 		
 	Result<Void> deleteUserFiles(String userId, String password, String token);
 	

@@ -167,9 +167,6 @@ public interface RestDirectory {
 	@Produces(MediaType.APPLICATION_JSON)
 	List<FileInfo> lsFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(USER_ID) String userId, @QueryParam(PASSWORD) String password);
 	
-	@GET
-	@Path("/{" + PREFIX + "}/{" + USER_ID + "}")
-	void lsFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(USER_ID) String userId);
 
 	@DELETE
 	@Path("{" + USER_ID + "}")
