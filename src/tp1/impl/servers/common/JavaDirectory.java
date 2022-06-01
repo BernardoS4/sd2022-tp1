@@ -459,8 +459,7 @@ public class JavaDirectory implements Directory {
 	// para obter a versao do primario -> faz pedido ao primario
 	@Override
 	public Result<Operation> getOperation(Long version) {
-		return null;
-
+		return ok(opVersion.get(version));
 	}
 
 	public synchronized void updateVersion(Long newVersion) {
@@ -469,8 +468,8 @@ public class JavaDirectory implements Directory {
 		try {
 			zk = Zookeeper.getInstance();
 			while (version < newVersion) {
-				Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
-				op.execute();
+				Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(version++).value();
+				op.execute(op.getType());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

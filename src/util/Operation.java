@@ -38,8 +38,20 @@ public class Operation {
 		return opParams;
 	}
 	
-	public void execute() {
-		// TODO Auto-generated method stub
-		
+	public void execute(OperationType operationType) {
+		switch (operationType) {	
+			case WRITE_FILE:
+				break;
+			case DELETE_FILE:
+				break;
+			case SHARE_FILE:
+				break;
+			case UNSHARE_FILE:
+				break;
+			case LIST_FILES:
+				break;
+			case DELETE_USER_FILES:
+				break;
+		}
 	}
 }
