@@ -21,54 +21,55 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	static Logger Log = Logger.getLogger(SoapDirectoryWebService.class.getName());
 
 	final Directory impl;
+	private long DEFAULT_VERSION = 0L;
 
 	public SoapDirectoryWebService() {
 		impl = new JavaDirectory();
 	}
 
 	@Override
-	public FileInfo writeFile(Long version, String filename, byte[] data, String userId, String password)
+	public FileInfo writeFile(String filename, byte[] data, String userId, String password)
 			throws DirectoryException {
 		Log.info(String.format("SOAP writeFile: filename = %s, data.length = %d, userId = %s, password = %s \n",
 				filename, data.length, userId, password));
 
-		return super.resultOrThrow(impl.writeFile(version, filename, data, userId, password), DirectoryException::new);
+		return super.resultOrThrow(impl.writeFile(DEFAULT_VERSION, filename, data, userId, password), DirectoryException::new);
 	}
 
 	@Override
-	public void deleteFile(Long version, String filename, String userId, String password) throws DirectoryException {
+	public void deleteFile(String filename, String userId, String password) throws DirectoryException {
 		Log.info(String.format("SOAP deleteFile: filename = %s, userId = %s, password =%s\n", filename, userId,
 				password));
 
-		super.resultOrThrow(impl.deleteFile(version, filename, userId, password), DirectoryException::new);
+		super.resultOrThrow(impl.deleteFile(DEFAULT_VERSION, filename, userId, password), DirectoryException::new);
 	}
 
 	@Override
-	public void shareFile(Long version, String filename, String userId, String userIdShare, String password)
+	public void shareFile(String filename, String userId, String userIdShare, String password)
 			throws DirectoryException {
 		Log.info(String.format("SOAP shareFile: filename = %s, userId = %s, userIdShare = %s, password =%s\n", filename,
 				userId, userIdShare, password));
 
-		super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare, password), DirectoryException::new);
+		super.resultOrThrow(impl.shareFile(DEFAULT_VERSION, filename, userId, userIdShare, password), DirectoryException::new);
 	}
 
 	@Override
-	public void unshareFile(Long version, String filename, String userId, String userIdShare, String password)
+	public void unshareFile(String filename, String userId, String userIdShare, String password)
 			throws DirectoryException {
 		Log.info(String.format("SOAP unshareFile: filename = %s, userId = %s, userIdShare = %s, password =%s\n",
 				filename, userId, userIdShare, password));
 
-		super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare, password),
+		super.resultOrThrow(impl.unshareFile(DEFAULT_VERSION, filename, userId, userIdShare, password),
 				DirectoryException::new);
 	}
 
 	@Override
-	public byte[] getFile(Long version, String filename, String userId, String accUserId, String password)
+	public byte[] getFile(String filename, String userId, String accUserId, String password)
 			throws DirectoryException {
 		Log.info(String.format("SOAP getFile: version = %d, filename = %s, userId = %s, accUserId = %s, password =%s\n",
-				version, filename, userId, accUserId, password));
+				DEFAULT_VERSION, filename, userId, accUserId, password));
 
-		var res = impl.getFile(version, filename, userId, accUserId, password);
+		var res = impl.getFile(DEFAULT_VERSION, filename, userId, accUserId, password);
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
 			String fileId = JavaDirectory.fileId(filename, userId);
@@ -78,10 +79,10 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public List<FileInfo> lsFile(Long version, String userId, String password) throws DirectoryException {
+	public List<FileInfo> lsFile(String userId, String password) throws DirectoryException {
 		Log.info(String.format("SOAP lsFile: userId = %s, password = %s\n", userId, password));
 
-		return super.resultOrThrow(impl.lsFile(version, userId, password), DirectoryException::new);
+		return super.resultOrThrow(impl.lsFile(DEFAULT_VERSION, userId, password), DirectoryException::new);
 	}
 
 	@Override
@@ -93,10 +94,10 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public void writeFile(long version, String filename, String userId, ExtendedFileInfo file) {
+	public void writeFile(String filename, String userId, ExtendedFileInfo file) {
 		Log.info(String.format("SOAP writeFile: filename = %s, userId = %s\n", filename, userId));
 		try {
-			super.resultOrThrow(impl.writeFile(version, filename, userId, file), DirectoryException::new);
+			super.resultOrThrow(impl.writeFile(DEFAULT_VERSION, filename, userId, file), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}
@@ -104,10 +105,10 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public void deleteFile(long version, String filename, String userId) {
+	public void deleteFile(String filename, String userId) {
 		Log.info(String.format("SOAP deleteFile: filename = %s, userId = %s\n", filename, userId));
 		try {
-			super.resultOrThrow(impl.deleteFile(version, filename, userId), DirectoryException::new);
+			super.resultOrThrow(impl.deleteFile(DEFAULT_VERSION, filename, userId), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}
@@ -115,11 +116,11 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public void shareFile(long version, String filename, String userId, String userIdShare) {
+	public void shareFile(String filename, String userId, String userIdShare) {
 		Log.info(String.format("SOAP shareFile: filename = %s, userId = %s, userIdShare = %s\n", filename, userId,
 				userIdShare));
 		try {
-			super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare), DirectoryException::new);
+			super.resultOrThrow(impl.shareFile(DEFAULT_VERSION, filename, userId, userIdShare), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}
@@ -127,21 +128,21 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public void unshareFile(long version, String filename, String userId, String userIdShare) {
+	public void unshareFile(String filename, String userId, String userIdShare) {
 		Log.info(String.format("SOAP unshareFile: filename = %s, userId = %s, userIdShare = %s\n", filename, userId,
 				userIdShare));
 		try {
-			super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare), DirectoryException::new);
+			super.resultOrThrow(impl.unshareFile(DEFAULT_VERSION, filename, userId, userIdShare), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void lsFile(long version, String userId) {
+	public void lsFile(String userId) {
 		Log.info(String.format("SOAP lsFile: userId = %s\n", userId));
 		try {
-			super.resultOrThrow(impl.lsFile(version, userId), DirectoryException::new);
+			super.resultOrThrow(impl.lsFile(DEFAULT_VERSION, userId), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}
