@@ -65,25 +65,4 @@ public class JavaFiles implements Files {
 	public static String fileId(String filename, String userId) {
 		return userId + JavaFiles.DELIMITER + filename;
 	}
-
-	//na chamada do metodo
-	//parametro e o (String) gt.getTo()
-	private boolean isTokenExpired(long timeStamp) {
-	
-		return timeStamp <= System.currentTimeMillis();
-	}
-
-	//na chamada do metodo
-	//1º parametro e -> new String(...)
-	/*private boolean checkConfidentiality(String gt, String fileId) {
-
-		String newToken = new String();
-		newToken.buildToken(fileId);
-		return gt.getHash().equalsIgnoreCase(newToken.getHash());
-	}
-	
-	private boolean isTokenValid(long timeStamp, String gt, String fileId) {
-		
-		return isTokenExpired(timeStamp) && checkConfidentiality(gt, fileId);
-	}*/
 }

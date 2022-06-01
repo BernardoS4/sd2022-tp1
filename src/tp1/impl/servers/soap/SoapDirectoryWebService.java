@@ -72,7 +72,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
 			String fileId = JavaDirectory.fileId(filename, userId);
-			res = FilesClients.get(location).getFile(fileId, new GenerateToken(fileId));
+			res = FilesClients.get(location).getFile(fileId, password);
 		}
 		return super.resultOrThrow(res, DirectoryException::new);
 	}
@@ -85,7 +85,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String password, GenerateToken token) throws DirectoryException {
+	public void deleteUserFiles(String userId, String password, String token) throws DirectoryException {
 		Log.info(
 				String.format("SOAP deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
 

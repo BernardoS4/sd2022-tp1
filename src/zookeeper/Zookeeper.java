@@ -135,9 +135,16 @@ public class Zookeeper implements Watcher {
 	}
 	
 	public void watchEvents() {
-		getChildren(root, (e) -> {
-			process(e);
-		});
+		for(;;) {
+			new Thread(() -> {
+				getChildren(root, this::process);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}).start();
+		}
 	}
 	
 	public String getCurrentLeader() {

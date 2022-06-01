@@ -35,7 +35,7 @@ public interface Directory {
 	
 	Result<Void> lsFile(Long version, String userId);
 		
-	Result<Void> deleteUserFiles(String userId, String password, GenerateToken token);
+	Result<Void> deleteUserFiles(String userId, String password, String token);
 	
 	default Result<Operation> getOperation(Long version) {
 		return Result.error(ErrorCode.NOT_IMPLEMENTED); 

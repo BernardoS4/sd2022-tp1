@@ -108,7 +108,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, GenerateToken token) {
+	public Result<Void> deleteUserFiles(String userId, String password, String token) {
 		Response r = target.path(userId).queryParam(RestDirectory.PASSWORD, password)
 				.queryParam(RestDirectory.TOKEN, token).request().delete();
 		return super.toJavaResult(r);

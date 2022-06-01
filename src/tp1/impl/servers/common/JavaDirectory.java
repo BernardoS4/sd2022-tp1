@@ -9,6 +9,7 @@ import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import static tp1.impl.clients.Clients.FilesClients;
 import static tp1.impl.clients.Clients.UsersClients;
 import static tp1.impl.clients.Clients.DirectoryClients;
+import util.Operation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,6 +41,7 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
 import util.Operation;
+import util.OperationType;
 import zookeeper.Zookeeper;
 
 public class JavaDirectory implements Directory {
@@ -65,7 +68,7 @@ public class JavaDirectory implements Directory {
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
-	private Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
+	final Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
 
 
 	@Override
@@ -86,7 +89,9 @@ public class JavaDirectory implements Directory {
 			int countWrites = 0;
 			List<URI> uris = new LinkedList<>();
 			String fileURL;
-			/*var token = new GenerateToken();
+			/*GenerateToken token = new GenerateToken();
+			 * String tokenId = token.setTokenId();
+			 * 
 			token.buildToken(fileId);*/
 
 			for (var uri : orderCandidateFileServers(file)) {
@@ -114,8 +119,10 @@ public class JavaDirectory implements Directory {
 					Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 			}
 			
+			
+			
 			// for(URI uri : DirectoryClients.all())
-			// DirectoryClients.get(uri).writeFile(version, fileId, file);
+			// DirectoryClients.get(uri).writeFile(version, filename, userId, file);
 			
 			if (countWrites > 0) return ok(file.info);
 			else return error(BAD_REQUEST);
@@ -125,6 +132,16 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
 
+		/*if(this.version < version)
+			updateVersion(version);*/
+		
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.FILENAME, filename);
+		opParams.put(Operation.USERID, userId);
+		opParams.put(Operation.FILE, file);
+		opVersion.put(version, new Operation(OperationType.WRITE_FILE, opParams));
+		this.version = version;
+		
 		//guardar operaçao e incrementar
 		var fileId = fileId(filename, userId);
 		files.put(fileId, file);
@@ -132,6 +149,7 @@ public class JavaDirectory implements Directory {
 		if (uf.owned().add(fileId)) 
 			for (URI fileUri : file.uri()) 
 				getFileCounts(fileUri, true).numFiles().incrementAndGet();
+		
 		return ok();
 	}
 
@@ -168,13 +186,23 @@ public class JavaDirectory implements Directory {
 		}
 
 		// for(URI uri : DirectoryClients.all())
-		// DirectoryClients.get(uri).writeFile(version, fileId, file);
+		// DirectoryClients.get(uri).deleteFile(version, filename, userId);
 
 		return ok();
 	}
 
 	@Override
 	public Result<Void> deleteFile(Long version, String filename, String userId) {
+		
+		/*if(this.version < version)
+			updateVersion(version);*/
+		
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.FILENAME, filename);
+		opParams.put(Operation.USERID, userId);
+		opVersion.put(version, new Operation(OperationType.DELETE_FILE, opParams));
+		this.version = version;		
+		
 		var uf = userFiles.getOrDefault(userId, new UserFiles());
 		var fileId = fileId(filename, userId);
 		synchronized (uf) {
@@ -211,12 +239,26 @@ public class JavaDirectory implements Directory {
 			uf.shared().add(fileId);
 			file.info().getSharedWith().add(userIdShare);
 		}
+		
+		// for(URI uri : DirectoryClients.all())
+			// DirectoryClients.get(uri).shareFile(version, filename, userId, userIdShare);
 
 		return ok();
 	}
 	
 	@Override
 	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare) {
+		
+		/*if(this.version < version)
+			updateVersion(version);*/
+		
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.FILENAME, filename);
+		opParams.put(Operation.USERID, userId);
+		opParams.put(Operation.USERID_SHARE, userIdShare);
+		opVersion.put(version, new Operation(OperationType.SHARE_FILE, opParams));
+		this.version = version;		
+		
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
 		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
@@ -247,12 +289,26 @@ public class JavaDirectory implements Directory {
 			uf.shared().remove(fileId);
 			file.info().getSharedWith().remove(userIdShare);
 		}
+		
+		// for(URI uri : DirectoryClients.all())
+			// DirectoryClients.get(uri).unshareFile(version, filename, userId, userIdShare);
 
 		return ok();
 	}
 	
 	@Override
 	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare) {
+		
+		/*if(this.version < version)
+			updateVersion(version);*/
+		
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.FILENAME, filename);
+		opParams.put(Operation.USERID, userId);
+		opParams.put(Operation.USERID_SHARE, userIdShare);
+		opVersion.put(version, new Operation(OperationType.UNSHARE_FILE, opParams));
+		this.version = version;		
+		
 		var fileId = fileId(filename, userId);
 		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
 		var file = files.get(fileId);
@@ -265,6 +321,11 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
+		
+		//SE NAO ESTIVER ATUALIZADO E NAO FOR O PRIMARIO FAÇO ISTO certo?
+		/*if(this.version < version)
+			updateVersion(version);*/
+		
 		if (badParam(filename))
 			return error(BAD_REQUEST);
 
@@ -311,10 +372,21 @@ public class JavaDirectory implements Directory {
 
 			return ok(new ArrayList<>(infos));
 		}
+		// for(URI uri : DirectoryClients.all())
+			// DirectoryClients.get(uri).lsFile(version, userId);
 	}
 	
 	@Override
 	public Result<Void> lsFile(Long version, String userId) {
+		
+		/*if(this.version < version)
+			updateVersion(version);*/
+		
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.USERID, userId);
+		opVersion.put(version, new Operation(OperationType.LIST_FILES, opParams));
+		this.version = version;		
+		
 		var uf = userFiles.getOrDefault(userId, new UserFiles());
 		synchronized (uf) {
 			Stream.concat(uf.owned().stream(), uf.shared().stream()).map(f -> files.get(f).info())
@@ -383,9 +455,6 @@ public class JavaDirectory implements Directory {
 			return fileCounts.getOrDefault(uri, new FileCounts(uri));
 	}
 
-	private void addOperation(Long version, Operation op) {
-		opVersion.put(version, op);
-	}
 
 	// para obter a versao do primario -> faz pedido ao primario
 	@Override
@@ -394,13 +463,19 @@ public class JavaDirectory implements Directory {
 
 	}
 
-	public synchronized void updateVersion(long newVersion) throws Exception {
-		Zookeeper zk = Zookeeper.getInstance();
-		while (version < newVersion) {
-
-			Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
-			op.execute();
+	public synchronized void updateVersion(Long newVersion) {
+		
+		Zookeeper zk;
+		try {
+			zk = Zookeeper.getInstance();
+			while (version < newVersion) {
+				Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
+				op.execute();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		
 	}
 
 	public static record ExtendedFileInfo(List<URI> uri, String fileId, FileInfo info) {
