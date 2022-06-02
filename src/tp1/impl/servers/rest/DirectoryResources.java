@@ -31,12 +31,12 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	private Zookeeper zk;
 	private String serverURI = "";
 
-	public DirectoryResources() throws Exception {
+	public DirectoryResources() {
 		impl = new JavaDirectory();
 		//startZookeeper();
 	}
 	
-	private void startZookeeper() throws Exception {
+	private void startZookeeper() {
 		serverURI = String.format(DirectoryRestServer.SERVER_BASE_URI, IP.hostAddress(), DirectoryRestServer.PORT);
 		byte[] svrURIinBytes = serverURI.getBytes();
 		/*zk = Zookeeper.getInstance();
