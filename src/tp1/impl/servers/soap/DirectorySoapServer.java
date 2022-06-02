@@ -22,9 +22,9 @@ public class DirectorySoapServer extends AbstractSoapServer {
 	public static void main(String[] args) throws Exception {
 
 		Debug.setLogLevel( Level.INFO, Debug.TP1);
-		//TokenSecret.set( args.length > 0 ? args[0] : "");
-		for(String s : args) Log.info(s);
-		TokenSecret.set( args[0] );
+		TokenSecret.set( args.length > 0 ? args[0] : "");
+		//for(String s : args) Log.info(s);
+		//TokenSecret.set( args[0] );
 		new DirectorySoapServer().start();
 	}
 }
