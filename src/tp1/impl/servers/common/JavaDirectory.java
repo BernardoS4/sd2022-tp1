@@ -31,6 +31,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import token.GenerateToken;
 import tp1.api.FileInfo;
 import tp1.api.User;
 import tp1.api.service.java.Directory;
@@ -82,13 +83,10 @@ public class JavaDirectory implements Directory {
 		int countWrites = 0;
 		List<URI> uris = new LinkedList<>();
 		String fileURL;
-		/*
-		 * GenerateToken token = new GenerateToken(); 
-		 	token.buildToken();
-		 */
 
 		for (var uri : orderCandidateFileServers(file)) {
-			var result = FilesClients.get(uri).writeFile(fileId, data, "");
+			String token = GenerateToken.buildToken(fileId);
+			var result = FilesClients.get(uri).writeFile(fileId, data, token);
 			if (result.isOK()) {
 				fileURL = String.format("%s/files/%s", uri, fileId);
 				try {
@@ -103,16 +101,12 @@ public class JavaDirectory implements Directory {
 					info.setFileURL(fileURL);
 					// file = new ExtendedFileInfo(uris, fileId, info);
 				} else {
-					file = new ExtendedFileInfo(uris, fileId, info);
 					break;
-				} /*
-					 * } files.put(fileId, file = new ExtendedFileInfo(uris, fileId, info));
-					 * if(uf.owned().add(fileId)) for (URI fileUri : file.uri())
-					 * getFileCounts(fileUri, true).numFiles().incrementAndGet(); break; }
-					 */
+				} 
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
+		file = new ExtendedFileInfo(uris, fileId, info);
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).writeFile(version, filename, userId, file);
 
@@ -161,14 +155,11 @@ public class JavaDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-		/*
-		 * var token = new GenerateToken(); 
-		 * token.buildToken(fileId);
-		 */
-
 		executor.execute(() -> {
-			for (URI uri : file.uri)
-				FilesClients.get(uri).deleteFile(fileId, password);
+			for (URI uri : file.uri) {
+				String token = GenerateToken.buildToken(fileId);
+				FilesClients.get(uri).deleteFile(fileId, token);
+			}
 		});
 
 		for (URI uri : DirectoryClients.all())

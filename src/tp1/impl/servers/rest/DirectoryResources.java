@@ -39,10 +39,10 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	private void startZookeeper() throws Exception {
 		serverURI = String.format(DirectoryRestServer.SERVER_BASE_URI, IP.hostAddress(), DirectoryRestServer.PORT);
 		byte[] svrURIinBytes = serverURI.getBytes();
-		zk = Zookeeper.getInstance();
+		/*zk = Zookeeper.getInstance();
 		zk.createPersistent(svrURIinBytes);
 		zk.createEphemerals(svrURIinBytes);
-		zk.watchEvents();
+		zk.watchEvents();*/
 	}
 	@Override
 	public FileInfo writeFile(Long version, String filename, byte[] data, String userId, String password) {
@@ -136,12 +136,13 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		var res = impl.getFile(version, filename, userId, accUserId, password);
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
+			String fileId = JavaDirectory.fileId(filename, userId);
+			String token = GenerateToken.buildToken(fileId);
 			if (!location.contains(REST)) {
-				String fileId = JavaDirectory.fileId(filename, userId);
-				/*var token = new GenerateToken();
-				token.setTokenFileId(fileId);*/
-				res = FilesClients.get(location).getFile(fileId, "");
+				res = FilesClients.get(location).getFile(fileId, token);
 			}
+			else
+				res = Result.redirect(location + "?token=" + token);
 		}
 		return super.resultOrThrow(res);
 

@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Comparator;
+
+import token.GenerateToken;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 import util.IO;
@@ -24,24 +26,24 @@ public class JavaFiles implements Files {
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
-		//if(!isTokenValid(token.getTo(), token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
+		if(!GenerateToken.isTokenValid(token, fileId)) return error(FORBIDDEN);
 		byte[] data = IO.read(new File(ROOT + "main/" + fileId));
 		return data != null ? ok(data) : error(NOT_FOUND);
 	}
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
-		//if(!isTokenValid(token.getTo(), token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
+		if(!GenerateToken.isTokenValid(token, fileId)) return error(FORBIDDEN);
 		boolean res = IO.delete(new File(ROOT + "main/" + fileId));
 		return res ? ok() : error(NOT_FOUND);
 	}
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
-		//if(!isTokenValid(token.getTo(), token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
+		if(!GenerateToken.isTokenValid(token, fileId)) return error(FORBIDDEN);
 		File file = new File(ROOT + "main/" + fileId);
 		file.getParentFile().mkdirs();
 		IO.write(file, data);
@@ -50,7 +52,7 @@ public class JavaFiles implements Files {
 
 	@Override
 	public Result<Void> deleteUserFiles(String userId, String token) {
-		//if(!isTokenValid(token.getTo(), token, fileId)) return error(FORBIDDEN);
+		
 		File file = new File(ROOT + "main/" + userId);
 		try {
 			java.nio.file.Files.walk(file.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile)

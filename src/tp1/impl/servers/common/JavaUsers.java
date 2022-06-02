@@ -18,7 +18,6 @@ import java.util.concurrent.Executors;
 import tp1.api.User;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Users;
-import token.GenerateToken;
 
 
 public class JavaUsers implements Users {
