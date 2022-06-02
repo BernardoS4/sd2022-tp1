@@ -11,7 +11,6 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.soap.SoapDirectory;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
-import token.GenerateToken;
 import util.Url;
 
 public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Directory {
@@ -22,7 +21,7 @@ public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Di
 		super(serverURI, () -> {
 			QName QNAME = new QName(SoapDirectory.NAMESPACE, SoapDirectory.NAME);
 			Service service = Service.create(Url.from(serverURI + WSDL), QNAME);
-			return service.getPort(tp1.api.service.soap.SoapDirectory.class);
+			return service.getPort(SoapDirectory.class);
 		});
 	}
 
