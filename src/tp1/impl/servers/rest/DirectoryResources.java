@@ -166,7 +166,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(
 				String.format("REST deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
 
-		super.resultOrThrow(impl.deleteUserFiles(userId, password, ""));
+		super.resultOrThrow(impl.deleteUserFiles(userId, password, token));
 	}
 
 	@Override

@@ -6,8 +6,8 @@ public class GenerateToken {
 
 	// set to 10sec
 	private static final long EXPIRE_TIME = 1000 * 10;
-	private long from;
-	private long to;
+	private Long from;
+	private Long to;
 	private String fileId;
 	private String hash;
 	private String tokenId;
@@ -44,33 +44,43 @@ public class GenerateToken {
 		return hash;
 	}
 
-	public long getTo() {
+	public Long getTo() {
 		return to;
 	}
 
-	public void buildToken(String fileId) {
+	public String buildToken(String fileId) {
 		this.fileId = fileId;
 		hash = Hash.of(fileId, to, TokenSecret.get());
+		return this.fileId.concat("-").concat(to.toString()).concat("-").concat(hash);
 	}
 	
 	//na chamada do metodo
 	//parametro e o (String) gt.getTo()
-	public boolean isTokenExpired(long timeStamp) {
+	private boolean isTokenExpired(String timeStamp) {
 	
-		return timeStamp <= System.currentTimeMillis();
+		//return timeStamp <= System.currentTimeMillis();
+		Long now = System.currentTimeMillis();
+		return timeStamp.compareTo(now.toString()) < 0;
 	}
 
 	//na chamada do metodo
-	//1º parametro e -> new String(...)
-	/*private boolean checkConfidentiality(String gt, String fileId) {
+	//1º parametro e ->
+	private boolean checkConfidentiality(String hash, String fileId) {
 
-		String newToken = new String();
+		GenerateToken newToken = new GenerateToken();
 		newToken.buildToken(fileId);
-		return gt.getHash().equalsIgnoreCase(newToken.getHash());
+		return hash.equalsIgnoreCase(newToken.getHash());
 	}
 	
-	private boolean isTokenValid(long timeStamp, String gt, String fileId) {
+	public boolean isTokenValid(String token, String fileId) {
 		
-		return isTokenExpired(timeStamp) && checkConfidentiality(gt, fileId);
-	}*/
+		String expireData = splitToken(token)[1];
+		String hash = splitToken(token)[2];
+		return !isTokenExpired(expireData) && checkConfidentiality(hash, fileId);
+	}
+	
+	private String[] splitToken(String token) {
+		
+		return token.split("-");
+	}
 }

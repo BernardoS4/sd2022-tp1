@@ -9,20 +9,16 @@ import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import static tp1.impl.clients.Clients.FilesClients;
 import static tp1.impl.clients.Clients.UsersClients;
 import static tp1.impl.clients.Clients.DirectoryClients;
-import util.Operation.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -70,7 +66,6 @@ public class JavaDirectory implements Directory {
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
 	final Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
 
-
 	@Override
 	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
 
@@ -87,9 +82,10 @@ public class JavaDirectory implements Directory {
 		int countWrites = 0;
 		List<URI> uris = new LinkedList<>();
 		String fileURL;
-		/*GenerateToken token = new GenerateToken();
-		String tokenId = token.setTokenId();
-		token.buildToken(fileId);*/
+		/*
+		 * GenerateToken token = new GenerateToken(); 
+		 	token.buildToken();
+		 */
 
 		for (var uri : orderCandidateFileServers(file)) {
 			var result = FilesClients.get(uri).writeFile(fileId, data, "");
@@ -105,46 +101,48 @@ public class JavaDirectory implements Directory {
 					info.setOwner(userId);
 					info.setFilename(filename);
 					info.setFileURL(fileURL);
+					// file = new ExtendedFileInfo(uris, fileId, info);
+				} else {
 					file = new ExtendedFileInfo(uris, fileId, info);
-				} /*else {
-					files.put(fileId, file = new ExtendedFileInfo(uris, fileId, info));
-					if (uf.owned().add(fileId)) 
-						for (URI fileUri : file.uri()) 
-							getFileCounts(fileUri, true).numFiles().incrementAndGet();
 					break;
-				}*/
+				} /*
+					 * } files.put(fileId, file = new ExtendedFileInfo(uris, fileId, info));
+					 * if(uf.owned().add(fileId)) for (URI fileUri : file.uri())
+					 * getFileCounts(fileUri, true).numFiles().incrementAndGet(); break; }
+					 */
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
-		for(URI uri : DirectoryClients.all())
+		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).writeFile(version, filename, userId, file);
-		
-		if (countWrites > 0) return ok(file.info);
-		else return error(BAD_REQUEST);
+
+		if (countWrites > 0)
+			return ok(file.info);
+		else
+			return error(BAD_REQUEST);
 	}
-	
+
 	@Override
 	public Result<Void> writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
 
-		/*if(this.version < version)
-			updateVersion(version);
-		
-		Map<String, Object> opParams = new ConcurrentHashMap<>();
-		opParams.put(Operation.FILENAME, filename);
-		opParams.put(Operation.USERID, userId);
-		opParams.put(Operation.FILE, file);
-		opVersion.put(version, new Operation(OperationType.WRITE_FILE, opParams));
-		this.version = version;*/
-		
+		/*
+		 * if(this.version < version) updateVersion(version);
+		 * 
+		 * Map<String, Object> opParams = new ConcurrentHashMap<>();
+		 * opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
+		 * userId); opParams.put(Operation.FILE, file); opVersion.put(version, new
+		 * Operation(OperationType.WRITE_FILE, opParams)); this.version = version;
+		 */
+
 		var fileId = fileId(filename, userId);
-		files.put(fileId, file);
+		// files.put(fileId, file);
 		var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
 		synchronized (uf) {
-			if (uf.owned().add(fileId)) 
-				for (URI fileUri : file.uri()) 
+			files.put(fileId, file);
+			if (uf.owned().add(fileId))
+				for (URI fileUri : file.uri)
 					getFileCounts(fileUri, true).numFiles().incrementAndGet();
 		}
-		
 		return ok();
 	}
 
@@ -162,16 +160,18 @@ public class JavaDirectory implements Directory {
 		var user = getUser(userId, password);
 		if (!user.isOK())
 			return error(user.error());
-	
-		/*var token = new GenerateToken();
-		token.buildToken(fileId);*/
-		
-		executor.execute(() -> {	
+
+		/*
+		 * var token = new GenerateToken(); 
+		 * token.buildToken(fileId);
+		 */
+
+		executor.execute(() -> {
 			for (URI uri : file.uri)
-				FilesClients.get(uri).deleteFile(fileId, "");
+				FilesClients.get(uri).deleteFile(fileId, password);
 		});
 
-		for(URI uri : DirectoryClients.all())
+		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).deleteFile(version, filename, userId);
 
 		return ok();
@@ -179,19 +179,20 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> deleteFile(Long version, String filename, String userId) {
-		
-		/*if(this.version < version)
-			updateVersion(version);
-		
-		Map<String, Object> opParams = new ConcurrentHashMap<>();
-		opParams.put(Operation.FILENAME, filename);
-		opParams.put(Operation.USERID, userId);
-		opVersion.put(version, new Operation(OperationType.DELETE_FILE, opParams));
-		this.version = version;		*/
-		
-		var uf = userFiles.getOrDefault(userId, new UserFiles());
+
+		/*
+		 * if(this.version < version) updateVersion(version);
+		 * 
+		 * Map<String, Object> opParams = new ConcurrentHashMap<>();
+		 * opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
+		 * userId); opVersion.put(version, new Operation(OperationType.DELETE_FILE,
+		 * opParams)); this.version = version;
+		 */
+
 		var fileId = fileId(filename, userId);
-		
+		var uf = userFiles.getOrDefault(userId, new UserFiles());
+
+		synchronized (uf) {
 			var info = files.remove(fileId);
 			uf.owned().remove(fileId);
 
@@ -201,7 +202,7 @@ public class JavaDirectory implements Directory {
 
 			for (URI uri : info.uri)
 				getFileCounts(uri, false).numFiles().decrementAndGet();
-		
+		}
 		return ok();
 	}
 
@@ -219,26 +220,26 @@ public class JavaDirectory implements Directory {
 		var user = getUser(userId, password);
 		if (!user.isOK())
 			return error(user.error());
-		
-		for(URI uri : DirectoryClients.all())
+
+		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).shareFile(version, filename, userId, userIdShare);
 
 		return ok();
 	}
-	
+
 	@Override
 	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare) {
-		
-		/*if(this.version < version)
-			updateVersion(version);
-		
-		Map<String, Object> opParams = new ConcurrentHashMap<>();
-		opParams.put(Operation.FILENAME, filename);
-		opParams.put(Operation.USERID, userId);
-		opParams.put(Operation.USERID_SHARE, userIdShare);
-		opVersion.put(version, new Operation(OperationType.SHARE_FILE, opParams));
-		this.version = version;		*/
-		
+
+		/*
+		 * if(this.version < version) updateVersion(version);
+		 * 
+		 * Map<String, Object> opParams = new ConcurrentHashMap<>();
+		 * opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
+		 * userId); opParams.put(Operation.USERID_SHARE, userIdShare);
+		 * opVersion.put(version, new Operation(OperationType.SHARE_FILE, opParams));
+		 * this.version = version;
+		 */
+
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
 		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
@@ -248,6 +249,27 @@ public class JavaDirectory implements Directory {
 		}
 		return ok();
 	}
+
+	/*@Override
+	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
+		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
+			return error(BAD_REQUEST);
+
+		var fileId = fileId(filename, userId);
+
+		var file = files.get(fileId);
+		if (file == null || getUser(userIdShare, "").error() == NOT_FOUND)
+			return error(NOT_FOUND);
+
+		var user = getUser(userId, password);
+		if (!user.isOK())
+			return error(user.error());
+
+		for (URI uri : DirectoryClients.all())
+			DirectoryClients.get(uri).unshareFile(version, filename, userId, userIdShare);
+
+		return ok();
+	}*/
 
 	@Override
 	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
@@ -263,29 +285,31 @@ public class JavaDirectory implements Directory {
 		var user = getUser(userId, password);
 		if (!user.isOK())
 			return error(user.error());
-		
-		for(URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).unshareFile(version, filename, userId, userIdShare);
 
+		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
+		synchronized (uf) {
+			uf.shared().remove(fileId);
+			file.info().getSharedWith().remove(userIdShare);
+		}
 		return ok();
 	}
-	
+
 	@Override
 	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare) {
-		
-		/*if(this.version < version)
-			updateVersion(version);
-		
-		Map<String, Object> opParams = new ConcurrentHashMap<>();
-		opParams.put(Operation.FILENAME, filename);
-		opParams.put(Operation.USERID, userId);
-		opParams.put(Operation.USERID_SHARE, userIdShare);
-		opVersion.put(version, new Operation(OperationType.UNSHARE_FILE, opParams));
-		this.version = version;	*/	
-		
+
+		/*
+		 * if(this.version < version) updateVersion(version);
+		 * 
+		 * Map<String, Object> opParams = new ConcurrentHashMap<>();
+		 * opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
+		 * userId); opParams.put(Operation.USERID_SHARE, userIdShare);
+		 * opVersion.put(version, new Operation(OperationType.UNSHARE_FILE, opParams));
+		 * this.version = version;
+		 */
+
 		var fileId = fileId(filename, userId);
-		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
 		var file = files.get(fileId);
+		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
 		synchronized (uf) {
 			uf.shared().remove(fileId);
 			file.info().getSharedWith().remove(userIdShare);
@@ -295,11 +319,12 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
-		
-		//SE NAO ESTIVER ATUALIZADO E NAO FOR O PRIMARIO FAÇO ISTO certo?
-		/*if(this.version < version)
-			updateVersion(version);*/
-		
+
+		// SE NAO ESTIVER ATUALIZADO E NAO FOR O PRIMARIO FAÇO ISTO certo?
+		/*
+		 * if(this.version < version) updateVersion(version);
+		 */
+
 		if (badParam(filename))
 			return error(BAD_REQUEST);
 
@@ -320,15 +345,14 @@ public class JavaDirectory implements Directory {
 		String url = file.uri.get(0).toString();
 		String url2 = file.uri.get(1).toString();
 
-		if (url.equalsIgnoreCase(file.info().getFileURL())) 
-			file.info().setFileURL(url2);	
-		else 
-			file.info().setFileURL(url);	
+		if (url.equalsIgnoreCase(file.info().getFileURL()))
+			file.info().setFileURL(url2);
+		else
+			file.info().setFileURL(url);
 
 		return result;
 
 	}
-	
 
 	@Override
 	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
@@ -347,7 +371,6 @@ public class JavaDirectory implements Directory {
 			return ok(new ArrayList<>(infos));
 		}
 	}
-	
 
 	public static String fileId(String filename, String userId) {
 		return userId + JavaFiles.DELIMITER + filename;
@@ -415,7 +438,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	public synchronized void updateVersion(Long newVersion) {
-		
+
 		Zookeeper zk;
 		try {
 			zk = Zookeeper.getInstance();
@@ -426,19 +449,27 @@ public class JavaDirectory implements Directory {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public void execute(OperationType operationType, Operation op) {
-		switch (operationType) {	
-			case WRITE_FILE: writeFile(version, op.getOpParams(Operation.FILENAME).toString(), op.getOpParams(Operation.USERID).toString(), (ExtendedFileInfo) op.getOpParams(Operation.FILE));
-				break;
-			case DELETE_FILE: deleteFile(version, op.getOpParams(Operation.FILENAME).toString(), op.getOpParams(Operation.USERID).toString());
-				break;
-			case SHARE_FILE: shareFile(version, op.getOpParams(Operation.FILENAME).toString(), op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString());
-				break;
-			case UNSHARE_FILE: unshareFile(version, op.getOpParams(Operation.FILENAME).toString(), op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString());
-				break;
+		switch (operationType) {
+		case WRITE_FILE:
+			writeFile(version, op.getOpParams(Operation.FILENAME).toString(),
+					op.getOpParams(Operation.USERID).toString(), (ExtendedFileInfo) op.getOpParams(Operation.FILE));
+			break;
+		case DELETE_FILE:
+			deleteFile(version, op.getOpParams(Operation.FILENAME).toString(),
+					op.getOpParams(Operation.USERID).toString());
+			break;
+		case SHARE_FILE:
+			shareFile(version, op.getOpParams(Operation.FILENAME).toString(),
+					op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString());
+			break;
+		case UNSHARE_FILE:
+			unshareFile(version, op.getOpParams(Operation.FILENAME).toString(),
+					op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString());
+			break;
 		default:
 			break;
 		}

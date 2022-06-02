@@ -13,7 +13,7 @@ public interface Directory {
 
 	static String SERVICE_NAME = "directory";
 	
-	Result<FileInfo> writeFile(Long version, String filename, byte []data, String userId, String password);
+	Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password);
 	
 	Result<Void> writeFile(Long version, String filename, String userId, ExtendedFileInfo file);
 
