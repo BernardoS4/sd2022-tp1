@@ -13,25 +13,25 @@ public interface Directory {
 
 	static String SERVICE_NAME = "directory";
 	
-	Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password);
+	Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version);
 	
-	Result<Void> writeFile(Long version, String filename, String userId, ExtendedFileInfo file);
+	Result<Void> writeFile(String filename, String userId, ExtendedFileInfo file, Long version);
 
-	Result<Void> deleteFile(Long version, String filename, String userId, String password);
+	Result<Void> deleteFile(String filename, String userId, String password, Long version);
 	
-	Result<Void> deleteFile(Long version, String filename, String userId);
+	Result<Void> deleteFile(String filename, String userId, Long version);
 
-	Result<Void> shareFile(Long version, String filename, String userId, String userIdShare, String password);
+	Result<Void> shareFile(String filename, String userId, String userIdShare, String password, Long version);
 	
-	Result<Void> shareFile(Long version, String filename, String userId, String userIdShare);
+	Result<Void> shareFile(String filename, String userId, String userIdShare, Long version);
 
-	Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password);
+	Result<Void> unshareFile(String filename, String userId, String userIdShare, String password, Long version);
 	
-	Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare);
+	Result<Void> unshareFile(String filename, String userId, String userIdShare, Long version);
 
-	Result<byte[]> getFile(Long version, String filename,  String userId, String accUserId, String password);
+	Result<byte[]> getFile(String filename,  String userId, String accUserId, String password, Long version);
 
-	Result<List<FileInfo>> lsFile(Long version, String userId, String password);
+	Result<List<FileInfo>> lsFile(String userId, String password, Long version);
 		
 	Result<Void> deleteUserFiles(String userId, String password, String token);
 	

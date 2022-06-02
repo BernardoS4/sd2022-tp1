@@ -17,55 +17,55 @@ public class RetryDirectoryClient extends RetryClient implements Directory {
 	}
 
 	@Override
-	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
-		return super.reTry( ()-> impl.writeFile(version, filename, data, userId, password));
+	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version) {
+		return super.reTry( ()-> impl.writeFile(filename, data, userId, password, version));
 	}
 	
 	@Override
-	public Result<Void> writeFile(Long version, String userId, String fileId, ExtendedFileInfo file) {
-		return super.reTry( ()-> impl.writeFile(version, userId, fileId, file));
+	public Result<Void> writeFile(String userId, String fileId, ExtendedFileInfo file, Long version) {
+		return super.reTry( ()-> impl.writeFile(userId, fileId, file, version));
 	}
 
 	@Override
-	public Result<Void> deleteFile(Long version, String filename, String userId, String password) {
-		return super.reTry( ()-> impl.deleteFile(version, filename, userId, password));
+	public Result<Void> deleteFile(String filename, String userId, String password, Long version) {
+		return super.reTry( ()-> impl.deleteFile(filename, userId, password, version));
 		
 	}
 	
 	@Override
-	public Result<Void> deleteFile(Long version, String filename, String userId) {
-		return super.reTry( ()-> impl.deleteFile(version, filename, userId));
+	public Result<Void> deleteFile(String filename, String userId, Long version) {
+		return super.reTry( ()-> impl.deleteFile(filename, userId, version));
 		
 	}
 
 	@Override
-	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare, String password) {
-		return super.reTry( ()-> impl.shareFile(version, filename, userId, userIdShare, password));
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password, Long version) {
+		return super.reTry( ()-> impl.shareFile(filename, userId, userIdShare, password, version));
 	}
 	
 	@Override
-	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare) {
-		return super.reTry( ()-> impl.shareFile(version, filename, userId, userIdShare));
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, Long version) {
+		return super.reTry( ()-> impl.shareFile(filename, userId, userIdShare, version));
 	}
 
 	@Override
-	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
-		return super.reTry( ()-> impl.unshareFile(version, filename, userId, userIdShare, password));
+	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password, Long version) {
+		return super.reTry( ()-> impl.unshareFile(filename, userId, userIdShare, password, version));
 	}
 	
 	@Override
-	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare) {
-		return super.reTry( ()-> impl.unshareFile(version, filename, userId, userIdShare, userIdShare));
+	public Result<Void> unshareFile(String filename, String userId, String userIdShare, Long version) {
+		return super.reTry( ()-> impl.unshareFile(filename, userId, userIdShare, userIdShare, version));
 	}
 
 	@Override
-	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
-		return super.reTry( ()-> impl.getFile(version, filename, userId, accUserId, password));
+	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
+		return super.reTry( ()-> impl.getFile(filename, userId, accUserId, password, version));
 	}
 
 	@Override
-	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
-		return super.reTry( ()-> impl.lsFile(version, userId, password));
+	public Result<List<FileInfo>> lsFile(String userId, String password, Long version) {
+		return super.reTry( ()-> impl.lsFile(userId, password, version));
 	}
 	
 

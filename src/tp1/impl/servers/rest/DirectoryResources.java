@@ -56,14 +56,14 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		else
 			return super.resultOrThrow(Result.redirect(primaryPath));*/
 		
-		return super.resultOrThrow(impl.writeFile(version, filename, data, userId, password));
+		return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version));
 	}
 	
 	@Override
 	public void writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
 		Log.info(String.format("REST writeFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
-		super.resultOrThrow(impl.writeFile(version, filename, userId, file));
+		super.resultOrThrow(impl.writeFile(filename, userId, file, version));
 	}
 
 	@Override
@@ -76,14 +76,14 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 			super.resultOrThrow(impl.deleteFile(version, filename, userId, password));
 		else
 			super.resultOrThrow(Result.redirect(primaryPath));*/
-		super.resultOrThrow(impl.deleteFile(version, filename, userId, password));
+		super.resultOrThrow(impl.deleteFile(filename, userId, password, version));
 	}
 	
 	@Override
 	public void deleteFile(Long version, String filename, String userId) {
 		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
-		super.resultOrThrow(impl.deleteFile(version, filename, userId));
+		super.resultOrThrow(impl.deleteFile(filename, userId, version));
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 			super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare, password));
 		else
 			super.resultOrThrow(Result.redirect(primaryPath));*/
-		super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare, password));
+		super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version));
 	}
 	
 	@Override
@@ -104,7 +104,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version, filename,
 				userId, userIdShare));
 
-		super.resultOrThrow(impl.shareFile(version, filename, userId, userIdShare));
+		super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, version));
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 			super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare, password));
 		else
 			super.resultOrThrow(Result.redirect(primaryPath));*/
-		super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare, password));
+		super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version));
 	}
 	
 	@Override
@@ -125,7 +125,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
 				version, filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.unshareFile(version, filename, userId, userIdShare));
+		super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, version));
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(String.format("REST getFile: version = %d, filename = %s, userId = %s, accUserId = %s, password =%s\n", version, filename,
 				userId, accUserId, password));
 
-		var res = impl.getFile(version, filename, userId, accUserId, password);
+		var res = impl.getFile(filename, userId, accUserId, password, version);
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
 			String fileId = JavaDirectory.fileId(filename, userId);
@@ -155,7 +155,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 
 			Log.info(String.format("REST lsFile: version = %d, userId = %s, password = %s\n", version, userId, password));
 
-			return super.resultOrThrow(impl.lsFile(version, userId, password));
+			return super.resultOrThrow(impl.lsFile(userId, password, version));
 		} finally {
 			System.err.println("TOOK:" + (System.currentTimeMillis() - T0));
 		}

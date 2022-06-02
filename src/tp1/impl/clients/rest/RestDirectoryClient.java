@@ -24,7 +24,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
+	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version) {
 		Response r = target.path(userId).path(filename).queryParam(RestDirectory.PASSWORD, password).request()
 				.header(RestDirectory.HEADER_VERSION, version).accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
@@ -33,7 +33,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
+	public Result<Void> writeFile(String filename, String userId, ExtendedFileInfo file, Long version) {
 		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).request()
 				.header(RestDirectory.HEADER_VERSION, version).accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(file, MediaType.APPLICATION_JSON));
@@ -41,21 +41,21 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteFile(Long version, String filename, String userId, String password) {
+	public Result<Void> deleteFile(String filename, String userId, String password, Long version) {
 		Response r = target.path(userId).path(filename).queryParam(RestDirectory.PASSWORD, password).request()
 				.header(RestDirectory.HEADER_VERSION, version).delete();
 		return super.toJavaResult(r);
 	}
 
 	@Override
-	public Result<Void> deleteFile(Long version, String filename, String userId) {
+	public Result<Void> deleteFile(String filename, String userId, Long version) {
 		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).request()
 				.header(RestDirectory.HEADER_VERSION, version).delete();
 		return super.toJavaResult(r);
 	}
 
 	@Override
-	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare, String password) {
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password, Long version) {
 		Response r = target.path(userId).path(filename).path(SHARE).path(userIdShare)
 				.queryParam(RestDirectory.PASSWORD, password).request().header(RestDirectory.HEADER_VERSION, version)
 				.post(Entity.json(null));
@@ -63,14 +63,14 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare) {
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, Long version) {
 		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).path(SHARE).path(userIdShare)
 				.request().header(RestDirectory.HEADER_VERSION, version).post(Entity.json(null));
 		return super.toJavaResult(r);
 	}
 
 	@Override
-	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
+	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password, Long version) {
 		Response r = target.path(userId).path(filename).path(SHARE).path(userIdShare)
 				.queryParam(RestDirectory.PASSWORD, password).request().header(RestDirectory.HEADER_VERSION, version)
 				.delete();
@@ -78,14 +78,14 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare) {
+	public Result<Void> unshareFile(String filename, String userId, String userIdShare, Long version) {
 		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).path(SHARE).path(userIdShare)
 				.request().header(RestDirectory.HEADER_VERSION, version).delete();
 		return super.toJavaResult(r);
 	}
 
 	@Override
-	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
+	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
 		Response r = target.path(userId).path(filename).queryParam(RestDirectory.ACC_USER_ID, accUserId)
 				.queryParam(RestDirectory.PASSWORD, password).request().header(RestDirectory.HEADER_VERSION, version)
 				.accept(MediaType.APPLICATION_OCTET_STREAM).get();
@@ -94,7 +94,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
+	public Result<List<FileInfo>> lsFile(String userId, String password, Long version) {
 		Response r = target.path(userId).queryParam(RestDirectory.PASSWORD, password).request()
 				.header(RestDirectory.HEADER_VERSION, version).accept(MediaType.APPLICATION_JSON).get();
 		return super.toJavaResult(r, new GenericType<List<FileInfo>>() {

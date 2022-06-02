@@ -68,7 +68,7 @@ public class JavaDirectory implements Directory {
 	final Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
 
 	@Override
-	public Result<FileInfo> writeFile(Long version, String filename, byte[] data, String userId, String password) {
+	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version) {
 
 		if (badParam(filename) || badParam(userId))
 			return error(BAD_REQUEST);
@@ -109,7 +109,7 @@ public class JavaDirectory implements Directory {
 		}
 		file = new ExtendedFileInfo(uris, fileId, info);
 		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).writeFile(version, filename, userId, file);
+			DirectoryClients.get(uri).writeFile(filename, userId, file, version);
 
 		if (countWrites > 0)
 			return ok(file.info);
@@ -118,7 +118,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
+	public Result<Void> writeFile(String filename, String userId, ExtendedFileInfo file, Long version) {
 
 		/*
 		 * if(this.version < version) updateVersion(version);
@@ -142,7 +142,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteFile(Long version, String filename, String userId, String password) {
+	public Result<Void> deleteFile(String filename, String userId, String password, Long version) {
 		if (badParam(filename) || badParam(userId))
 			return error(BAD_REQUEST);
 
@@ -164,13 +164,13 @@ public class JavaDirectory implements Directory {
 		});
 
 		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).deleteFile(version, filename, userId);
+			DirectoryClients.get(uri).deleteFile(filename, userId, version);
 
 		return ok();
 	}
 
 	@Override
-	public Result<Void> deleteFile(Long version, String filename, String userId) {
+	public Result<Void> deleteFile(String filename, String userId, Long version) {
 
 		/*
 		 * if(this.version < version) updateVersion(version);
@@ -199,7 +199,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare, String password) {
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password, Long version) {
 		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
 			return error(BAD_REQUEST);
 
@@ -214,13 +214,13 @@ public class JavaDirectory implements Directory {
 			return error(user.error());
 
 		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).shareFile(version, filename, userId, userIdShare);
+			DirectoryClients.get(uri).shareFile(filename, userId, userIdShare, version);
 
 		return ok();
 	}
 
 	@Override
-	public Result<Void> shareFile(Long version, String filename, String userId, String userIdShare) {
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, Long version) {
 
 		/*
 		 * if(this.version < version) updateVersion(version);
@@ -243,7 +243,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
+	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password, Long version) {
 		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
 			return error(BAD_REQUEST);
 
@@ -265,13 +265,13 @@ public class JavaDirectory implements Directory {
 		return ok();
 		
 //		for (URI uri : DirectoryClients.all())
-//			DirectoryClients.get(uri).unshareFile(version, filename, userId, userIdShare);
+//			DirectoryClients.get(uri).unshareFile(filename, userId, userIdShare, version);
 //
 //		return ok();
 	}
 
 	@Override
-	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare) {
+	public Result<Void> unshareFile(String filename, String userId, String userIdShare, Long version) {
 
 		/*
 		 * if(this.version < version) updateVersion(version);
@@ -294,7 +294,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
+	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
 
 		// SE NAO ESTIVER ATUALIZADO E NAO FOR O PRIMARIO FAÇO ISTO certo?
 		/*
@@ -331,7 +331,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
+	public Result<List<FileInfo>> lsFile(String userId, String password, Long version) {
 		if (badParam(userId))
 			return error(BAD_REQUEST);
 
@@ -431,20 +431,20 @@ public class JavaDirectory implements Directory {
 	public void execute(OperationType operationType, Operation op) {
 		switch (operationType) {
 		case WRITE_FILE:
-			writeFile(version, op.getOpParams(Operation.FILENAME).toString(),
-					op.getOpParams(Operation.USERID).toString(), (ExtendedFileInfo) op.getOpParams(Operation.FILE));
+			writeFile(op.getOpParams(Operation.FILENAME).toString(),
+					op.getOpParams(Operation.USERID).toString(), (ExtendedFileInfo) op.getOpParams(Operation.FILE), version);
 			break;
 		case DELETE_FILE:
-			deleteFile(version, op.getOpParams(Operation.FILENAME).toString(),
-					op.getOpParams(Operation.USERID).toString());
+			deleteFile(op.getOpParams(Operation.FILENAME).toString(),
+					op.getOpParams(Operation.USERID).toString(), version);
 			break;
 		case SHARE_FILE:
-			shareFile(version, op.getOpParams(Operation.FILENAME).toString(),
-					op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString());
+			shareFile(op.getOpParams(Operation.FILENAME).toString(),
+					op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString(), version);
 			break;
 		case UNSHARE_FILE:
-			unshareFile(version, op.getOpParams(Operation.FILENAME).toString(),
-					op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString());
+			unshareFile(op.getOpParams(Operation.FILENAME).toString(),
+					op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString(), version);
 			break;
 		default:
 			break;
