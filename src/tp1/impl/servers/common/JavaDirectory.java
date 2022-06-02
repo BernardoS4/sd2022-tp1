@@ -99,8 +99,9 @@ public class JavaDirectory implements Directory {
 					info.setOwner(userId);
 					info.setFilename(filename);
 					info.setFileURL(fileURL);
-					// file = new ExtendedFileInfo(uris, fileId, info);
+					//file = new ExtendedFileInfo(uris, fileId, info);
 				} else {
+					info.setFileURL(fileURL);
 					break;
 				} 
 			} else
@@ -241,27 +242,6 @@ public class JavaDirectory implements Directory {
 		return ok();
 	}
 
-	/*@Override
-	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
-		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
-			return error(BAD_REQUEST);
-
-		var fileId = fileId(filename, userId);
-
-		var file = files.get(fileId);
-		if (file == null || getUser(userIdShare, "").error() == NOT_FOUND)
-			return error(NOT_FOUND);
-
-		var user = getUser(userId, password);
-		if (!user.isOK())
-			return error(user.error());
-
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).unshareFile(version, filename, userId, userIdShare);
-
-		return ok();
-	}*/
-
 	@Override
 	public Result<Void> unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
@@ -283,6 +263,11 @@ public class JavaDirectory implements Directory {
 			file.info().getSharedWith().remove(userIdShare);
 		}
 		return ok();
+		
+//		for (URI uri : DirectoryClients.all())
+//			DirectoryClients.get(uri).unshareFile(version, filename, userId, userIdShare);
+//
+//		return ok();
 	}
 
 	@Override
