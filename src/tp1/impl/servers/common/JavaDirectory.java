@@ -99,11 +99,11 @@ public class JavaDirectory implements Directory {
 					info.setOwner(userId);
 					info.setFilename(filename);
 					info.setFileURL(fileURL);
-					//file = new ExtendedFileInfo(uris, fileId, info);
+					// file = new ExtendedFileInfo(uris, fileId, info);
 				} else {
 					info.setFileURL(fileURL);
 					break;
-				} 
+				}
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
@@ -263,7 +263,7 @@ public class JavaDirectory implements Directory {
 //			file.info().getSharedWith().remove(userIdShare);
 //		}
 //		return ok();
-		
+
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).unshareFileSec(filename, userId, userIdShare, version);
 
@@ -431,20 +431,20 @@ public class JavaDirectory implements Directory {
 	public void execute(OperationType operationType, Operation op) {
 		switch (operationType) {
 		case WRITE_FILE:
-			writeFileSec(op.getOpParams(Operation.FILENAME).toString(),
-					op.getOpParams(Operation.USERID).toString(), (ExtendedFileInfo) op.getOpParams(Operation.FILE), version);
+			writeFileSec(op.getOpParams(Operation.FILENAME).toString(), op.getOpParams(Operation.USERID).toString(),
+					(ExtendedFileInfo) op.getOpParams(Operation.FILE), version);
 			break;
 		case DELETE_FILE:
-			deleteFileSec(op.getOpParams(Operation.FILENAME).toString(),
-					op.getOpParams(Operation.USERID).toString(), version);
+			deleteFileSec(op.getOpParams(Operation.FILENAME).toString(), op.getOpParams(Operation.USERID).toString(),
+					version);
 			break;
 		case SHARE_FILE:
-			shareFileSec(op.getOpParams(Operation.FILENAME).toString(),
-					op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString(), version);
+			shareFileSec(op.getOpParams(Operation.FILENAME).toString(), op.getOpParams(Operation.USERID).toString(),
+					op.getOpParams(Operation.USERID_SHARE).toString(), version);
 			break;
 		case UNSHARE_FILE:
-			unshareFileSec(op.getOpParams(Operation.FILENAME).toString(),
-					op.getOpParams(Operation.USERID).toString(), op.getOpParams(Operation.USERID_SHARE).toString(), version);
+			unshareFileSec(op.getOpParams(Operation.FILENAME).toString(), op.getOpParams(Operation.USERID).toString(),
+					op.getOpParams(Operation.USERID_SHARE).toString(), version);
 			break;
 		default:
 			break;

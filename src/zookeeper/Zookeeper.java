@@ -130,7 +130,9 @@ public class Zookeeper implements Watcher {
 	}
 	
 	public void createEphemerals(byte[] serverURI) {
-		var newpath = createNode(root + sufix, serverURI, CreateMode.EPHEMERAL_SEQUENTIAL);
+		String path = serverURI.toString().concat("/dir");
+		byte[] data = path.getBytes();
+		var newpath = createNode(root + sufix, data, CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.err.println(newpath);
 	}
 	
