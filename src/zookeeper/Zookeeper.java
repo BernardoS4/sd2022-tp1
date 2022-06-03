@@ -2,6 +2,7 @@ package zookeeper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -102,22 +103,13 @@ public class Zookeeper implements Watcher {
             }
             break;
         case NodeDeleted:
-            try {
-            	electLeader(event);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } 
+            electLeader(event);
             break;
         case NodeCreated:
-        	try {
-        		electLeader(event);
-        	}
-        	catch (Exception e) {
-                e.printStackTrace();
-            } 
+        	electLeader(event);
         	break;
         case NodeChildrenChanged:
-            System.out.println("Leader updated progress of task");
+        	electLeader(event);
             break;
 		default:
 			break;
@@ -130,7 +122,7 @@ public class Zookeeper implements Watcher {
 	}
 	
 	public void createEphemerals(byte[] serverURI) {
-		String path = serverURI.toString().concat("/dir");
+		String path = Arrays.toString(serverURI).concat("/dir");
 		byte[] data = path.getBytes();
 		var newpath = createNode(root + sufix, data, CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.err.println(newpath);
@@ -159,7 +151,7 @@ public class Zookeeper implements Watcher {
 
 	public void electLeader(WatchedEvent watchedEvent) {
 
-		List<String> children = getChildren(root, (Watcher) this);
+		List<String> children = getChildren(root, this);
 		Collections.sort(children);
 		
 		if(currentLeader.equals("")) {
