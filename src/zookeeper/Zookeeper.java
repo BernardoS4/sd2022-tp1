@@ -14,6 +14,8 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import jakarta.inject.Singleton;
+import java.util.concurrent.atomic.AtomicReference;
+
 
 
 @Singleton
@@ -24,8 +26,8 @@ public class Zookeeper implements Watcher {
 	private static final String KAFKA = "kafka";
 	private String root = "/directory";
 	private String sufix = "/guid-n_";
-	private String currentLeader = "";
-	private String primaryPath = "";
+	private AtomicReference<String> currentLeader;
+	private AtomicReference<String> primaryPath;
 	private static Zookeeper inst = null;
 	
 
@@ -141,12 +143,12 @@ public class Zookeeper implements Watcher {
 		}
 	}
 	
-	public String getCurrentLeader() {
+	public AtomicReference<String> getCurrentLeader() {
 		return this.currentLeader;
 	}
 
 	public void setCurrentLeader(String currentLeader) {
-		this.currentLeader = currentLeader;
+		this.currentLeader.set(currentLeader);
 	}
 
 	public void electLeader(WatchedEvent watchedEvent) {
@@ -154,21 +156,21 @@ public class Zookeeper implements Watcher {
 		List<String> children = getChildren(root, this);
 		Collections.sort(children);
 		
-		if(currentLeader.equals("")) {
+		if(getCurrentLeader().toString().equals("")) {
 			setCurrentLeader(replaceSubString(children.get(0)));
-			primaryPath = children.get(0);
+			primaryPath.set(children.get(0));
 			return;
 		}
 		
 		// watchedEvent.getPath() -> contem o caminho do no que falhou
 		// replace(root + "/", "") -> /directory/guid-n_i vai ficar guid-n_i
 		String affectedNode = replaceSubString(watchedEvent.getPath());
-		primaryPath = affectedNode;
+		primaryPath.set(affectedNode);
 
 		System.out.println("Node " + affectedNode + " crashed");
 
 		// se o no que falhou nao for o current leader
-		if (!getCurrentLeader().equalsIgnoreCase(affectedNode)) {
+		if (!getCurrentLeader().toString().equals(affectedNode)) {
 			System.out.println("No change in leader, some member nodes got partitioned or crashed");
 			return;
 		}
@@ -189,7 +191,7 @@ public class Zookeeper implements Watcher {
 
 	public String getPrimaryPath() {
 		try {
-			return new String(client().getData(primaryPath, false, null), StandardCharsets.UTF_8);
+			return new String(client().getData(primaryPath.toString(), false, null), StandardCharsets.UTF_8);
 		} catch (KeeperException | InterruptedException e) {
 			e.printStackTrace();
 			return null;

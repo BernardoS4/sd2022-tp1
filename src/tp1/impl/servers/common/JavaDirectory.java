@@ -81,33 +81,26 @@ public class JavaDirectory implements Directory {
 		var file = files.get(fileId);
 		var info = file != null ? file.info() : new FileInfo();
 		int countWrites = 0;
-		List<URI> uris = new LinkedList<>();
-		String fileURL;
+		URI[] uris = new URI[2];
 
 		for (var uri : orderCandidateFileServers(file)) {
 			String token = GenerateToken.buildToken(fileId);
 			var result = FilesClients.get(uri).writeFile(fileId, data, token);
 			if (result.isOK()) {
-				fileURL = String.format("%s/files/%s", uri, fileId);
-				try {
-					uris.add(new URI(fileURL));
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-				countWrites++;
+				uris[countWrites++] = uri;
+
 				if (countWrites < 2) {
 					info.setOwner(userId);
 					info.setFilename(filename);
-					info.setFileURL(fileURL);
-					// file = new ExtendedFileInfo(uris, fileId, info);
-				} else {
-					info.setFileURL(fileURL);
+					info.setFileURL(String.format("%s/files/%s", uri, fileId));
+				} else 		
 					break;
-				}
+			
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
 		file = new ExtendedFileInfo(uris, fileId, info);
+		files.put(fileId, file);
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).writeFileSec(filename, userId, file, version);
 
@@ -130,13 +123,16 @@ public class JavaDirectory implements Directory {
 		 */
 
 		var fileId = fileId(filename, userId);
-		// files.put(fileId, file);
-		var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
-		synchronized (uf) {
+
+		if (file != null) {
 			files.put(fileId, file);
-			if (uf.owned().add(fileId))
-				for (URI fileUri : file.uri)
-					getFileCounts(fileUri, true).numFiles().incrementAndGet();
+
+			var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
+			synchronized (uf) {
+				if (uf.owned().add(fileId))
+					for (URI fileUri : file.uri)
+						getFileCounts(fileUri, true).numFiles().incrementAndGet();
+			}
 		}
 		return ok();
 	}
@@ -316,18 +312,20 @@ public class JavaDirectory implements Directory {
 		if (!file.info().hasAccess(accUserId))
 			return error(FORBIDDEN);
 
-		Result<byte[]> result = redirect(file.info().getFileURL());
+		var fileURL = file.info().getFileURL();
 
-		String url = file.uri.get(0).toString();
-		String url2 = file.uri.get(1).toString();
+		Result<byte[]> result = redirect(fileURL);
 
-		if (url.equalsIgnoreCase(file.info().getFileURL()))
-			file.info().setFileURL(url2);
-		else
-			file.info().setFileURL(url);
-
+		for (URI uri : file.uri) {
+			var newURL = String.format("%s/files/%s", uri, fileId);
+			Log.info("ANTIGO    " + fileURL);
+			Log.info("NOVO      " + newURL);
+			if (!fileURL.equalsIgnoreCase(newURL)) {
+				file.info().setFileURL(newURL);
+				break;
+			}
+		}
 		return result;
-
 	}
 
 	@Override
@@ -390,7 +388,8 @@ public class JavaDirectory implements Directory {
 		Queue<URI> result = new ArrayDeque<>();
 
 		if (file != null)
-			result.addAll(file.uri());
+			for (URI uri : file.uri)
+				result.add(uri);
 
 		FilesClients.all().stream().filter(u -> !result.contains(u)).map(u -> getFileCounts(u, false))
 				.sorted(FileCounts::ascending).map(FileCounts::uri).limit(MAX_SIZE).forEach(result::add);
@@ -451,7 +450,7 @@ public class JavaDirectory implements Directory {
 		}
 	}
 
-	public static record ExtendedFileInfo(List<URI> uri, String fileId, FileInfo info) {
+	public static record ExtendedFileInfo(URI[] uri, String fileId, FileInfo info) {
 	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {

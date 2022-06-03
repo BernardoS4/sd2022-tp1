@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import jakarta.jws.WebService;
+import token.GenerateToken;
 import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
@@ -35,7 +36,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 
 		Result<FileInfo> res = impl.writeFile(filename, data, userId, password, DEFAULT_VERSION);
 		if(res.isOK())
-			impl.writeFileSec(filename, userId, null, DEFAULT_VERSION);
+			writeFileSec(filename, userId, null);
 		return super.resultOrThrow(res, DirectoryException::new);
 	}
 
@@ -46,7 +47,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 
 		Result<Void> res = impl.deleteFile(filename, userId, password, DEFAULT_VERSION);
 		if(res.isOK())
-			impl.deleteFileSec(filename, userId, DEFAULT_VERSION);
+			deleteFileSec(filename, userId);
 		super.resultOrThrow(res, DirectoryException::new);
 	}
 
@@ -58,7 +59,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 		
 		Result<Void> res = impl.shareFile(filename, userId, userIdShare, password, DEFAULT_VERSION);
 		if(res.isOK())
-			impl.shareFileSec(filename, userId, userIdShare, DEFAULT_VERSION);
+			shareFileSec(filename, userId, userIdShare);
 		super.resultOrThrow(res, DirectoryException::new);
 	}
 
@@ -70,7 +71,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 
 		Result<Void> res = impl.unshareFile(filename, userId, userIdShare, password, DEFAULT_VERSION);
 		if(res.isOK())
-			impl.unshareFileSec(filename, userId, userIdShare, DEFAULT_VERSION);
+			unshareFileSec(filename, userId, userIdShare);
 		super.resultOrThrow(res, DirectoryException::new);
 	}
 
@@ -84,7 +85,8 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
 			String fileId = JavaDirectory.fileId(filename, userId);
-			res = FilesClients.get(location).getFile(fileId, password);
+			String token = GenerateToken.buildToken(fileId);
+			res = FilesClients.get(location).getFile(fileId, token);
 		}
 		return super.resultOrThrow(res, DirectoryException::new);
 	}
