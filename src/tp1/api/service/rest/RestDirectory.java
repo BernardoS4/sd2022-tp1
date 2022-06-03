@@ -55,7 +55,7 @@ public interface RestDirectory {
 	
 	@POST
 	@Path("/{" + PREFIX + "}/{" + USER_ID + "}/{" + FILENAME + "}")
-	void writeFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId, ExtendedFileInfo file);
+	void writeFileSec(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId, ExtendedFileInfo file);
 
 	/**
 	 * Delete an existing file ("userId/filename"). Only the owner (userId) can
@@ -75,7 +75,7 @@ public interface RestDirectory {
 	
 	@DELETE
 	@Path("/{" + PREFIX + "}/{" + USER_ID + "}/{" + FILENAME + "}")
-	void deleteFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId);
+	void deleteFileSec(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId);
 
 	/**
 	 * Share the file "userId/filename" with another user. Only the owner (userId)
@@ -100,7 +100,7 @@ public interface RestDirectory {
 	
 	@POST
 	@Path("/{" + PREFIX + "}/{" + USER_ID + "}/{" + FILENAME + "}/share/{" + USER_ID_SHARE + "}")
-	void shareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
+	void shareFileSec(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
 			@PathParam(USER_ID_SHARE) String userIdShare);
 
 	/**
@@ -126,7 +126,7 @@ public interface RestDirectory {
 	
 	@DELETE
 	@Path("/{" + PREFIX + "}/{" + USER_ID + "}/{" + FILENAME + "}/share/{" + USER_ID_SHARE + "}")
-	void unshareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
+	void unshareFileSec(@HeaderParam(HEADER_VERSION) Long version, @PathParam(FILENAME) String filename, @PathParam(USER_ID) String userId,
 			@PathParam(USER_ID_SHARE) String userIdShare);
 
 	/**

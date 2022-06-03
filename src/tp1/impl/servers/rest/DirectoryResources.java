@@ -60,10 +60,10 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	}
 	
 	@Override
-	public void writeFile(Long version, String filename, String userId, ExtendedFileInfo file) {
+	public void writeFileSec(Long version, String filename, String userId, ExtendedFileInfo file) {
 		Log.info(String.format("REST writeFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
-		super.resultOrThrow(impl.writeFile(filename, userId, file, version));
+		super.resultOrThrow(impl.writeFileSec(filename, userId, file, version));
 	}
 
 	@Override
@@ -80,10 +80,10 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	}
 	
 	@Override
-	public void deleteFile(Long version, String filename, String userId) {
+	public void deleteFileSec(Long version, String filename, String userId) {
 		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
-		super.resultOrThrow(impl.deleteFile(filename, userId, version));
+		super.resultOrThrow(impl.deleteFileSec(filename, userId, version));
 	}
 
 	@Override
@@ -100,11 +100,11 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	}
 	
 	@Override
-	public void shareFile(Long version, String filename, String userId, String userIdShare) {
+	public void shareFileSec(Long version, String filename, String userId, String userIdShare) {
 		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version, filename,
 				userId, userIdShare));
 
-		super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, version));
+		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare, version));
 	}
 
 	@Override
@@ -121,11 +121,11 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	}
 	
 	@Override
-	public void unshareFile(Long version, String filename, String userId, String userIdShare) {
+	public void unshareFileSec(Long version, String filename, String userId, String userIdShare) {
 		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
 				version, filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, version));
+		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare, version));
 	}
 
 	@Override

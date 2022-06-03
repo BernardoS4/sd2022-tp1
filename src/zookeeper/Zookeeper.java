@@ -116,7 +116,7 @@ public class Zookeeper implements Watcher {
                 e.printStackTrace();
             } 
         	break;
-        case NodeDataChanged:
+        case NodeChildrenChanged:
             System.out.println("Leader updated progress of task");
             break;
 		default:

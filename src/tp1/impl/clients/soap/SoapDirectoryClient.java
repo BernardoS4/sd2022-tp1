@@ -22,7 +22,7 @@ public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Di
 			return service.getPort(SoapDirectory.class);
 		});
 	}
-
+ 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version) {
 		return super.toJavaResult(() -> impl.writeFile(filename, data, userId, password));
@@ -59,22 +59,22 @@ public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Di
 	}
 
 	@Override
-	public Result<Void> writeFile(String filename, String userId, ExtendedFileInfo file, Long version) {
-		return super.toJavaResult(() -> impl.writeFile(filename, userId, file));
+	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file, Long version) {
+		return super.toJavaResult(() -> impl.writeFileSec(filename, userId, file));
 	}
 
 	@Override
-	public Result<Void> deleteFile(String filename, String userId, Long version) {
-		return super.toJavaResult(() -> impl.deleteFile(filename, userId));
+	public Result<Void> deleteFileSec(String filename, String userId, Long version) {
+		return super.toJavaResult(() -> impl.deleteFileSec(filename, userId));
 	}
 
 	@Override
-	public Result<Void> shareFile(String filename, String userId, String userIdShare, Long version) {
-		return super.toJavaResult(() -> impl.shareFile(filename, userId, userIdShare));
+	public Result<Void> shareFileSec(String filename, String userId, String userIdShare, Long version) {
+		return super.toJavaResult(() -> impl.shareFileSec(filename, userId, userIdShare));
 	}
 
 	@Override
-	public Result<Void> unshareFile(String filename, String userId, String userIdShare, Long version) {
-		return super.toJavaResult(() -> impl.unshareFile(filename, userId, userIdShare));
+	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare, Long version) {
+		return super.toJavaResult(() -> impl.unshareFileSec(filename, userId, userIdShare));
 	}
 }

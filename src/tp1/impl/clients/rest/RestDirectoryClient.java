@@ -33,7 +33,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> writeFile(String filename, String userId, ExtendedFileInfo file, Long version) {
+	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file, Long version) {
 		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).request()
 				.header(RestDirectory.HEADER_VERSION, version).accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(file, MediaType.APPLICATION_JSON));
@@ -48,7 +48,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteFile(String filename, String userId, Long version) {
+	public Result<Void> deleteFileSec(String filename, String userId, Long version) {
 		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).request()
 				.header(RestDirectory.HEADER_VERSION, version).delete();
 		return super.toJavaResult(r);
@@ -63,7 +63,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> shareFile(String filename, String userId, String userIdShare, Long version) {
+	public Result<Void> shareFileSec(String filename, String userId, String userIdShare, Long version) {
 		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).path(SHARE).path(userIdShare)
 				.request().header(RestDirectory.HEADER_VERSION, version).post(Entity.json(null));
 		return super.toJavaResult(r);
@@ -78,7 +78,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> unshareFile(String filename, String userId, String userIdShare, Long version) {
+	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare, Long version) {
 		Response r = target.path(RestDirectory.PREFIX).path(userId).path(filename).path(SHARE).path(userIdShare)
 				.request().header(RestDirectory.HEADER_VERSION, version).delete();
 		return super.toJavaResult(r);

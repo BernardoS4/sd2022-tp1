@@ -6,7 +6,6 @@ import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
-import token.GenerateToken;
 
 public class RetryDirectoryClient extends RetryClient implements Directory {
 
@@ -22,8 +21,8 @@ public class RetryDirectoryClient extends RetryClient implements Directory {
 	}
 	
 	@Override
-	public Result<Void> writeFile(String userId, String fileId, ExtendedFileInfo file, Long version) {
-		return super.reTry( ()-> impl.writeFile(userId, fileId, file, version));
+	public Result<Void> writeFileSec(String userId, String fileId, ExtendedFileInfo file, Long version) {
+		return super.reTry( ()-> impl.writeFileSec(userId, fileId, file, version));
 	}
 
 	@Override
@@ -33,8 +32,8 @@ public class RetryDirectoryClient extends RetryClient implements Directory {
 	}
 	
 	@Override
-	public Result<Void> deleteFile(String filename, String userId, Long version) {
-		return super.reTry( ()-> impl.deleteFile(filename, userId, version));
+	public Result<Void> deleteFileSec(String filename, String userId, Long version) {
+		return super.reTry( ()-> impl.deleteFileSec(filename, userId, version));
 		
 	}
 
@@ -44,8 +43,8 @@ public class RetryDirectoryClient extends RetryClient implements Directory {
 	}
 	
 	@Override
-	public Result<Void> shareFile(String filename, String userId, String userIdShare, Long version) {
-		return super.reTry( ()-> impl.shareFile(filename, userId, userIdShare, version));
+	public Result<Void> shareFileSec(String filename, String userId, String userIdShare, Long version) {
+		return super.reTry( ()-> impl.shareFileSec(filename, userId, userIdShare, version));
 	}
 
 	@Override
@@ -54,8 +53,8 @@ public class RetryDirectoryClient extends RetryClient implements Directory {
 	}
 	
 	@Override
-	public Result<Void> unshareFile(String filename, String userId, String userIdShare, Long version) {
-		return super.reTry( ()-> impl.unshareFile(filename, userId, userIdShare, userIdShare, version));
+	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare, Long version) {
+		return super.reTry( ()-> impl.unshareFileSec(filename, userId, userIdShare, version));
 	}
 
 	@Override
