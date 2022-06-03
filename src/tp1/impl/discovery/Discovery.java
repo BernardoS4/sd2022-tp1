@@ -34,6 +34,7 @@ public class Discovery {
 	static final InetSocketAddress DISCOVERY_ADDR = new InetSocketAddress("226.226.226.226", 2262);
 
 	final Map<String, Set<URI>> discoveries = new ConcurrentHashMap<>();
+	final Map<URI, Long> lastURI = new ConcurrentHashMap<>();
 	
 	static Discovery instance;
 	
@@ -43,6 +44,10 @@ public class Discovery {
 			new Thread( instance::listener ).start();
 		}
 		return instance;
+	}
+	
+	public Long getUriTime(URI uri) {
+		return lastURI.get(uri);
 	}
 
 	/**
@@ -99,6 +104,7 @@ public class Discovery {
 						var uri = URI.create( tokens[1]);
 						
 						discoveries.computeIfAbsent(name, (k) -> ConcurrentHashMap.newKeySet()).add( uri );
+						lastURI.put(uri, System.currentTimeMillis());
 					}
 				} catch (IOException e) {
 					Sleep.ms(DISCOVERY_PERIOD);

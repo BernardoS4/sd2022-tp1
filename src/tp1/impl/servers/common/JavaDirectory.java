@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import tp1.api.User;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
+import tp1.impl.discovery.Discovery;
 import util.Operation;
 import util.OperationType;
 import zookeeper.Zookeeper;
@@ -315,8 +317,22 @@ public class JavaDirectory implements Directory {
 		var fileURL = file.info().getFileURL();
 
 		Result<byte[]> result = redirect(fileURL);
-
-		for (URI uri : file.uri) {
+		Discovery d = Discovery.getInstance();
+		
+		for(URI u : d.findUrisOf(SERVICE_NAME, 1)) {
+			
+			//ta up
+			if(System.currentTimeMillis() - d.getUriTime(u) < 10 && Arrays.asList(file.uri).contains(u)) {
+				var newURL = String.format("%s/files/%s", u, fileId);
+				if (!fileURL.equalsIgnoreCase(newURL)) {
+					file.info().setFileURL(newURL);
+					break;
+				}
+			}
+		}
+		
+		/*for (URI uri : file.uri) {
+			
 			var newURL = String.format("%s/files/%s", uri, fileId);
 			Log.info("ANTIGO    " + fileURL);
 			Log.info("NOVO      " + newURL);
@@ -324,7 +340,7 @@ public class JavaDirectory implements Directory {
 				file.info().setFileURL(newURL);
 				break;
 			}
-		}
+		}*/
 		return result;
 	}
 
