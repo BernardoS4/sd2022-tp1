@@ -315,19 +315,17 @@ public class JavaDirectory implements Directory {
 			return error(FORBIDDEN);
 
 		var fileURL = file.info().getFileURL();
+		Log.info("OLDDDDDD    " + fileURL);
 
 		Discovery d = Discovery.getInstance();
 
 		for (URI u : d.findUrisOf(SERVICE_NAME, 1)) {
 			if (System.currentTimeMillis() - d.getUriTime(u) < 10 && Arrays.asList(file.uri).contains(u)) {
-				var newURL = String.format("%s/files/%s", u, fileId);
-				if (!fileURL.equalsIgnoreCase(newURL)) {
-					fileURL = newURL;
-					//file.info().setFileURL(newURL);
-					break;
-				}
+				fileURL = String.format("%s/files/%s", u, fileId);
+				Log.info("NAO TA A ENTRAR AQUI    " + fileURL);
 			}
 		}
+		Log.info("NEWWWWW    " + fileURL);
 		Result<byte[]> result = redirect(fileURL);
 
 		return result;
