@@ -110,7 +110,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	public void writeFileSec(String filename, String userId, ExtendedFileInfo file) {
 		Log.info(String.format("SOAP writeFile: filename = %s, userId = %s\n", filename, userId));
 		try {
-			super.resultOrThrow(impl.writeFileSec(filename, userId, null, DEFAULT_VERSION), DirectoryException::new);
+			super.resultOrThrow(impl.writeFileSec(filename, userId, null), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}
@@ -121,7 +121,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	public void deleteFileSec(String filename, String userId) {
 		Log.info(String.format("SOAP deleteFile: filename = %s, userId = %s\n", filename, userId));
 		try {
-			super.resultOrThrow(impl.deleteFileSec(filename, userId, DEFAULT_VERSION), DirectoryException::new);
+			super.resultOrThrow(impl.deleteFileSec(filename, userId), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}
@@ -133,7 +133,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 		Log.info(String.format("SOAP shareFile: filename = %s, userId = %s, userIdShare = %s\n", filename, userId,
 				userIdShare));
 		try {
-			super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare, DEFAULT_VERSION), DirectoryException::new);
+			super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}
@@ -145,7 +145,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 		Log.info(String.format("SOAP unshareFile: filename = %s, userId = %s, userIdShare = %s\n", filename, userId,
 				userIdShare));
 		try {
-			super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare, DEFAULT_VERSION), DirectoryException::new);
+			super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare), DirectoryException::new);
 		} catch (DirectoryException e) {
 			e.printStackTrace();
 		}

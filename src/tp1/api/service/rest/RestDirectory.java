@@ -20,6 +20,7 @@ import util.Operation;
 @Path(RestDirectory.PATH)
 public interface RestDirectory {
 
+	public static final String FILE = "file";
 	public static final String PATH = "/dir";
 	public static final String TOKEN = "token";
 	public static final String PREFIX = "prefix";

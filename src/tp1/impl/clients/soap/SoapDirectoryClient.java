@@ -59,22 +59,22 @@ public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Di
 	}
 
 	@Override
-	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file, Long version) {
+	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file) {
 		return super.toJavaResult(() -> impl.writeFileSec(filename, userId, file));
 	}
 
 	@Override
-	public Result<Void> deleteFileSec(String filename, String userId, Long version) {
+	public Result<Void> deleteFileSec(String filename, String userId) {
 		return super.toJavaResult(() -> impl.deleteFileSec(filename, userId));
 	}
 
 	@Override
-	public Result<Void> shareFileSec(String filename, String userId, String userIdShare, Long version) {
+	public Result<Void> shareFileSec(String filename, String userId, String userIdShare) {
 		return super.toJavaResult(() -> impl.shareFileSec(filename, userId, userIdShare));
 	}
 
 	@Override
-	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare, Long version) {
+	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare) {
 		return super.toJavaResult(() -> impl.unshareFileSec(filename, userId, userIdShare));
 	}
 }

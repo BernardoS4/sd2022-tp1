@@ -35,16 +35,17 @@ import tp1.api.User;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
+import tp1.api.service.rest.RestDirectory;
 import tp1.impl.discovery.Discovery;
+import util.JSON;
 import util.Operation;
 import util.OperationType;
-import zookeeper.Zookeeper;
 
-public class JavaDirectory implements Directory {
+public class JavaRepDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
 	static final int MAX_URLS = 2;
-	private long version = -1L;
+	private ReplicationManager repMan;
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
@@ -65,6 +66,7 @@ public class JavaDirectory implements Directory {
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
 	final Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
+
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version) {
@@ -101,8 +103,11 @@ public class JavaDirectory implements Directory {
 		file = new ExtendedFileInfo(uris, fileId, info);
 		files.put(fileId, file);
 
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).writeFileSec(filename, userId, file);
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
+		opParams.put(RestDirectory.FILE, JSON.encode(file));
+		repMan.publish("writeFile", JSON.encode(opParams));
 
 		if (countWrites > 0)
 			return ok(file.info);
@@ -112,16 +117,6 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file) {
-
-		
-		if(this.version < version) updateVersion(version);
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); 
-//		opParams.put(Operation.USERID,userId); 
-//		opParams.put(Operation.FILE, file); 
-//		opVersion.put(version, new Operation(OperationType.WRITE_FILE, opParams)); 
-//		this.version = version;  
 
 		var fileId = fileId(filename, userId);
 
@@ -161,8 +156,10 @@ public class JavaDirectory implements Directory {
 			}
 		});
 
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).deleteFileSec(filename, userId);
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
+		repMan.publish("deleteFile", JSON.encode(opParams));
 
 		return ok();
 	}
@@ -170,13 +167,6 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> deleteFileSec(String filename, String userId) {
 
-		
-		if(this.version < version) updateVersion(version);
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-//		userId); opVersion.put(version, new Operation(OperationType.DELETE_FILE,
-//		opParams)); this.version = version;
 		 
 
 		var fileId = fileId(filename, userId);
@@ -211,23 +201,17 @@ public class JavaDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).shareFileSec(filename, userId, userIdShare);
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userIdShare)); 
+		repMan.publish("shareFile", JSON.encode(opParams));
 
 		return ok();
 	}
 
 	@Override
 	public Result<Void> shareFileSec(String filename, String userId, String userIdShare) {
-
-		if(this.version < version) updateVersion(version);
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-//		userId); opParams.put(Operation.USERID_SHARE, userIdShare);
-//		opVersion.put(version, new Operation(OperationType.SHARE_FILE, opParams));
-//		this.version = version;
-		 
 
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
@@ -254,24 +238,17 @@ public class JavaDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).unshareFileSec(filename, userId, userIdShare);
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userIdShare)); 
+		repMan.publish("unshareFile", JSON.encode(opParams));
 
 		return ok();
 	}
 
 	@Override
 	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare) {
-
-		
-		if(this.version < version) updateVersion(version);
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-//		userId); opParams.put(Operation.USERID_SHARE, userIdShare);
-//		opVersion.put(version, new Operation(OperationType.UNSHARE_FILE, opParams));
-//		this.version = version;
-		 
 
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
@@ -285,8 +262,6 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
-
-		if(this.version < version) updateVersion(version);
 
 		if (badParam(filename))
 			return error(BAD_REQUEST);
@@ -393,21 +368,6 @@ public class JavaDirectory implements Directory {
 		return ok(opVersion.get(version));
 	}
 
-	public synchronized void updateVersion(Long newVersion) {
-
-		Zookeeper zk;
-		try {
-			zk = Zookeeper.getInstance();
-			while (version < newVersion) {
-				Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
-				execute(op.getType(), op);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
 	public void execute(OperationType operationType, Operation op) {
 		switch (operationType) {
 		case WRITE_FILE:
@@ -452,4 +412,12 @@ public class JavaDirectory implements Directory {
 
 	static record UserInfo(String userId, String password) {
 	}
+
+	@Override
+	public Result<Void> writeFileSec(String filename, String userId,
+			tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo file) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

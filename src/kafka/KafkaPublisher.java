@@ -57,9 +57,6 @@ public class KafkaPublisher {
 	
 	
 	public static void main(String[] args) throws Exception {
-
-		
-		
 		
 	}
 }
