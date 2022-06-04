@@ -319,16 +319,29 @@ public class JavaDirectory implements Directory {
 
 		Discovery d = Discovery.getInstance();
 
-		for (URI u : d.findUrisOf(SERVICE_NAME, 1)) {
-			if (System.currentTimeMillis() - d.getUriTime(u) < 10 && Arrays.asList(file.uri).contains(u)) {
+		/*for (URI u : d.findUrisOf(SERVICE_NAME, 1)) {
+			boolean b = System.currentTimeMillis() - d.getUriTime(u) < 10000;
+			Long diff = System.currentTimeMillis() - d.getUriTime(u);
+			Log.info("BOOLEANO------------------    " + b);
+			Log.info("TEMPO DIFFFFFFFFF------------------    " + diff);
+			List<URI> us = Arrays.asList(file.uri);
+			Log.info("SEGUNDA ------------------    " + us.contains(u));
+			Log.info("UUUUUUUUUUUUUUUUUUUUUUUUU    " + u);
+			for(URI ya : us) Log.info("LISTA URI:------------------    " + ya);
+			if (System.currentTimeMillis() - d.getUriTime(u) < 10000 && Arrays.asList(file.uri).contains(u)) {
 				fileURL = String.format("%s/files/%s", u, fileId);
 				Log.info("NAO TA A ENTRAR AQUI    " + fileURL);
 			}
+		}*/
+		for (URI uri : file.uri) {
+		
+			var newURL = String.format("%s/files/%s", uri, fileId);
+			if (!fileURL.equalsIgnoreCase(newURL)) {
+				file.info().setFileURL(newURL);
+				break;
+			}
 		}
-		Log.info("NEWWWWW    " + fileURL);
-		Result<byte[]> result = redirect(fileURL);
-
-		return result;
+		return redirect(fileURL);
 	}
 
 	@Override
