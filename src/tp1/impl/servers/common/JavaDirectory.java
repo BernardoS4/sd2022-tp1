@@ -10,12 +10,10 @@ import static tp1.impl.clients.Clients.FilesClients;
 import static tp1.impl.clients.Clients.UsersClients;
 import static tp1.impl.clients.Clients.DirectoryClients;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -95,14 +93,15 @@ public class JavaDirectory implements Directory {
 					info.setOwner(userId);
 					info.setFilename(filename);
 					info.setFileURL(String.format("%s/files/%s", uri, fileId));
-				} else 		
+				} else
 					break;
-			
+
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
 		file = new ExtendedFileInfo(uris, fileId, info);
 		files.put(fileId, file);
+
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).writeFileSec(filename, userId, file, version);
 
@@ -126,15 +125,16 @@ public class JavaDirectory implements Directory {
 
 		var fileId = fileId(filename, userId);
 
-		if (file != null) {
+		if (file != null)
 			files.put(fileId, file);
+		else
+			file = files.get(fileId); 
 
-			var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
-			synchronized (uf) {
-				if (uf.owned().add(fileId))
-					for (URI fileUri : file.uri)
-						getFileCounts(fileUri, true).numFiles().incrementAndGet();
-			}
+		var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
+		synchronized (uf) {
+			if (uf.owned().add(fileId))
+				for (URI fileUri : file.uri)
+					getFileCounts(fileUri, true).numFiles().incrementAndGet();
 		}
 		return ok();
 	}
@@ -316,31 +316,20 @@ public class JavaDirectory implements Directory {
 
 		var fileURL = file.info().getFileURL();
 
-		Result<byte[]> result = redirect(fileURL);
 		Discovery d = Discovery.getInstance();
-		
-		for(URI u : d.findUrisOf(SERVICE_NAME, 1)) {
-			
-			//ta up
-			if(System.currentTimeMillis() - d.getUriTime(u) < 10 && Arrays.asList(file.uri).contains(u)) {
+
+		for (URI u : d.findUrisOf(SERVICE_NAME, 1)) {
+			if (System.currentTimeMillis() - d.getUriTime(u) < 10 && Arrays.asList(file.uri).contains(u)) {
 				var newURL = String.format("%s/files/%s", u, fileId);
 				if (!fileURL.equalsIgnoreCase(newURL)) {
-					file.info().setFileURL(newURL);
+					fileURL = newURL;
+					//file.info().setFileURL(newURL);
 					break;
 				}
 			}
 		}
-		
-		/*for (URI uri : file.uri) {
-			
-			var newURL = String.format("%s/files/%s", uri, fileId);
-			Log.info("ANTIGO    " + fileURL);
-			Log.info("NOVO      " + newURL);
-			if (!fileURL.equalsIgnoreCase(newURL)) {
-				file.info().setFileURL(newURL);
-				break;
-			}
-		}*/
+		Result<byte[]> result = redirect(fileURL);
+
 		return result;
 	}
 

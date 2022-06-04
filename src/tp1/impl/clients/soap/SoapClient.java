@@ -18,59 +18,54 @@ import tp1.impl.clients.common.RetryClient;
 import tp1.tls.InsecureHostnameVerifier;
 
 /**
-* 
-* Shared behavior among SOAP clients.
-* 
-* Holds endpoint information.
-* 
-* Translates soap responses/exceptions to Result<T> for interoperability.
-*  
-* @author smduarte
-*
-*/
+ * 
+ * Shared behavior among SOAP clients.
+ * 
+ * Holds endpoint information.
+ * 
+ * Translates soap responses/exceptions to Result<T> for interoperability.
+ * 
+ * @author smduarte
+ *
+ */
 abstract class SoapClient<T> extends RetryClient {
-	
+
 	protected static final String WSDL = "?wsdl";
 
 	protected final URI uri;
 	protected final T impl;
-	
+
 	public SoapClient(URI uri, Supplier<T> func) {
 		HttpsURLConnection.setDefaultHostnameVerifier(new InsecureHostnameVerifier());
 		this.uri = uri;
 		this.impl = func.get();
 		this.setTimeouts((BindingProvider) impl);
-		
+
 	}
 
-	private void setTimeouts(BindingProvider port ) {
+	private void setTimeouts(BindingProvider port) {
 		port.getRequestContext().put(BindingProviderProperties.CONNECT_TIMEOUT, CONNECT_TIMEOUT);
-		port.getRequestContext().put(BindingProviderProperties.REQUEST_TIMEOUT, READ_TIMEOUT);		
+		port.getRequestContext().put(BindingProviderProperties.REQUEST_TIMEOUT, READ_TIMEOUT);
 	}
-
-	
-	
 
 	protected <R> Result<R> toJavaResult(ResultSupplier<R> supplier) {
 		try {
-			return ok( supplier.get());	
-		} 
-		catch (Exception e) {			
-			if( e instanceof WebServiceException ) {
-				throw new RuntimeException( e.getMessage() );
-			}			
+			return ok(supplier.get());
+		} catch (Exception e) {
+			if (e instanceof WebServiceException) {
+				throw new RuntimeException(e.getMessage());
+			}
 			return error(getErrorCodeFrom(e));
 		}
 	}
 
-	protected <R> Result<R> toJavaResult( VoidSupplier r) {
+	protected <R> Result<R> toJavaResult(VoidSupplier r) {
 		try {
 			r.run();
 			return ok();
-		}
-		catch (Exception e) {
-			if( e instanceof WebServiceException ) {
-				throw new RuntimeException( e.getMessage() );				
+		} catch (Exception e) {
+			if (e instanceof WebServiceException) {
+				throw new RuntimeException(e.getMessage());
 			}
 			return error(getErrorCodeFrom(e));
 		}
@@ -78,9 +73,9 @@ abstract class SoapClient<T> extends RetryClient {
 
 	static private ErrorCode getErrorCodeFrom(Exception e) {
 		try {
-			return ErrorCode.valueOf( e.getMessage() );			
-		} catch( IllegalArgumentException x) {			
-			return ErrorCode.INTERNAL_ERROR ;			
+			return ErrorCode.valueOf(e.getMessage());
+		} catch (IllegalArgumentException x) {
+			return ErrorCode.INTERNAL_ERROR;
 		}
 	}
 
@@ -91,9 +86,9 @@ abstract class SoapClient<T> extends RetryClient {
 	static interface VoidSupplier {
 		void run() throws Exception;
 	}
-	
+
 	@Override
 	public String toString() {
 		return uri.toString();
-	}	
+	}
 }
