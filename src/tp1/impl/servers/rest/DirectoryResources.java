@@ -32,7 +32,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(String.format(
 				"REST writeFile: version = %d, filename = %s, data.length = %d, userId = %s, password = %s \n", version,
 				filename, data.length, userId, password));
-
+		
 		return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version), version);
 	}
 

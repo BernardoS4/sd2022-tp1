@@ -14,6 +14,8 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import jakarta.inject.Singleton;
+import util.Sleep;
+
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -34,6 +36,8 @@ public class Zookeeper implements Watcher {
 	private Zookeeper() {
 		try {
 			this.connect(KAFKA, timeout);
+			createPersistent();
+			watchEvents();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -98,33 +102,16 @@ public class Zookeeper implements Watcher {
 	public void process(WatchedEvent event) {
 		
 		switch (event.getType()) {
-        case None:
-            if (event.getState() == Event.KeeperState.SyncConnected) {
-                System.out.println("Successfully connected to Zookeeper");
-            } else {
-                synchronized (_client) {
-                    System.out.println("Disconnected from Zookeeper event");
-                    _client.notifyAll();
-                }
-            }
-            break;
-        case NodeDeleted:
-            electLeader(event);
-            break;
-        case NodeCreated:
-        	electLeader(event);
-        	break;
         case NodeChildrenChanged:
         	electLeader(event);
             break;
 		default:
 			break;
-    }
-		System.err.println(event);
+		}
 	}
 	
-	public void createPersistent(byte[] serverURI) {
-		createNode(root, serverURI, CreateMode.PERSISTENT);
+	public void createPersistent() {
+		createNode(root, new byte[0], CreateMode.PERSISTENT);
 	}
 	
 	public void createEphemerals(byte[] serverURI) {
@@ -138,11 +125,7 @@ public class Zookeeper implements Watcher {
 		for(;;) {
 			new Thread(() -> {
 				getChildren(root, this::process);
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
+				Sleep.ms(1000);
 			}).start();
 		}
 	}
@@ -169,19 +152,10 @@ public class Zookeeper implements Watcher {
 		String affectedNode = replaceSubString(watchedEvent.getPath());
 		primaryPath.set(affectedNode);
 
-		System.out.println("Node " + affectedNode + " crashed");
-
-		if (!getCurrentLeader().toString().equals(affectedNode)) {
-			System.out.println("No change in leader, some member nodes got partitioned or crashed");
-			return;
-		}
-
 		for (String nominee : children) {
 			System.out.println("Nominee " + nominee);
 		}
-
 		setCurrentLeader(replaceSubString(children.get(0)));
-		System.out.println("Successful re-election. Elected " + getCurrentLeader());
 	}
 
 	private String replaceSubString(String path) {
