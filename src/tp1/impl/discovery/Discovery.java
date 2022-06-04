@@ -11,7 +11,9 @@ import java.net.SocketException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -44,10 +46,6 @@ public class Discovery {
 			new Thread( instance::listener ).start();
 		}
 		return instance;
-	}
-	
-	public Long getUriTime(URI uri) {
-		return lastURI.get(uri);
 	}
 
 	/**
@@ -127,6 +125,19 @@ public class Discovery {
 			else
 				Sleep.ms( DISCOVERY_PERIOD );
 		}
+	}
+	
+	public URI getUriToRedirect(List<URI> uris) {
+		URI uriToRedirect = null; 
+		
+		for(URI uri: uris) {
+			long lastAnnounce = lastURI.get(uri);
+			if(System.currentTimeMillis() - lastAnnounce < DISCOVERY_TIMEOUT) {
+				uriToRedirect = uri;
+				break;
+			}
+		}
+		return uriToRedirect;
 	}
 
 	static private void joinGroupInAllInterfaces(MulticastSocket ms) throws SocketException {

@@ -13,7 +13,6 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -81,14 +80,14 @@ public class JavaDirectory implements Directory {
 		var file = files.get(fileId);
 		var info = file != null ? file.info() : new FileInfo();
 		int countWrites = 0;
-		URI[] uris = new URI[2];
+		List<URI> uris = new ArrayList<>(MAX_URLS);
 
 		for (var uri : orderCandidateFileServers(file)) {
 			String token = GenerateToken.buildToken(fileId);
 			var result = FilesClients.get(uri).writeFile(fileId, data, token);
 			if (result.isOK()) {
-				uris[countWrites++] = uri;
-
+				uris.add(uri);
+				countWrites++;
 				if (countWrites < 2) {
 					info.setOwner(userId);
 					info.setFilename(filename);
@@ -314,34 +313,19 @@ public class JavaDirectory implements Directory {
 		if (!file.info().hasAccess(accUserId))
 			return error(FORBIDDEN);
 
-		var fileURL = file.info().getFileURL();
-		Log.info("OLDDDDDD    " + fileURL);
-
 		Discovery d = Discovery.getInstance();
-
-		/*for (URI u : d.findUrisOf(SERVICE_NAME, 1)) {
-			boolean b = System.currentTimeMillis() - d.getUriTime(u) < 10000;
-			Long diff = System.currentTimeMillis() - d.getUriTime(u);
-			Log.info("BOOLEANO------------------    " + b);
-			Log.info("TEMPO DIFFFFFFFFF------------------    " + diff);
-			List<URI> us = Arrays.asList(file.uri);
-			Log.info("SEGUNDA ------------------    " + us.contains(u));
-			Log.info("UUUUUUUUUUUUUUUUUUUUUUUUU    " + u);
-			for(URI ya : us) Log.info("LISTA URI:------------------    " + ya);
-			if (System.currentTimeMillis() - d.getUriTime(u) < 10000 && Arrays.asList(file.uri).contains(u)) {
-				fileURL = String.format("%s/files/%s", u, fileId);
-				Log.info("NAO TA A ENTRAR AQUI    " + fileURL);
-			}
-		}*/
-		for (URI uri : file.uri) {
+		URI uriToRedirect = d.getUriToRedirect(file.uri);
+		var url = String.format("%s/files/%s", uriToRedirect, fileId);
 		
-			var newURL = String.format("%s/files/%s", uri, fileId);
-			if (!fileURL.equalsIgnoreCase(newURL)) {
-				file.info().setFileURL(newURL);
-				break;
-			}
-		}
-		return redirect(fileURL);
+//		for (URI uri : file.uri) {
+//		
+//			var newURL = String.format("%s/files/%s", uri, fileId);
+//			if (!fileURL.equalsIgnoreCase(newURL)) {
+//				file.info().setFileURL(newURL);
+//				break;
+//			}
+//		}
+		return redirect(url);
 	}
 
 	@Override
@@ -466,7 +450,7 @@ public class JavaDirectory implements Directory {
 		}
 	}
 
-	public static record ExtendedFileInfo(URI[] uri, String fileId, FileInfo info) {
+	public static record ExtendedFileInfo(List<URI> uri, String fileId, FileInfo info) {
 	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {
