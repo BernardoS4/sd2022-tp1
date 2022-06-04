@@ -33,7 +33,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 				"REST writeFile: version = %d, filename = %s, data.length = %d, userId = %s, password = %s \n", version,
 				filename, data.length, userId, password));
 
-		return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version));
+		return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version), version);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(
 				String.format("REST writeFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
-		super.resultOrThrow(impl.writeFileSec(filename, userId, file, version));
+		super.resultOrThrow(impl.writeFileSec(filename, userId, file, version), version);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s, password =%s\n", version,
 				filename, userId, password));
 
-		super.resultOrThrow(impl.deleteFile(filename, userId, password, version));
+		super.resultOrThrow(impl.deleteFile(filename, userId, password, version), version);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s\n", version, filename,
 				userId));
 
-		super.resultOrThrow(impl.deleteFileSec(filename, userId, version));
+		super.resultOrThrow(impl.deleteFileSec(filename, userId, version), version);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 				"REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s, password =%s\n", version,
 				filename, userId, userIdShare, password));
 
-		super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version));
+		super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version), version);
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version,
 				filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare, version));
+		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare, version), version);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 				"REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s, password =%s\n", version,
 				filename, userId, userIdShare, password));
 
-		super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version));
+		super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version), version);
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
 				version, filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare, version));
+		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare, version), version);
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 			} else
 				res = Result.redirect(location + "?token=" + token);
 		}
-		return super.resultOrThrow(res);
+		return super.resultOrThrow(res, version);
 
 	}
 
@@ -120,7 +120,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 			Log.info(String.format("REST lsFile: version = %d, userId = %s, password = %s\n", version, userId,
 					password));
 
-			return super.resultOrThrow(impl.lsFile(userId, password, version));
+			return super.resultOrThrow(impl.lsFile(userId, password, version), version);
 		} finally {
 			System.err.println("TOOK:" + (System.currentTimeMillis() - T0));
 		}
@@ -131,13 +131,13 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		Log.info(
 				String.format("REST deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
 
-		super.resultOrThrow(impl.deleteUserFiles(userId, password, token));
+		super.resultOrThrow(impl.deleteUserFiles(userId, password, token), 0L);
 	}
 
 	@Override
 	public Operation getOperation(Long version) {
 		Log.info(String.format("REST getOperation: version = %s", version));
 
-		return super.resultOrThrow(impl.getOperation(version));
+		return super.resultOrThrow(impl.getOperation(version), version);
 	}
 }

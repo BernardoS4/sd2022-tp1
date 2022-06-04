@@ -16,7 +16,6 @@ import jakarta.ws.rs.core.MediaType;
 import tp1.api.FileInfo;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import util.Operation;
-import token.GenerateToken;
 
 @Path(RestDirectory.PATH)
 public interface RestDirectory {

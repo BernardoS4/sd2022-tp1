@@ -113,14 +113,15 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file, Long version) {
 
-		/*
-		 * if(this.version < version) updateVersion(version);
-		 * 
-		 * Map<String, Object> opParams = new ConcurrentHashMap<>();
-		 * opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-		 * userId); opParams.put(Operation.FILE, file); opVersion.put(version, new
-		 * Operation(OperationType.WRITE_FILE, opParams)); this.version = version;
-		 */
+		
+		if(this.version < version) updateVersion(version);
+		  
+//		Map<String, Object> opParams = new ConcurrentHashMap<>();
+//		opParams.put(Operation.FILENAME, filename); 
+//		opParams.put(Operation.USERID,userId); 
+//		opParams.put(Operation.FILE, file); 
+//		opVersion.put(version, new Operation(OperationType.WRITE_FILE, opParams)); 
+//		this.version = version;  
 
 		var fileId = fileId(filename, userId);
 
@@ -169,14 +170,14 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> deleteFileSec(String filename, String userId, Long version) {
 
-		/*
-		 * if(this.version < version) updateVersion(version);
-		 * 
-		 * Map<String, Object> opParams = new ConcurrentHashMap<>();
-		 * opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-		 * userId); opVersion.put(version, new Operation(OperationType.DELETE_FILE,
-		 * opParams)); this.version = version;
-		 */
+		
+		if(this.version < version) updateVersion(version);
+		  
+//		Map<String, Object> opParams = new ConcurrentHashMap<>();
+//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
+//		userId); opVersion.put(version, new Operation(OperationType.DELETE_FILE,
+//		opParams)); this.version = version;
+		 
 
 		var fileId = fileId(filename, userId);
 		var uf = userFiles.getOrDefault(userId, new UserFiles());
@@ -219,15 +220,14 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> shareFileSec(String filename, String userId, String userIdShare, Long version) {
 
-		/*
-		 * if(this.version < version) updateVersion(version);
-		 * 
-		 * Map<String, Object> opParams = new ConcurrentHashMap<>();
-		 * opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-		 * userId); opParams.put(Operation.USERID_SHARE, userIdShare);
-		 * opVersion.put(version, new Operation(OperationType.SHARE_FILE, opParams));
-		 * this.version = version;
-		 */
+		if(this.version < version) updateVersion(version);
+		  
+//		Map<String, Object> opParams = new ConcurrentHashMap<>();
+//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
+//		userId); opParams.put(Operation.USERID_SHARE, userIdShare);
+//		opVersion.put(version, new Operation(OperationType.SHARE_FILE, opParams));
+//		this.version = version;
+		 
 
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
@@ -254,13 +254,6 @@ public class JavaDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-//		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
-//		synchronized (uf) {
-//			uf.shared().remove(fileId);
-//			file.info().getSharedWith().remove(userIdShare);
-//		}
-//		return ok();
-
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).unshareFileSec(filename, userId, userIdShare, version);
 
@@ -270,15 +263,15 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare, Long version) {
 
-		/*
-		 * if(this.version < version) updateVersion(version);
-		 * 
-		 * Map<String, Object> opParams = new ConcurrentHashMap<>();
-		 * opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-		 * userId); opParams.put(Operation.USERID_SHARE, userIdShare);
-		 * opVersion.put(version, new Operation(OperationType.UNSHARE_FILE, opParams));
-		 * this.version = version;
-		 */
+		
+		if(this.version < version) updateVersion(version);
+		  
+//		Map<String, Object> opParams = new ConcurrentHashMap<>();
+//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
+//		userId); opParams.put(Operation.USERID_SHARE, userIdShare);
+//		opVersion.put(version, new Operation(OperationType.UNSHARE_FILE, opParams));
+//		this.version = version;
+		 
 
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
@@ -293,10 +286,7 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
 
-		// SE NAO ESTIVER ATUALIZADO E NAO FOR O PRIMARIO FAÇO ISTO certo?
-		/*
-		 * if(this.version < version) updateVersion(version);
-		 */
+		if(this.version < version) updateVersion(version);
 
 		if (badParam(filename))
 			return error(BAD_REQUEST);
@@ -316,15 +306,6 @@ public class JavaDirectory implements Directory {
 		Discovery d = Discovery.getInstance();
 		URI uriToRedirect = d.getUriToRedirect(file.uri);
 		var url = String.format("%s/files/%s", uriToRedirect, fileId);
-		
-//		for (URI uri : file.uri) {
-//		
-//			var newURL = String.format("%s/files/%s", uri, fileId);
-//			if (!fileURL.equalsIgnoreCase(newURL)) {
-//				file.info().setFileURL(newURL);
-//				break;
-//			}
-//		}
 		return redirect(url);
 	}
 

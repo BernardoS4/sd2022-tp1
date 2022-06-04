@@ -6,6 +6,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import tp1.api.service.java.Result;
+import tp1.api.service.rest.RestDirectory;
 
 public class RestResource {
 
@@ -13,9 +14,15 @@ public class RestResource {
 	 * Given a Result<T>, either returns the value, or throws the JAX-WS Exception
 	 * matching the error code...
 	 */
-	protected <T> T resultOrThrow(Result<T> result) {
-		if (result.isOK())
-			return result.value();
+	protected <T> T resultOrThrow(Result<T> result, Long version) {
+		if (result.isOK()) {
+			if(result.value() != null) {
+				throw new WebApplicationException(Response.ok().header(RestDirectory.HEADER_VERSION, version).entity(result.value()).build());
+			}
+			else 
+				throw new WebApplicationException(Response.noContent().header(RestDirectory.HEADER_VERSION, version).build());
+		}
+			
 		else
 			throw new WebApplicationException(statusCode(result));
 	}

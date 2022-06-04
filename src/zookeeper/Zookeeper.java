@@ -31,11 +31,15 @@ public class Zookeeper implements Watcher {
 	private static Zookeeper inst = null;
 	
 
-	private Zookeeper() throws Exception {
-		this.connect(KAFKA, timeout);
+	private Zookeeper() {
+		try {
+			this.connect(KAFKA, timeout);
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	public static Zookeeper getInstance() throws Exception
+	public static Zookeeper getInstance()
     {
         if (inst == null)
         	inst = new Zookeeper();
@@ -161,15 +165,12 @@ public class Zookeeper implements Watcher {
 			primaryPath.set(children.get(0));
 			return;
 		}
-		
-		// watchedEvent.getPath() -> contem o caminho do no que falhou
-		// replace(root + "/", "") -> /directory/guid-n_i vai ficar guid-n_i
+
 		String affectedNode = replaceSubString(watchedEvent.getPath());
 		primaryPath.set(affectedNode);
 
 		System.out.println("Node " + affectedNode + " crashed");
 
-		// se o no que falhou nao for o current leader
 		if (!getCurrentLeader().toString().equals(affectedNode)) {
 			System.out.println("No change in leader, some member nodes got partitioned or crashed");
 			return;
@@ -181,7 +182,6 @@ public class Zookeeper implements Watcher {
 
 		setCurrentLeader(replaceSubString(children.get(0)));
 		System.out.println("Successful re-election. Elected " + getCurrentLeader());
-		// zooKeeper.exists(root + "/" + getCurrentLeader(), false);
 	}
 
 	private String replaceSubString(String path) {
