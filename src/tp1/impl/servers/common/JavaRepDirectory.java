@@ -45,7 +45,7 @@ public class JavaRepDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
 	static final int MAX_URLS = 2;
-	private ReplicationManager repMan;
+	private ReplicationManager repMan = new ReplicationManager(this);
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
@@ -103,7 +103,7 @@ public class JavaRepDirectory implements Directory {
 		file = new ExtendedFileInfo(uris, fileId, info);
 		files.put(fileId, file);
 
-		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
 		opParams.put(RestDirectory.FILE, JSON.encode(file));
@@ -156,7 +156,7 @@ public class JavaRepDirectory implements Directory {
 			}
 		});
 
-		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
 		repMan.publish(RestDirectory.DELETE_FILE, JSON.encode(opParams));
@@ -201,7 +201,7 @@ public class JavaRepDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userIdShare)); 
@@ -238,7 +238,7 @@ public class JavaRepDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userIdShare)); 
