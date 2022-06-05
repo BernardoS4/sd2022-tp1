@@ -37,4 +37,5 @@ public interface Directory {
 	default Result<Operation> getOperation(Long version) {
 		return Result.error(ErrorCode.NOT_IMPLEMENTED); 
 	}
+
 }

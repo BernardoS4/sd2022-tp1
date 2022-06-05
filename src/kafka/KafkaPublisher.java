@@ -8,6 +8,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+
 public class KafkaPublisher {
 
 	static public KafkaPublisher createPublisher(String brokers) {
@@ -22,8 +23,9 @@ public class KafkaPublisher {
 		// Classe para serializar os valores dos eventos (string)
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-		return new KafkaPublisher(new KafkaProducer<String, String>(props));
+		return new KafkaPublisher(new KafkaProducer<>(props));
 	}
+
 	
 	private final KafkaProducer<String, String> producer;
 

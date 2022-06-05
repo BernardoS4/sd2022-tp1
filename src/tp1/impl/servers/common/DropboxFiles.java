@@ -3,9 +3,10 @@ package tp1.impl.servers.common;
 import static tp1.api.service.java.Result.error;
 import static tp1.api.service.java.Result.ok;
 import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
+
+import dropbox.Dropbox;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
-import util.Dropbox;
 
 
 public class DropboxFiles implements Files {

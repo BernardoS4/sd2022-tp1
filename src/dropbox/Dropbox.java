@@ -1,17 +1,15 @@
-package util;
-
-import dropbox.DeleteDirectory;
-import dropbox.DownloadFile;
-import dropbox.UploadFile;
+package dropbox;
 
 final public class Dropbox {
+	
+	private static final String ROOT = "/main/";
 	
 	private Dropbox() {}
 
     public static void write(String fileId, byte[] data) {
         try {
             UploadFile createFile = new UploadFile();
-            createFile.execute("/main/" + fileId, data);
+            createFile.execute(ROOT + fileId, data);
         } catch (Exception x) {
             x.printStackTrace();
         }
@@ -20,17 +18,17 @@ final public class Dropbox {
     public static byte[] read(String fileId) {
         try {
             DownloadFile getFile = new DownloadFile();
-            return getFile.execute("/main/" + fileId);
+            return getFile.execute(ROOT + fileId);
         } catch (Exception x) {
             x.printStackTrace();
-            return null;
+            return new byte[0];
         }
     }
 
     public static boolean delete(String fileId) {
         try {
             DeleteDirectory deleteFile = new DeleteDirectory();
-            deleteFile.execute("/main/" + fileId);
+            deleteFile.execute(ROOT + fileId);
             return true;
         } catch (Exception x) {
             x.printStackTrace();

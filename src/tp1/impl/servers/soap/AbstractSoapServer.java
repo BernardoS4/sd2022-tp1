@@ -12,7 +12,7 @@ import jakarta.xml.ws.Endpoint;
 import tp1.impl.discovery.Discovery;
 import tp1.impl.servers.common.AbstractServer;
 import util.IP;
-import zookeeper.Zookeeper;
+
 
 public class AbstractSoapServer extends AbstractServer {
 	private static String SERVER_BASE_URI = "https://%s:%s/soap";

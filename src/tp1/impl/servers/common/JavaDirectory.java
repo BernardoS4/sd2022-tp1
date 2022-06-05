@@ -38,13 +38,13 @@ import tp1.api.service.java.Result.ErrorCode;
 import tp1.impl.discovery.Discovery;
 import util.Operation;
 import util.OperationType;
-import zookeeper.Zookeeper;
+
 
 public class JavaDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
 	static final int MAX_URLS = 2;
-	private long version = -1L;
+
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
@@ -113,8 +113,6 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file) {
 
-		
-		if(this.version < version) updateVersion(version);
 		  
 //		Map<String, Object> opParams = new ConcurrentHashMap<>();
 //		opParams.put(Operation.FILENAME, filename); 
@@ -170,8 +168,6 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> deleteFileSec(String filename, String userId) {
 
-		
-		if(this.version < version) updateVersion(version);
 		  
 //		Map<String, Object> opParams = new ConcurrentHashMap<>();
 //		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
@@ -220,7 +216,6 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> shareFileSec(String filename, String userId, String userIdShare) {
 
-		if(this.version < version) updateVersion(version);
 		  
 //		Map<String, Object> opParams = new ConcurrentHashMap<>();
 //		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
@@ -263,8 +258,6 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare) {
 
-		
-		if(this.version < version) updateVersion(version);
 		  
 //		Map<String, Object> opParams = new ConcurrentHashMap<>();
 //		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
@@ -285,8 +278,6 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
-
-		if(this.version < version) updateVersion(version);
 
 		if (badParam(filename))
 			return error(BAD_REQUEST);
@@ -393,20 +384,7 @@ public class JavaDirectory implements Directory {
 		return ok(opVersion.get(version));
 	}
 
-	public synchronized void updateVersion(Long newVersion) {
-
-		Zookeeper zk;
-		try {
-			zk = Zookeeper.getInstance();
-			while (version < newVersion) {
-				Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
-				execute(op.getType(), op);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
+	
 
 	public void execute(OperationType operationType, Operation op) {
 		switch (operationType) {
