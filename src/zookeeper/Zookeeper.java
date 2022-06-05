@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -15,7 +14,6 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import jakarta.inject.Singleton;
 import util.Sleep;
-
 import java.util.concurrent.atomic.AtomicReference;
 
 @Singleton
@@ -44,7 +42,6 @@ public class Zookeeper implements Watcher {
 	public static Zookeeper getInstance() {
 		if (inst == null) {
 			inst = new Zookeeper();
-			// inst.watchEvents();
 		}
 
 		return inst;
@@ -113,8 +110,8 @@ public class Zookeeper implements Watcher {
 	}
 
 	public void createEphemerals(byte[] serverURI) {
-		String path = Arrays.toString(serverURI).concat("/dir");
-		byte[] data = path.getBytes();
+		String serverPath = new String(serverURI);
+		byte[] data = serverPath.getBytes();
 		var newpath = createNode(root + sufix, data, CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.err.println(newpath);
 	}
@@ -139,16 +136,13 @@ public class Zookeeper implements Watcher {
 	}
 
 	public void electLeader(WatchedEvent watchedEvent) {
-		System.out.println(" VOU ELEGER O LIDER     ");
-		System.out.println(" LIDER ATUAL E             " + getCurrentLeader());
 
 		List<String> children = getChildren(root);
 		Collections.sort(children);
 		String newLeader = children.get(0);
 		String currentLeader = getCurrentLeader();
-		System.out.println("newLeader       " + newLeader);
-		System.out.println("currentLeader       " + currentLeader);
-		if (currentLeader == null || currentLeader != newLeader) {
+		
+		if (currentLeader == null || !currentLeader.equalsIgnoreCase(newLeader)) {
 			for (String nominee : children) {
 				System.out.println("Nominee " + nominee);
 			}
@@ -158,7 +152,7 @@ public class Zookeeper implements Watcher {
 	}
 
 	private String createPath(String path) {
-		return root.concat(path);
+		return String.format("%s/%s", root, path);
 	}
 
 	public String getPrimaryURI() {
@@ -169,6 +163,5 @@ public class Zookeeper implements Watcher {
 			e.printStackTrace();
 			return null;
 		}
-
 	}
 }

@@ -55,7 +55,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		} else {
 			primaryURI = primaryURI.replace("directory", "dir");
 			primaryURI = String.format("%s/%s/%s?password=%s", primaryURI, userId, filename, password);
-			return super.resultOrThrow(Result.redirect(primaryURI), ++version);
+			return super.resultOrThrow(Result.redirect(primaryURI), version);
 		}
 	}
 
@@ -64,7 +64,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(
 				String.format("REST writeFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
-		super.resultOrThrow(impl.writeFileSec(filename, userId, file, version), version);
+		super.resultOrThrow(impl.writeFileSec(filename, userId, file, version), ++version);
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 
 		primaryURI = zk.getPrimaryURI();
 		if (primaryURI.equalsIgnoreCase(serverURI))
-			super.resultOrThrow(impl.deleteFile(filename, userId, password, version), version);
+			super.resultOrThrow(impl.deleteFile(filename, userId, password, version), ++version);
 		else {
 			primaryURI = primaryURI.replace("directory", "dir");
 			primaryURI = String.format("/%s/%s/%s?password=%s", primaryURI, userId, filename, password);
@@ -87,7 +87,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s\n", version, filename,
 				userId));
 
-		super.resultOrThrow(impl.deleteFileSec(filename, userId, version), version);
+		super.resultOrThrow(impl.deleteFileSec(filename, userId, version), ++version);
 	}
 
 	@Override
@@ -98,12 +98,13 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 
 		primaryURI = zk.getPrimaryURI();
 		if (primaryURI.equalsIgnoreCase(serverURI))
-			super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version), version);
-		else
+			super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version), ++version);
+		else {
 			primaryURI = primaryURI.replace("directory", "dir");
-		primaryURI = String.format("/%s/%s/%s/share/%s?password=%s", primaryURI, userId, filename, userIdShare,
-				password);
-		super.resultOrThrow(Result.redirect(primaryURI), version);
+			primaryURI = String.format("%s/%s/%s/share/%s?password=%s", primaryURI, userId, filename, userIdShare,
+					password);
+			super.resultOrThrow(Result.redirect(primaryURI), version);
+		}
 	}
 
 	@Override
@@ -111,7 +112,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version,
 				filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare, version), version);
+		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare, version), ++version);
 	}
 
 	@Override
@@ -122,10 +123,10 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 
 		primaryURI = zk.getPrimaryURI();
 		if (primaryURI.equalsIgnoreCase(serverURI))
-			super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version), version);
+			super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version), ++version);
 		else {
 			primaryURI = primaryURI.replace("directory", "dir");
-			primaryURI = String.format("/%s/%s/%s/share/%s?password=%s", primaryURI, userId, filename, userIdShare,
+			primaryURI = String.format("%s/%s/%s/share/%s?password=%s", primaryURI, userId, filename, userIdShare,
 					password);
 			super.resultOrThrow(Result.redirect(primaryURI), version);
 		}
@@ -136,7 +137,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
 				version, filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare, version), version);
+		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare, version), ++version);
 	}
 
 	@Override
