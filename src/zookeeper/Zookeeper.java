@@ -25,7 +25,7 @@ public class Zookeeper implements Watcher {
 
 	private ZooKeeper _client;
 	private int timeout = 5000;
-	private static final String KAFKA = "kafka";
+	private static final String KAFKA = "kafka:9092";
 	private String root = "/directory";
 	private String sufix = "/guid-n_";
 	private AtomicReference<String> currentLeader;
