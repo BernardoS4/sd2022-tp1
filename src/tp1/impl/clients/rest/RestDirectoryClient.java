@@ -13,7 +13,6 @@ import tp1.api.service.java.Result;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import util.Operation;
-import token.GenerateToken;
 
 public class RestDirectoryClient extends RestClient implements Directory {
 

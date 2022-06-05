@@ -12,7 +12,7 @@ import token.TokenSecret;
 
 public class DirectoryRepRestServer extends AbstractRestServer {
 
-	public static final int PORT = 8080;
+	public static final int PORT = 4567;
 
 	private static Logger Log = Logger.getLogger(DirectoryRepRestServer.class.getName());
 

@@ -18,38 +18,35 @@ import util.Sleep;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-
-
 @Singleton
 public class Zookeeper implements Watcher {
 
 	private ZooKeeper _client;
-	private int timeout = 5000;
-	private static final String KAFKA = "kafka:9092";
+	private static final int TIMEOUT = 5000;
+	private static final int SLEEP = 1000;
+	private static final String KAFKA = "kafka";
 	private String root = "/directory";
 	private String sufix = "/guid-n_";
 	private AtomicReference<String> currentLeader;
 	private AtomicReference<String> primaryPath;
 	private static Zookeeper inst = null;
-	
 
 	private Zookeeper() {
 		try {
-			this.connect(KAFKA, timeout);
+			this.connect(KAFKA, TIMEOUT);
 			createPersistent();
 			watchEvents();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public static Zookeeper getInstance()
-    {
-        if (inst == null)
-        	inst = new Zookeeper();
- 
-        return inst;
-    }
+
+	public static Zookeeper getInstance() {
+		if (inst == null)
+			inst = new Zookeeper();
+
+		return inst;
+	}
 
 	public synchronized ZooKeeper client() {
 		if (_client == null || !_client.getState().equals(ZooKeeper.States.CONNECTED)) {
@@ -61,7 +58,7 @@ public class Zookeeper implements Watcher {
 	private void connect(String host, int timeout) throws IOException, InterruptedException {
 		var connectedSignal = new CountDownLatch(1);
 		_client = new ZooKeeper(host, timeout, (e) -> {
-			System.err.println( e );
+			System.err.println(e);
 			if (e.getState().equals(Watcher.Event.KeeperState.SyncConnected)) {
 				connectedSignal.countDown();
 			}
@@ -97,39 +94,41 @@ public class Zookeeper implements Watcher {
 		}
 		return Collections.emptyList();
 	}
-	
+
 	@Override
 	public void process(WatchedEvent event) {
-		
+
 		switch (event.getType()) {
-        case NodeChildrenChanged:
-        	electLeader(event);
-            break;
+		case NodeChildrenChanged:
+			electLeader(event);
+			break;
 		default:
 			break;
 		}
 	}
-	
+
 	public void createPersistent() {
 		createNode(root, new byte[0], CreateMode.PERSISTENT);
 	}
-	
+
 	public void createEphemerals(byte[] serverURI) {
 		String path = Arrays.toString(serverURI).concat("/dir");
 		byte[] data = path.getBytes();
 		var newpath = createNode(root + sufix, data, CreateMode.EPHEMERAL_SEQUENTIAL);
 		System.err.println(newpath);
 	}
-	
+
 	public void watchEvents() {
-		for(;;) {
+		for (;;) {
 			new Thread(() -> {
-				getChildren(root, this::process);
-				Sleep.ms(1000);
+				getChildren(root, (e) -> {
+					process(e);
+				});
+				Sleep.ms(SLEEP);
 			}).start();
 		}
 	}
-	
+
 	public AtomicReference<String> getCurrentLeader() {
 		return this.currentLeader;
 	}
@@ -142,8 +141,8 @@ public class Zookeeper implements Watcher {
 
 		List<String> children = getChildren(root, this);
 		Collections.sort(children);
-		
-		if(getCurrentLeader().toString().equals("")) {
+
+		if (getCurrentLeader().toString().equals("")) {
 			setCurrentLeader(replaceSubString(children.get(0)));
 			primaryPath.set(children.get(0));
 			return;
@@ -164,11 +163,12 @@ public class Zookeeper implements Watcher {
 	}
 
 	public String getPrimaryPath() {
-		try {
-			return new String(client().getData(primaryPath.toString(), false, null), StandardCharsets.UTF_8);
-		} catch (KeeperException | InterruptedException e) {
-			e.printStackTrace();
-			return null;
-		}
+//		try {
+//			return new String(client().getData(primaryPath.toString(), false, null), StandardCharsets.UTF_8);
+//		} catch (KeeperException | InterruptedException e) {
+//			e.printStackTrace();
+//			return null;
+//		}
+		return primaryPath.toString();
 	}
 }

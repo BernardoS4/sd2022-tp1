@@ -113,22 +113,22 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file, Long version) {
 
-		
-		if(this.version < version) updateVersion(version);
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); 
-//		opParams.put(Operation.USERID,userId); 
-//		opParams.put(Operation.FILE, file); 
-//		opVersion.put(version, new Operation(OperationType.WRITE_FILE, opParams)); 
-//		this.version = version;  
+		if (this.version < version)
+			updateVersion(version);
+
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.FILENAME, filename);
+		opParams.put(Operation.USERID, userId);
+		opParams.put(Operation.FILE, file);
+		opVersion.put(version, new Operation(OperationType.WRITE_FILE, opParams));
+		this.version = version;
 
 		var fileId = fileId(filename, userId);
 
 		if (file != null)
 			files.put(fileId, file);
 		else
-			file = files.get(fileId); 
+			file = files.get(fileId);
 
 		var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
 		synchronized (uf) {
@@ -170,14 +170,14 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> deleteFileSec(String filename, String userId, Long version) {
 
-		
-		if(this.version < version) updateVersion(version);
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-//		userId); opVersion.put(version, new Operation(OperationType.DELETE_FILE,
-//		opParams)); this.version = version;
-		 
+		if (this.version < version)
+			updateVersion(version);
+
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.FILENAME, filename);
+		opParams.put(Operation.USERID, userId);
+		opVersion.put(version, new Operation(OperationType.DELETE_FILE, opParams));
+		this.version = version;
 
 		var fileId = fileId(filename, userId);
 		var uf = userFiles.getOrDefault(userId, new UserFiles());
@@ -220,14 +220,15 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> shareFileSec(String filename, String userId, String userIdShare, Long version) {
 
-		if(this.version < version) updateVersion(version);
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-//		userId); opParams.put(Operation.USERID_SHARE, userIdShare);
-//		opVersion.put(version, new Operation(OperationType.SHARE_FILE, opParams));
-//		this.version = version;
-		 
+		if (this.version < version)
+			updateVersion(version);
+
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.FILENAME, filename);
+		opParams.put(Operation.USERID, userId);
+		opParams.put(Operation.USERID_SHARE, userIdShare);
+		opVersion.put(version, new Operation(OperationType.SHARE_FILE, opParams));
+		this.version = version;
 
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
@@ -263,15 +264,15 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare, Long version) {
 
-		
-		if(this.version < version) updateVersion(version);
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); opParams.put(Operation.USERID,
-//		userId); opParams.put(Operation.USERID_SHARE, userIdShare);
-//		opVersion.put(version, new Operation(OperationType.UNSHARE_FILE, opParams));
-//		this.version = version;
-		 
+		if (this.version < version)
+			updateVersion(version);
+
+		Map<String, Object> opParams = new ConcurrentHashMap<>();
+		opParams.put(Operation.FILENAME, filename);
+		opParams.put(Operation.USERID, userId);
+		opParams.put(Operation.USERID_SHARE, userIdShare);
+		opVersion.put(version, new Operation(OperationType.UNSHARE_FILE, opParams));
+		this.version = version;
 
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
@@ -286,7 +287,8 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
 
-		if(this.version < version) updateVersion(version);
+		if (this.version < version)
+			updateVersion(version);
 
 		if (badParam(filename))
 			return error(BAD_REQUEST);
