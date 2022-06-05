@@ -26,7 +26,9 @@ public class ProcessOperation implements RecordProcessor {
 		String filename = JSON.decode(opParams.get(RestDirectory.FILENAME));
 		String userId = JSON.decode(opParams.get(RestDirectory.USER_ID));
 		String userIdShare = JSON.decode(opParams.get(RestDirectory.USER_ID_SHARE));
-		ExtendedFileInfo file = JSON.decode(opParams.get(RestDirectory.FILE));
+		/*Long version = JSON.decode(opParams.get("version"), Long.class);
+		byte[] data = JSON.decode(opParams.get("data"), byte[].class);*/
+		ExtendedFileInfo file = JSON.decode(opParams.get(RestDirectory.FILE), ExtendedFileInfo.class);
 
 		switch (r.key()) {
 		case RestDirectory.WRITE_FILE:

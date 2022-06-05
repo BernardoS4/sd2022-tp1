@@ -102,11 +102,15 @@ public class JavaRepDirectory implements Directory {
 		}
 		file = new ExtendedFileInfo(uris, fileId, info);
 		files.put(fileId, file);
+		
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
-		opParams.put(RestDirectory.FILE, JSON.encode(file));
+		/*opParams.put("data", JSON.encode(data));
+		opParams.put("password", JSON.encode(password));
+		opParams.put("version", JSON.encode(version));*/
+		opParams.put(RestDirectory.FILE, JSON.encode(file)); 
 		repMan.publish(RestDirectory.WRITE_FILE, JSON.encode(opParams));
 
 		if (countWrites > 0)
