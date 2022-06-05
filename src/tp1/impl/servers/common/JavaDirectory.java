@@ -401,7 +401,7 @@ public class JavaDirectory implements Directory {
 		try {
 			zk = Zookeeper.getInstance();
 			while (version < newVersion) {
-				Operation op = DirectoryClients.get(zk.getPrimaryPath()).getOperation(++version).value();
+				Operation op = DirectoryClients.get(zk.getPrimaryURI()).getOperation(++version).value();
 				execute(op.getType(), op);
 			}
 		} catch (Exception e) {

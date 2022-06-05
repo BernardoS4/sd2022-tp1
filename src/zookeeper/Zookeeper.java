@@ -27,8 +27,8 @@ public class Zookeeper implements Watcher {
 	private static final String KAFKA = "kafka";
 	private String root = "/directory";
 	private String sufix = "/guid-n_";
-	private AtomicReference<String> currentLeader;
-	private AtomicReference<String> primaryPath;
+	private AtomicReference<String> currentLeader = new AtomicReference<>();
+	private AtomicReference<String> primaryPath = new AtomicReference<>();
 	private static Zookeeper inst = null;
 
 	private Zookeeper() {
@@ -42,8 +42,10 @@ public class Zookeeper implements Watcher {
 	}
 
 	public static Zookeeper getInstance() {
-		if (inst == null)
+		if (inst == null) {
 			inst = new Zookeeper();
+			// inst.watchEvents();
+		}
 
 		return inst;
 	}
@@ -97,7 +99,6 @@ public class Zookeeper implements Watcher {
 
 	@Override
 	public void process(WatchedEvent event) {
-
 		switch (event.getType()) {
 		case NodeChildrenChanged:
 			electLeader(event);
@@ -119,56 +120,55 @@ public class Zookeeper implements Watcher {
 	}
 
 	public void watchEvents() {
-		for (;;) {
-			new Thread(() -> {
+		new Thread(() -> {
+			for (;;) {
 				getChildren(root, (e) -> {
 					process(e);
 				});
 				Sleep.ms(SLEEP);
-			}).start();
-		}
+			}
+		}).start();
 	}
 
-	public AtomicReference<String> getCurrentLeader() {
-		return this.currentLeader;
+	public String getCurrentLeader() {
+		return currentLeader.get();
 	}
 
-	public void setCurrentLeader(String currentLeader) {
-		this.currentLeader.set(currentLeader);
+	public void setCurrentLeader(String newLeader) {
+		currentLeader.set(newLeader);
 	}
 
 	public void electLeader(WatchedEvent watchedEvent) {
+		System.out.println(" VOU ELEGER O LIDER     ");
+		System.out.println(" LIDER ATUAL E             " + getCurrentLeader());
 
-		List<String> children = getChildren(root, this);
+		List<String> children = getChildren(root);
 		Collections.sort(children);
-
-		if (getCurrentLeader().toString().equals("")) {
-			setCurrentLeader(replaceSubString(children.get(0)));
-			primaryPath.set(children.get(0));
-			return;
+		String newLeader = children.get(0);
+		String currentLeader = getCurrentLeader();
+		System.out.println("newLeader       " + newLeader);
+		System.out.println("currentLeader       " + currentLeader);
+		if (currentLeader == null || currentLeader != newLeader) {
+			for (String nominee : children) {
+				System.out.println("Nominee " + nominee);
+			}
+			setCurrentLeader(newLeader);
+			primaryPath.set(createPath(newLeader));
 		}
-
-		String affectedNode = replaceSubString(watchedEvent.getPath());
-		primaryPath.set(affectedNode);
-
-		for (String nominee : children) {
-			System.out.println("Nominee " + nominee);
-		}
-		setCurrentLeader(replaceSubString(children.get(0)));
 	}
 
-	private String replaceSubString(String path) {
-
-		return path.replace(root + "/", "");
+	private String createPath(String path) {
+		return root.concat(path);
 	}
 
-	public String getPrimaryPath() {
-//		try {
-//			return new String(client().getData(primaryPath.toString(), false, null), StandardCharsets.UTF_8);
-//		} catch (KeeperException | InterruptedException e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-		return primaryPath.toString();
+	public String getPrimaryURI() {
+		try {
+			System.out.println(" olaaaaaaaa     " + primaryPath.get());
+			return new String(client().getData(primaryPath.get(), false, null), StandardCharsets.UTF_8);
+		} catch (KeeperException | InterruptedException e) {
+			e.printStackTrace();
+			return null;
+		}
+
 	}
 }
