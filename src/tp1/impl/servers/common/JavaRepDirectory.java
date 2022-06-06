@@ -23,11 +23,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-
 import token.GenerateToken;
 import tp1.api.FileInfo;
 import tp1.api.User;
@@ -39,7 +37,6 @@ import tp1.impl.discovery.Discovery;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import util.JSON;
 import util.Operation;
-import util.OperationType;
 
 public class JavaRepDirectory implements Directory {
 
@@ -99,8 +96,8 @@ public class JavaRepDirectory implements Directory {
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
-		//file = new ExtendedFileInfo(uris, fileId, info);
-		//files.put(fileId, file);
+		file = new ExtendedFileInfo(uris, fileId, info);
+		files.put(fileId, file);
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
@@ -190,6 +187,7 @@ public class JavaRepDirectory implements Directory {
 
 	@Override
 	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password, Long version) {
+		Log.info("ENTREI OH CONA");
 		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
 			return error(BAD_REQUEST);
 
@@ -200,13 +198,16 @@ public class JavaRepDirectory implements Directory {
 			return error(NOT_FOUND);
 
 		var user = getUser(userId, password);
-		if (!user.isOK())
+		
+		if (!user.isOK()) {
 			return error(user.error());
+		}
+		Log.info("FILENAME: " + filename + "USERID: " + userId + "userIdShare: " + userIdShare + "password " + password);
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
-		opParams.put(RestDirectory.USER_ID, JSON.encode(userIdShare)); 
+		opParams.put(RestDirectory.USER_ID_SHARE, JSON.encode(userIdShare)); 
 		repMan.publish(RestDirectory.SHARE_FILE, JSON.encode(opParams));
 
 		return ok();
@@ -215,9 +216,8 @@ public class JavaRepDirectory implements Directory {
 	@Override
 	public Result<Void> shareFileSec(String filename, String userId, String userIdShare) {
 
+		Log.info("YO IM INNNNNNNNNNN 2");
 		
-
-
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
 		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
@@ -246,7 +246,7 @@ public class JavaRepDirectory implements Directory {
 		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
-		opParams.put(RestDirectory.USER_ID, JSON.encode(userIdShare)); 
+		opParams.put(RestDirectory.USER_ID_SHARE, JSON.encode(userIdShare)); 
 		repMan.publish(RestDirectory.UNSHARE_FILE, JSON.encode(opParams));
 
 		return ok();
@@ -267,14 +267,17 @@ public class JavaRepDirectory implements Directory {
 
 	@Override
 	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
-
+		
 		if (badParam(filename))
 			return error(BAD_REQUEST);
 
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
-		if (file == null)
+		if (file == null) {
+		
 			return error(NOT_FOUND);
+		}
+			
 
 		var user = getUser(accUserId, password);
 		if (!user.isOK())

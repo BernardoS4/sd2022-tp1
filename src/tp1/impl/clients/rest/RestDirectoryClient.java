@@ -59,7 +59,9 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	@Override
 	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password, Long version) {
 		Response r = target.path(userId).path(filename).path(SHARE).path(userIdShare)
-				.queryParam(RestDirectory.PASSWORD, password).request().header(RestDirectory.HEADER_VERSION, version)
+				.queryParam(RestDirectory.PASSWORD, password)
+				.request()
+				.header(RestDirectory.HEADER_VERSION, version)
 				.post(Entity.json(null));
 		return super.toJavaResult(r);
 	}

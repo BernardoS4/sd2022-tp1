@@ -14,6 +14,7 @@ import tp1.api.service.java.Result.ErrorCode;
 import tp1.impl.servers.common.JavaDirectory;
 import static tp1.impl.clients.Clients.FilesClients;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaRepDirectory;
 
 @Singleton
 public class DirectoryRepResources extends RestResource implements RestDirectory {
@@ -24,7 +25,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 	final Directory impl;
 
 	public DirectoryRepResources() {
-		impl = new JavaDirectory();
+		impl = new JavaRepDirectory();
 	}
 
 	@Override
@@ -39,7 +40,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 	@Override
 	public void writeFileSec(Long version, String filename, String userId, ExtendedFileInfo file) {
 		Log.info(
-				String.format("REST writeFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
+				String.format("REST writeFileSec: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
 		super.resultOrThrow(impl.writeFileSec(filename, userId, file), version);
 	}
@@ -55,7 +56,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 
 	@Override
 	public void deleteFileSec(Long version, String filename, String userId) {
-		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s\n", version, filename,
+		Log.info(String.format("REST deleteFileSec: version = %d, filename = %s, userId = %s\n", version, filename,
 				userId));
 
 		super.resultOrThrow(impl.deleteFileSec(filename, userId), version);
@@ -73,7 +74,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 
 	@Override
 	public void shareFileSec(Long version, String filename, String userId, String userIdShare) {
-		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version,
+		Log.info(String.format("REST shareFileSec: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version,
 				filename, userId, userIdShare));
 
 		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare), version);
@@ -91,7 +92,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 
 	@Override
 	public void unshareFileSec(Long version, String filename, String userId, String userIdShare) {
-		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
+		Log.info(String.format("REST unshareFileSec: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
 				version, filename, userId, userIdShare));
 
 		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare), version);
