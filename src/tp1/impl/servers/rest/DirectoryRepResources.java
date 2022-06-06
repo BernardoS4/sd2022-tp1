@@ -47,10 +47,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 				filename, data.length, userId, password));
 
 		primaryURI = zk.getPrimaryURI();
-		Log.info("PATHHHHHHH       " + primaryURI);
-		Log.info("SERVER            " + serverURI);
 		if (primaryURI.equalsIgnoreCase(serverURI)) {
-			Log.info("ENTREIIIIII");
 			return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version), ++version);
 		} else {
 			primaryURI = primaryURI.replace("directory", "dir");
@@ -62,7 +59,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 	@Override
 	public void writeFileSec(Long version, String filename, String userId, ExtendedFileInfo file) {
 		Log.info(
-				String.format("REST writeFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
+				String.format("REST writeFileSec: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
 		super.resultOrThrow(impl.writeFileSec(filename, userId, file, version), ++version);
 	}
@@ -77,14 +74,14 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 			super.resultOrThrow(impl.deleteFile(filename, userId, password, version), ++version);
 		else {
 			primaryURI = primaryURI.replace("directory", "dir");
-			primaryURI = String.format("/%s/%s/%s?password=%s", primaryURI, userId, filename, password);
+			primaryURI = String.format("%s/%s/%s?password=%s", primaryURI, userId, filename, password);
 			super.resultOrThrow(Result.redirect(primaryURI), version);
 		}
 	}
 
 	@Override
 	public void deleteFileSec(Long version, String filename, String userId) {
-		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s\n", version, filename,
+		Log.info(String.format("REST deleteFileSec: version = %d, filename = %s, userId = %s\n", version, filename,
 				userId));
 
 		super.resultOrThrow(impl.deleteFileSec(filename, userId, version), ++version);
@@ -97,6 +94,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 				filename, userId, userIdShare, password));
 
 		primaryURI = zk.getPrimaryURI();
+		
 		if (primaryURI.equalsIgnoreCase(serverURI))
 			super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version), ++version);
 		else {
@@ -109,7 +107,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 
 	@Override
 	public void shareFileSec(Long version, String filename, String userId, String userIdShare) {
-		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version,
+		Log.info(String.format("REST shareFileSec: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version,
 				filename, userId, userIdShare));
 
 		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare, version), ++version);
@@ -134,7 +132,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 
 	@Override
 	public void unshareFileSec(Long version, String filename, String userId, String userIdShare) {
-		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
+		Log.info(String.format("REST unshareFileSec: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
 				version, filename, userId, userIdShare));
 
 		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare, version), ++version);
@@ -188,13 +186,4 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		return super.resultOrThrow(impl.getOperation(version), version);
 	}
 
-	private String pathToRedirect(String userId, String filename, String password) {
-		primaryURI = primaryURI.replace("directory", "dir");
-		return String.format("/%s/%s/%s/?password=%s", primaryURI, userId, filename, password);
-	}
-
-	private <T> T sendRedirect(String userId, String filename, String password, Long version) {
-		primaryURI = pathToRedirect(userId, filename, password);
-		return super.resultOrThrow(Result.redirect(primaryURI), version);
-	}
 }

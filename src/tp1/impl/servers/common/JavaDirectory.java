@@ -94,7 +94,6 @@ public class JavaDirectory implements Directory {
 					info.setFileURL(String.format("%s/files/%s", uri, fileId));
 				} else
 					break;
-
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
@@ -113,8 +112,8 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file, Long version) {
 
-		if (this.version < version)
-			updateVersion(version);
+//		if (this.version < version)
+//			updateVersion(version);
 
 		Map<String, Object> opParams = new ConcurrentHashMap<>();
 		opParams.put(Operation.FILENAME, filename);
@@ -170,8 +169,8 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> deleteFileSec(String filename, String userId, Long version) {
 
-		if (this.version < version)
-			updateVersion(version);
+//		if (this.version < version)
+//			updateVersion(version);
 
 		Map<String, Object> opParams = new ConcurrentHashMap<>();
 		opParams.put(Operation.FILENAME, filename);
@@ -204,6 +203,7 @@ public class JavaDirectory implements Directory {
 		var fileId = fileId(filename, userId);
 
 		var file = files.get(fileId);
+		
 		if (file == null || getUser(userIdShare, "").error() == NOT_FOUND)
 			return error(NOT_FOUND);
 
@@ -220,8 +220,8 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> shareFileSec(String filename, String userId, String userIdShare, Long version) {
 
-		if (this.version < version)
-			updateVersion(version);
+//		if (this.version < version)
+//			updateVersion(version);
 
 		Map<String, Object> opParams = new ConcurrentHashMap<>();
 		opParams.put(Operation.FILENAME, filename);
@@ -264,8 +264,8 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare, Long version) {
 
-		if (this.version < version)
-			updateVersion(version);
+//		if (this.version < version)
+//			updateVersion(version);
 
 		Map<String, Object> opParams = new ConcurrentHashMap<>();
 		opParams.put(Operation.FILENAME, filename);
@@ -287,8 +287,8 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password, Long version) {
 
-		if (this.version < version)
-			updateVersion(version);
+//		if (this.version < version)
+//			updateVersion(version);
 
 		if (badParam(filename))
 			return error(BAD_REQUEST);
@@ -395,13 +395,13 @@ public class JavaDirectory implements Directory {
 		return ok(opVersion.get(version));
 	}
 
-	public synchronized void updateVersion(Long newVersion) {
-
+	private synchronized void updateVersio(Long newVersion) {
 		Zookeeper zk;
 		try {
 			zk = Zookeeper.getInstance();
+			Operation op;
 			while (version < newVersion) {
-				Operation op = DirectoryClients.get(zk.getPrimaryURI()).getOperation(++version).value();
+				op = DirectoryClients.get(zk.getPrimaryURI()).getOperation(++version).value();
 				execute(op.getType(), op);
 			}
 		} catch (Exception e) {
