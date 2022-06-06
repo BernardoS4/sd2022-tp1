@@ -100,21 +100,17 @@ public class JavaRepDirectory implements Directory {
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
-		file = new ExtendedFileInfo(uris, fileId, info);
-		files.put(fileId, file);
-		
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
-		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
-		/*opParams.put("data", JSON.encode(data));
-		opParams.put("password", JSON.encode(password));
-		opParams.put("version", JSON.encode(version));*/
-		opParams.put(RestDirectory.FILE, JSON.encode(file)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId));
+		opParams.put("uris", JSON.encode(uris.toArray(new URI[2])));
+		opParams.put("fileId", JSON.encode(fileId));
+		opParams.put("info", JSON.encode(info)); 
 		repMan.publish(RestDirectory.WRITE_FILE, JSON.encode(opParams));
 
 		if (countWrites > 0)
-			return ok(file.info());
+			return ok(info);
 		else
 			return error(BAD_REQUEST);
 	}

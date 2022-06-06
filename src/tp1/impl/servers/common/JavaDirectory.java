@@ -100,7 +100,7 @@ public class JavaDirectory implements Directory {
 		}
 		file = new ExtendedFileInfo(uris, fileId, info);
 		files.put(fileId, file);
-
+		
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).writeFileSec(filename, userId, file);
 
@@ -112,14 +112,6 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file) {
-
-		  
-//		Map<String, Object> opParams = new ConcurrentHashMap<>();
-//		opParams.put(Operation.FILENAME, filename); 
-//		opParams.put(Operation.USERID,userId); 
-//		opParams.put(Operation.FILE, file); 
-//		opVersion.put(version, new Operation(OperationType.WRITE_FILE, opParams)); 
-//		this.version = version;  
 
 		var fileId = fileId(filename, userId);
 
@@ -158,7 +150,7 @@ public class JavaDirectory implements Directory {
 				FilesClients.get(uri).deleteFile(fileId, token);
 			}
 		});
-
+		
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).deleteFileSec(filename, userId);
 
@@ -206,7 +198,7 @@ public class JavaDirectory implements Directory {
 		var user = getUser(userId, password);
 		if (!user.isOK())
 			return error(user.error());
-
+		
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).shareFileSec(filename, userId, userIdShare);
 
@@ -248,7 +240,7 @@ public class JavaDirectory implements Directory {
 		var user = getUser(userId, password);
 		if (!user.isOK())
 			return error(user.error());
-
+		
 		for (URI uri : DirectoryClients.all())
 			DirectoryClients.get(uri).unshareFileSec(filename, userId, userIdShare);
 

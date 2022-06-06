@@ -24,13 +24,13 @@ public class RestResource {
 		}
 			
 		else
-			throw new WebApplicationException(statusCode(result));
+			throw new WebApplicationException(statusCode(result, version));
 	}
 
 	/**
 	 * Translates a Result<T> to a HTTP Status code
 	 */
-	static protected Status statusCode(Result<?> result) {
+	static protected Status statusCode(Result<?> result, Long version) {
 		switch (result.error()) {
 		case CONFLICT:
 			return Status.CONFLICT;
@@ -48,15 +48,15 @@ public class RestResource {
 		case OK:
 			return result.value() == null ? Status.NO_CONTENT : Status.OK;
 		case REDIRECT:
-			doRedirect(result);
+			doRedirect(result, version);
 
 		default:
 			return Status.INTERNAL_SERVER_ERROR;
 		}
 	}
 
-	static private void doRedirect(Result<?> result) throws WebApplicationException {
+	static private void doRedirect(Result<?> result, Long version) throws WebApplicationException {
 		var location = URI.create(result.errorValue());
-		throw new WebApplicationException(Response.temporaryRedirect(location).build());
+		throw new WebApplicationException(Response.temporaryRedirect(location).header(RestDirectory.HEADER_VERSION, version).build());
 	}
 }
