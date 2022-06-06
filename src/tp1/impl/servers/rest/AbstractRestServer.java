@@ -11,7 +11,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import tp1.impl.discovery.Discovery;
 import tp1.impl.servers.common.AbstractServer;
 import util.IP;
-import zookeeper.Zookeeper;
 
 public abstract class AbstractRestServer extends AbstractServer {
 	

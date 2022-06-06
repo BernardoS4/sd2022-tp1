@@ -1,10 +1,9 @@
 package tp1.impl.servers.rest;
 
-import util.IP;
 import java.util.List;
 import util.Operation;
 import tp1.api.FileInfo;
-import zookeeper.Zookeeper;
+
 import token.GenerateToken;
 import java.util.logging.Logger;
 import jakarta.inject.Singleton;
@@ -23,21 +22,9 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 	private static final String REST = "/rest/";
 
 	final Directory impl;
-	private String primaryURI = "";
-	private Zookeeper zk;
-	private String serverURI = "";
 
 	public DirectoryRepResources() {
 		impl = new JavaDirectory();
-		startZookeeper();
-	}
-
-	private void startZookeeper() {
-		serverURI = String.format(DirectoryRepRestServer.SERVER_BASE_URI, IP.hostAddress(),
-				DirectoryRepRestServer.PORT);
-		byte[] svrURIinBytes = serverURI.getBytes();
-		zk = Zookeeper.getInstance();
-		zk.createEphemerals(svrURIinBytes);
 	}
 
 	@Override
@@ -45,18 +32,8 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format(
 				"REST writeFile: version = %d, filename = %s, data.length = %d, userId = %s, password = %s \n", version,
 				filename, data.length, userId, password));
-
-		primaryURI = zk.getPrimaryURI();
-		Log.info("PATHHHHHHH       " + primaryURI);
-		Log.info("SERVER            " + serverURI);
-		if (primaryURI.equalsIgnoreCase(serverURI)) {
-			Log.info("ENTREIIIIII");
-			return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version), ++version);
-		} else {
-			primaryURI = primaryURI.replace("directory", "dir");
-			primaryURI = String.format("%s/%s/%s?password=%s", primaryURI, userId, filename, password);
-			return super.resultOrThrow(Result.redirect(primaryURI), version);
-		}
+		
+			return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version), version);
 	}
 
 	@Override
@@ -64,7 +41,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(
 				String.format("REST writeFile: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
-		super.resultOrThrow(impl.writeFileSec(filename, userId, file, version), ++version);
+		super.resultOrThrow(impl.writeFileSec(filename, userId, file), version);
 	}
 
 	@Override
@@ -72,14 +49,8 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s, password =%s\n", version,
 				filename, userId, password));
 
-		primaryURI = zk.getPrimaryURI();
-		if (primaryURI.equalsIgnoreCase(serverURI))
-			super.resultOrThrow(impl.deleteFile(filename, userId, password, version), ++version);
-		else {
-			primaryURI = primaryURI.replace("directory", "dir");
-			primaryURI = String.format("/%s/%s/%s?password=%s", primaryURI, userId, filename, password);
-			super.resultOrThrow(Result.redirect(primaryURI), version);
-		}
+		
+			super.resultOrThrow(impl.deleteFile(filename, userId, password, version), version);
 	}
 
 	@Override
@@ -87,7 +58,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST deleteFile: version = %d, filename = %s, userId = %s\n", version, filename,
 				userId));
 
-		super.resultOrThrow(impl.deleteFileSec(filename, userId, version), ++version);
+		super.resultOrThrow(impl.deleteFileSec(filename, userId), version);
 	}
 
 	@Override
@@ -96,15 +67,8 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 				"REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s, password =%s\n", version,
 				filename, userId, userIdShare, password));
 
-		primaryURI = zk.getPrimaryURI();
-		if (primaryURI.equalsIgnoreCase(serverURI))
-			super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version), ++version);
-		else {
-			primaryURI = primaryURI.replace("directory", "dir");
-			primaryURI = String.format("%s/%s/%s/share/%s?password=%s", primaryURI, userId, filename, userIdShare,
-					password);
-			super.resultOrThrow(Result.redirect(primaryURI), version);
-		}
+		
+			super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version), version);
 	}
 
 	@Override
@@ -112,7 +76,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST shareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version,
 				filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare, version), ++version);
+		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare), version);
 	}
 
 	@Override
@@ -121,15 +85,8 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 				"REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s, password =%s\n", version,
 				filename, userId, userIdShare, password));
 
-		primaryURI = zk.getPrimaryURI();
-		if (primaryURI.equalsIgnoreCase(serverURI))
-			super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version), ++version);
-		else {
-			primaryURI = primaryURI.replace("directory", "dir");
-			primaryURI = String.format("%s/%s/%s/share/%s?password=%s", primaryURI, userId, filename, userIdShare,
-					password);
-			super.resultOrThrow(Result.redirect(primaryURI), version);
-		}
+		
+			super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version), version);
 	}
 
 	@Override
@@ -137,7 +94,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
 				version, filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare, version), ++version);
+		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare), version);
 	}
 
 	@Override
@@ -188,13 +145,5 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		return super.resultOrThrow(impl.getOperation(version), version);
 	}
 
-	private String pathToRedirect(String userId, String filename, String password) {
-		primaryURI = primaryURI.replace("directory", "dir");
-		return String.format("/%s/%s/%s/?password=%s", primaryURI, userId, filename, password);
-	}
-
-	private <T> T sendRedirect(String userId, String filename, String password, Long version) {
-		primaryURI = pathToRedirect(userId, filename, password);
-		return super.resultOrThrow(Result.redirect(primaryURI), version);
-	}
+	
 }

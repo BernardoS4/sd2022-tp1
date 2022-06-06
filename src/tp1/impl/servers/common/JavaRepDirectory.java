@@ -8,7 +8,6 @@ import static tp1.api.service.java.Result.ErrorCode.FORBIDDEN;
 import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import static tp1.impl.clients.Clients.FilesClients;
 import static tp1.impl.clients.Clients.UsersClients;
-import static tp1.impl.clients.Clients.DirectoryClients;
 import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayDeque;
@@ -35,14 +34,18 @@ import tp1.api.User;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
+import tp1.api.service.rest.RestDirectory;
 import tp1.impl.discovery.Discovery;
+import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
+import util.JSON;
 import util.Operation;
+import util.OperationType;
 
-
-public class JavaDirectory implements Directory {
+public class JavaRepDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
 	static final int MAX_URLS = 2;
+	private ReplicationManager repMan = new ReplicationManager(this);
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
@@ -96,22 +99,25 @@ public class JavaDirectory implements Directory {
 			} else
 				Log.info(String.format("Files.writeFile(...) to %s failed with: %s \n", uri, result));
 		}
-		file = new ExtendedFileInfo(uris, fileId, info);
-		files.put(fileId, file);
+		//file = new ExtendedFileInfo(uris, fileId, info);
+		//files.put(fileId, file);
 
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).writeFileSec(filename, userId, file);
+		Map<String, String> opParams = new ConcurrentHashMap<>();
+		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId));
+		opParams.put("uris", JSON.encode(uris.toArray(new URI[2])));
+		opParams.put("fileId", JSON.encode(fileId));
+		opParams.put("info", JSON.encode(info)); 
+		repMan.publish(RestDirectory.WRITE_FILE, JSON.encode(opParams));
 
 		if (countWrites > 0)
-			return ok(file.info);
+			return ok(file.info());
 		else
 			return error(BAD_REQUEST);
 	}
 
 	@Override
 	public Result<Void> writeFileSec(String filename, String userId, ExtendedFileInfo file) {
-
-
 
 		var fileId = fileId(filename, userId);
 
@@ -123,7 +129,7 @@ public class JavaDirectory implements Directory {
 		var uf = userFiles.computeIfAbsent(userId, (k) -> new UserFiles());
 		synchronized (uf) {
 			if (uf.owned().add(fileId))
-				for (URI fileUri : file.uri)
+				for (URI fileUri : file.uri())
 					getFileCounts(fileUri, true).numFiles().incrementAndGet();
 		}
 		return ok();
@@ -145,14 +151,16 @@ public class JavaDirectory implements Directory {
 			return error(user.error());
 
 		executor.execute(() -> {
-			for (URI uri : file.uri) {
+			for (URI uri : file.uri()) {
 				String token = GenerateToken.buildToken(fileId);
 				FilesClients.get(uri).deleteFile(fileId, token);
 			}
 		});
 
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).deleteFileSec(filename, userId);
+		Map<String, String> opParams = new ConcurrentHashMap<>();
+		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
+		repMan.publish(RestDirectory.DELETE_FILE, JSON.encode(opParams));
 
 		return ok();
 	}
@@ -160,6 +168,8 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> deleteFileSec(String filename, String userId) {
 
+		
+	
 
 		var fileId = fileId(filename, userId);
 		var uf = userFiles.getOrDefault(userId, new UserFiles());
@@ -172,7 +182,7 @@ public class JavaDirectory implements Directory {
 				this.removeSharesOfFile(info);
 			});
 
-			for (URI uri : info.uri)
+			for (URI uri : info.uri())
 				getFileCounts(uri, false).numFiles().decrementAndGet();
 		}
 		return ok();
@@ -193,14 +203,19 @@ public class JavaDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).shareFileSec(filename, userId, userIdShare);
+		Map<String, String> opParams = new ConcurrentHashMap<>();
+		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userIdShare)); 
+		repMan.publish(RestDirectory.SHARE_FILE, JSON.encode(opParams));
 
 		return ok();
 	}
 
 	@Override
 	public Result<Void> shareFileSec(String filename, String userId, String userIdShare) {
+
+		
 
 
 		var fileId = fileId(filename, userId);
@@ -228,8 +243,11 @@ public class JavaDirectory implements Directory {
 		if (!user.isOK())
 			return error(user.error());
 
-		for (URI uri : DirectoryClients.all())
-			DirectoryClients.get(uri).unshareFileSec(filename, userId, userIdShare);
+		Map<String, String> opParams = new ConcurrentHashMap<>();
+		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
+		opParams.put(RestDirectory.USER_ID, JSON.encode(userIdShare)); 
+		repMan.publish(RestDirectory.UNSHARE_FILE, JSON.encode(opParams));
 
 		return ok();
 	}
@@ -237,7 +255,6 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> unshareFileSec(String filename, String userId, String userIdShare) {
 
-		
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
 		var uf = userFiles.computeIfAbsent(userIdShare, (k) -> new UserFiles());
@@ -267,7 +284,7 @@ public class JavaDirectory implements Directory {
 			return error(FORBIDDEN);
 
 		Discovery d = Discovery.getInstance();
-		URI uriToRedirect = d.getUriToRedirect(file.uri);
+		URI uriToRedirect = d.getUriToRedirect(file.uri());
 		var url = String.format("%s/files/%s", uriToRedirect, fileId);
 		return redirect(url);
 	}
@@ -316,7 +333,7 @@ public class JavaDirectory implements Directory {
 			for (var id : fileIds.owned()) {
 				var file = files.remove(id);
 				removeSharesOfFile(file);
-				for (URI uri : file.uri)
+				for (URI uri : file.uri())
 					getFileCounts(uri, false).numFiles().decrementAndGet();
 			}
 		return ok();
@@ -332,7 +349,7 @@ public class JavaDirectory implements Directory {
 		Queue<URI> result = new ArrayDeque<>();
 
 		if (file != null)
-			for (URI uri : file.uri)
+			for (URI uri : file.uri())
 				result.add(uri);
 
 		FilesClients.all().stream().filter(u -> !result.contains(u)).map(u -> getFileCounts(u, false))
@@ -356,9 +373,6 @@ public class JavaDirectory implements Directory {
 		return ok(opVersion.get(version));
 	}
 
-
-	public static record ExtendedFileInfo(List<URI> uri, String fileId, FileInfo info) {
-	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {
 
