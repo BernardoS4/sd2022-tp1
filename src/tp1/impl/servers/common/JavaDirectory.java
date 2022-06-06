@@ -36,7 +36,6 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
 import tp1.impl.discovery.Discovery;
-import util.Operation;
 
 
 public class JavaDirectory implements Directory {
@@ -62,7 +61,6 @@ public class JavaDirectory implements Directory {
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
-	final Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version) {
@@ -308,7 +306,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, String token) {
+	public Result<Void> deleteUserFiles(String userId, String password) {
 		users.invalidate(new UserInfo(userId, password));
 
 		var fileIds = userFiles.remove(userId);
@@ -349,11 +347,6 @@ public class JavaDirectory implements Directory {
 			return fileCounts.computeIfAbsent(uri, FileCounts::new);
 		else
 			return fileCounts.getOrDefault(uri, new FileCounts(uri));
-	}
-
-	@Override
-	public Result<Operation> getOperation(Long version) {
-		return ok(opVersion.get(version));
 	}
 
 

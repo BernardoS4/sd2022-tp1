@@ -10,16 +10,22 @@ import tp1.api.FileInfo;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import tp1.impl.servers.common.JavaRepDirectory;
+import tp1.impl.servers.common.JavaUsers;
 import util.JSON;
 
 
 public class ProcessOperation implements RecordProcessor {
 
 	private JavaRepDirectory rep;
+	private JavaUsers usersRep;
 	
 
 	public ProcessOperation(JavaRepDirectory rep) {
 		this.rep = rep;
+	}
+	
+	public ProcessOperation(JavaUsers usersRep) {
+		this.usersRep = usersRep;
 	}
 
 	@Override
@@ -34,9 +40,9 @@ public class ProcessOperation implements RecordProcessor {
 		
 		switch (r.key()) {
 		case RestDirectory.WRITE_FILE:
-			URI[] uris = JSON.decode(opParams.get("uris"), URI[].class);
-			String fileId = JSON.decode(opParams.get("fileId"), String.class);
-			FileInfo info = JSON.decode(opParams.get("info"), FileInfo.class);
+			URI[] uris = JSON.decode(opParams.get(RestDirectory.URIS), URI[].class);
+			String fileId = JSON.decode(opParams.get(RestDirectory.FILEID), String.class);
+			FileInfo info = JSON.decode(opParams.get(RestDirectory.INFO), FileInfo.class);
 			ExtendedFileInfo file = new ExtendedFileInfo(Arrays.asList(uris), fileId, info);
 			SyncPoint.getInstance().setResult(r.offset(), rep.writeFileSec(filename, userId, file));
 			break;
@@ -44,11 +50,14 @@ public class ProcessOperation implements RecordProcessor {
 			SyncPoint.getInstance().setResult(r.offset(), rep.deleteFileSec(filename, userId));
 			break;
 		case RestDirectory.SHARE_FILE:
-			System.out.println("ACHAS NORMAL?");
 			SyncPoint.getInstance().setResult(r.offset(), rep.shareFileSec(filename, userId, userIdShare));
 			break;
 		case RestDirectory.UNSHARE_FILE:
 			SyncPoint.getInstance().setResult(r.offset(), rep.unshareFileSec(filename, userId, userIdShare));
+			break;
+		case RestDirectory.DELETE_USER_FILES:
+			String password = JSON.decode(opParams.get(RestDirectory.PASSWORD), String.class);
+			SyncPoint.getInstance().setResult(r.offset(), rep.deleteUserFiles(userId, password));
 			break;
 		default:
 			break;

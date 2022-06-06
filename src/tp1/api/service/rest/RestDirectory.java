@@ -15,14 +15,16 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import tp1.api.FileInfo;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
-import util.Operation;
 
 @Path(RestDirectory.PATH)
 public interface RestDirectory {
 
 	public static final String FILE = "file";
 	public static final String PATH = "/dir";
+	public static final String URIS = "uris";
+	public static final String INFO = "info";
 	public static final String TOKEN = "token";
+	public static final String FILEID = "fileId";
 	public static final String PREFIX = "prefix";
 	public static final String USER_ID = "userId";
 	public static final String VERSION = "version";
@@ -35,6 +37,7 @@ public interface RestDirectory {
 	public static final String UNSHARE_FILE = "unshareFile";
 	public static final String USER_ID_SHARE = "userIdShare";
 	public static final String HEADER_VERSION = "X-DFS-version";
+	public static final String DELETE_USER_FILES = "deleteUserFiles";
 
 	/**
 	 * Write a new version of a file. If the file exists, its contents are
@@ -174,11 +177,7 @@ public interface RestDirectory {
 
 	@DELETE
 	@Path("{" + USER_ID + "}")
-	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) @DefaultValue("") String password, @QueryParam(TOKEN) String token);
+	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) @DefaultValue("") String password);
 	
-	@GET
-	@Path("/{" + PREFIX + "}/{" + VERSION + "}")
-	@Produces(MediaType.APPLICATION_JSON)
-	Operation getOperation(@PathParam(VERSION) Long version);
 
 }

@@ -12,7 +12,6 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
-import util.Operation;
 
 public class RestDirectoryClient extends RestClient implements Directory {
 
@@ -110,16 +109,8 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, String token) {
-		Response r = target.path(userId).queryParam(RestDirectory.PASSWORD, password)
-				.queryParam(RestDirectory.TOKEN, token).request().delete();
+	public Result<Void> deleteUserFiles(String userId, String password) {
+		Response r = target.path(userId).queryParam(RestDirectory.PASSWORD, password).request().delete();
 		return super.toJavaResult(r);
-	}
-
-	@Override
-	public Result<Operation> getOperation(Long version) {
-		Response r = target.path(RestDirectory.PREFIX).path(version.toString()).request().get();
-		return super.toJavaResult(r, new GenericType<Operation>() {
-		});
 	}
 }

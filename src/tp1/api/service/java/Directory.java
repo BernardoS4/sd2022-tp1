@@ -3,9 +3,7 @@ package tp1.api.service.java;
 import java.util.List;
 
 import tp1.api.FileInfo;
-import tp1.api.service.java.Result.ErrorCode;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
-import util.Operation;
 
 
 public interface Directory {
@@ -32,9 +30,6 @@ public interface Directory {
 
 	Result<List<FileInfo>> lsFile(String userId, String password, Long version);
 		
-	Result<Void> deleteUserFiles(String userId, String password, String token);
-	
-	default Result<Operation> getOperation(Long version) {
-		return Result.error(ErrorCode.NOT_IMPLEMENTED); 
-	}
+	Result<Void> deleteUserFiles(String userId, String password);
+
 }

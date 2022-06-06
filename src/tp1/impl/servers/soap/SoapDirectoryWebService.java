@@ -99,11 +99,11 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String password, String token) throws DirectoryException {
+	public void deleteUserFiles(String userId, String password) throws DirectoryException {
 		Log.info(
-				String.format("SOAP deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
+				String.format("SOAP deleteUserFiles: user = %s, password = %s\n", userId, password));
 
-		super.resultOrThrow(impl.deleteUserFiles(userId, password, token), DirectoryException::new);
+		super.resultOrThrow(impl.deleteUserFiles(userId, password), DirectoryException::new);
 	}
 
 	@Override

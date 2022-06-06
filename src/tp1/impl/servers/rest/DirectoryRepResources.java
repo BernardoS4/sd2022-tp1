@@ -1,7 +1,6 @@
 package tp1.impl.servers.rest;
 
 import java.util.List;
-import util.Operation;
 import tp1.api.FileInfo;
 
 import token.GenerateToken;
@@ -132,19 +131,11 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String password, String token) {
+	public void deleteUserFiles(String userId, String password) {
 		Log.info(
-				String.format("REST deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
+				String.format("REST deleteUserFiles: user = %s, password = %s\n", userId, password));
 
-		super.resultOrThrow(impl.deleteUserFiles(userId, password, token), 0L);
+		super.resultOrThrow(impl.deleteUserFiles(userId, password), 0L);
 	}
-
-	@Override
-	public Operation getOperation(Long version) {
-		Log.info(String.format("REST getOperation: version = %s", version));
-
-		return super.resultOrThrow(impl.getOperation(version), version);
-	}
-
 	
 }

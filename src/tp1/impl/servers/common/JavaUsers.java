@@ -18,11 +18,14 @@ import java.util.concurrent.Executors;
 import tp1.api.User;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Users;
+import tp1.api.service.rest.RestDirectory;
+import util.JSON;
 
 
 public class JavaUsers implements Users {
 	final protected Map<String, User> users = new ConcurrentHashMap<>();
 	final ExecutorService executor = Executors.newCachedThreadPool();
+	private ReplicationManager repMan = new ReplicationManager(this);
 	
 	@Override
 	public Result<String> createUser(User user) {
@@ -81,12 +84,19 @@ public class JavaUsers implements Users {
 		if (badParam(password) || wrongPassword(user, password))
 			return error(FORBIDDEN);
 		else {
+			
+			Map<String, String> opParams = new ConcurrentHashMap<>();
+			opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
+			opParams.put(RestDirectory.PASSWORD, JSON.encode(password)); 
+			repMan.publish(RestDirectory.DELETE_USER_FILES, JSON.encode(opParams));
+			
 			users.remove(userId);
 			executor.execute(()->{
-				DirectoryClients.get().deleteUserFiles(userId, password, password);
+				DirectoryClients.get().deleteUserFiles(userId, password);
 				for( var uri : FilesClients.all())
 					FilesClients.get(uri).deleteUserFiles( userId, password);
 			});
+			
 			return ok(user);
 		}
 	}

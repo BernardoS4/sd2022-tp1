@@ -5,10 +5,10 @@ import java.util.logging.Logger;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
+import dropbox.DropboxArguments;
 import tp1.api.service.java.Files;
 import tp1.impl.servers.rest.util.GenericExceptionMapper;
 import util.Debug;
-import util.DropboxArguments;
 import util.FlagState;
 
 public class DropboxRestServer extends AbstractRestServer {

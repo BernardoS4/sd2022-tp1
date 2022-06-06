@@ -36,7 +36,6 @@ import tp1.api.service.rest.RestDirectory;
 import tp1.impl.discovery.Discovery;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import util.JSON;
-import util.Operation;
 
 public class JavaRepDirectory implements Directory {
 
@@ -62,7 +61,6 @@ public class JavaRepDirectory implements Directory {
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
-	final Map<Long, Operation> opVersion = new ConcurrentHashMap<>();
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version) {
@@ -102,9 +100,9 @@ public class JavaRepDirectory implements Directory {
 		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
 		opParams.put(RestDirectory.USER_ID, JSON.encode(userId));
-		opParams.put("uris", JSON.encode(uris.toArray(new URI[2])));
-		opParams.put("fileId", JSON.encode(fileId));
-		opParams.put("info", JSON.encode(info)); 
+		opParams.put(RestDirectory.URIS, JSON.encode(uris.toArray(new URI[2])));
+		opParams.put(RestDirectory.FILEID, JSON.encode(fileId));
+		opParams.put(RestDirectory.INFO, JSON.encode(info)); 
 		repMan.publish(RestDirectory.WRITE_FILE, JSON.encode(opParams));
 
 		if (countWrites > 0)
@@ -187,7 +185,7 @@ public class JavaRepDirectory implements Directory {
 
 	@Override
 	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password, Long version) {
-		Log.info("ENTREI OH CONA");
+
 		if (badParam(filename) || badParam(userId) || badParam(userIdShare))
 			return error(BAD_REQUEST);
 
@@ -202,7 +200,6 @@ public class JavaRepDirectory implements Directory {
 		if (!user.isOK()) {
 			return error(user.error());
 		}
-		Log.info("FILENAME: " + filename + "USERID: " + userId + "userIdShare: " + userIdShare + "password " + password);
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
 		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
@@ -215,8 +212,6 @@ public class JavaRepDirectory implements Directory {
 
 	@Override
 	public Result<Void> shareFileSec(String filename, String userId, String userIdShare) {
-
-		Log.info("YO IM INNNNNNNNNNN 2");
 		
 		var fileId = fileId(filename, userId);
 		var file = files.get(fileId);
@@ -328,7 +323,7 @@ public class JavaRepDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, String token) {
+	public Result<Void> deleteUserFiles(String userId, String password) {
 		users.invalidate(new UserInfo(userId, password));
 
 		var fileIds = userFiles.remove(userId);
@@ -369,11 +364,6 @@ public class JavaRepDirectory implements Directory {
 			return fileCounts.computeIfAbsent(uri, FileCounts::new);
 		else
 			return fileCounts.getOrDefault(uri, new FileCounts(uri));
-	}
-
-	@Override
-	public Result<Operation> getOperation(Long version) {
-		return ok(opVersion.get(version));
 	}
 
 

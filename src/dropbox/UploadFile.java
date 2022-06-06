@@ -11,7 +11,6 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.gson.Gson;
 
 import dropbox.msgs.UploadFileArgs;
-import util.DropboxArguments;
 
 public class UploadFile {
 

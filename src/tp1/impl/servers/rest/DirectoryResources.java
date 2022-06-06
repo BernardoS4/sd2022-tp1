@@ -12,7 +12,6 @@ import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaDirectory;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
-import util.Operation;
 import token.GenerateToken;
 
 @Singleton
@@ -127,17 +126,10 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String password, String token) {
+	public void deleteUserFiles(String userId, String password) {
 		Log.info(
-				String.format("REST deleteUserFiles: user = %s, password = %s, token = %s\n", userId, password, token));
+				String.format("REST deleteUserFiles: user = %s, password = %s\n", userId, password));
 
-		super.resultOrThrow(impl.deleteUserFiles(userId, password, token), 0L);
-	}
-
-	@Override
-	public Operation getOperation(Long version) {
-		Log.info(String.format("REST getOperation: version = %s", version));
-
-		return super.resultOrThrow(impl.getOperation(version), version);
+		super.resultOrThrow(impl.deleteUserFiles(userId, password), 0L);
 	}
 }

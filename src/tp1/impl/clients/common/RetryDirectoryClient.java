@@ -69,8 +69,8 @@ public class RetryDirectoryClient extends RetryClient implements Directory {
 	
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, String token) {
-		return super.reTry( ()-> impl.deleteUserFiles(userId, password, token));
+	public Result<Void> deleteUserFiles(String userId, String password) {
+		return super.reTry( ()-> impl.deleteUserFiles(userId, password));
 	}
 	
 }

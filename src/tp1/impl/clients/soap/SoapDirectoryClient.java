@@ -54,8 +54,8 @@ public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Di
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String password, String token) {
-		return super.toJavaResult(() -> impl.deleteUserFiles(userId, password, token));
+	public Result<Void> deleteUserFiles(String userId, String password) {
+		return super.toJavaResult(() -> impl.deleteUserFiles(userId, password));
 	}
 
 	@Override
