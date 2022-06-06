@@ -38,6 +38,7 @@ public interface RestDirectory {
 	public static final String USER_ID_SHARE = "userIdShare";
 	public static final String HEADER_VERSION = "X-DFS-version";
 	public static final String DELETE_USER_FILES = "deleteUserFiles";
+	public static final Object DELETE_USER_FILES_IN_FILES = "deleteUserFilesInFiles";
 
 	/**
 	 * Write a new version of a file. If the file exists, its contents are

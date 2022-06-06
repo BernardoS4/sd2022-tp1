@@ -65,6 +65,6 @@ public interface RestFiles {
 
 	@DELETE
 	@Path("/user/{" + USER_ID + "}")
-	void deleteUserFiles(@PathParam(USER_ID) String userId, @QueryParam(TOKEN) String token);
+	void deleteUserFiles(@PathParam(USER_ID) String userId);
 
 }

@@ -18,10 +18,7 @@ public class ReplicationManager {
 	public ReplicationManager(JavaRepDirectory rep) {
 		start(rep);
 	}
-	
-	public ReplicationManager(JavaUsers rep) {
-		start(rep);
-	}
+
 
 	private void start(JavaRepDirectory rep) {
 
@@ -30,12 +27,6 @@ public class ReplicationManager {
 		ks.start(false, new ProcessOperation(rep));
 	}
 	
-	private void start(JavaUsers usersRep) {
-
-		kp = KafkaPublisher.createPublisher(KAFKA_BROKERS);
-		ks = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(TOPIC), REPLAY_FROM_BEGINNING);
-		ks.start(false, new ProcessOperation(usersRep));
-	}
 
 	public void publish(String operation, String params) {
 		SyncPoint.getInstance().waitForResult(kp.publish(TOPIC, operation, params));

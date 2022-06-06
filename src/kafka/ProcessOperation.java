@@ -10,23 +10,18 @@ import tp1.api.FileInfo;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import tp1.impl.servers.common.JavaRepDirectory;
-import tp1.impl.servers.common.JavaUsers;
 import util.JSON;
 
 
 public class ProcessOperation implements RecordProcessor {
 
 	private JavaRepDirectory rep;
-	private JavaUsers usersRep;
 	
 
 	public ProcessOperation(JavaRepDirectory rep) {
 		this.rep = rep;
 	}
 	
-	public ProcessOperation(JavaUsers usersRep) {
-		this.usersRep = usersRep;
-	}
 
 	@Override
 	public void onReceive(ConsumerRecord<String, String> r) {

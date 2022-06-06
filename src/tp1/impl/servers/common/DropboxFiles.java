@@ -38,7 +38,7 @@ public class DropboxFiles implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
+	public Result<Void> deleteUserFiles(String userId) {
 		Dropbox.delete(userId);
 		return ok();
 	}

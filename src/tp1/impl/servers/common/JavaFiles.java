@@ -9,7 +9,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
 
+import kafka.KafkaSubscriber;
+import kafka.ProcessFilesOperation;
 import token.GenerateToken;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
@@ -19,9 +22,12 @@ public class JavaFiles implements Files {
 
 	static final String DELIMITER = "$$$";
 	private static final String ROOT = "/tmp/";
+	private KafkaSubscriber ks;
 
 	public JavaFiles() {
 		new File(ROOT).mkdirs();
+		ks = KafkaSubscriber.createSubscriber(ReplicationManager.KAFKA_BROKERS, List.of(ReplicationManager.TOPIC), ReplicationManager.REPLAY_FROM_BEGINNING);
+		ks.start(false, new ProcessFilesOperation(this));
 	}
 
 	@Override
@@ -51,7 +57,7 @@ public class JavaFiles implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
+	public Result<Void> deleteUserFiles(String userId) {
 		
 		File file = new File(ROOT + "main/" + userId);
 		try {

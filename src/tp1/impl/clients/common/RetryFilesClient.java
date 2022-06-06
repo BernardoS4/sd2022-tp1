@@ -30,7 +30,7 @@ public class RetryFilesClient extends RetryClient implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
-		return reTry( () -> impl.deleteUserFiles(userId, token));
+	public Result<Void> deleteUserFiles(String userId) {
+		return reTry( () -> impl.deleteUserFiles(userId));
 	}	
 }

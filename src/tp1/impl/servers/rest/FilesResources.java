@@ -41,9 +41,9 @@ public class FilesResources extends RestResource implements RestFiles {
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String token) {
-		Log.info(String.format("REST deleteUserFiles: userId = %s, token = %s \n", userId, token));
+	public void deleteUserFiles(String userId) {
+		Log.info(String.format("REST deleteUserFiles: userId = %s\n", userId));
 
-		super.resultOrThrow( impl.deleteUserFiles(userId, token), 0L);
+		super.resultOrThrow( impl.deleteUserFiles(userId), 0L);
 	}
 }

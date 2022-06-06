@@ -163,9 +163,6 @@ public class JavaRepDirectory implements Directory {
 	@Override
 	public Result<Void> deleteFileSec(String filename, String userId) {
 
-		
-	
-
 		var fileId = fileId(filename, userId);
 		var uf = userFiles.getOrDefault(userId, new UserFiles());
 

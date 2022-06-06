@@ -43,9 +43,9 @@ public class SoapFilesWebService extends SoapWebService implements SoapFiles {
 	}
 
 	@Override
-	public void deleteUserFiles(String userId, String token) throws FilesException {
-		Log.info(String.format("SOAP deleteUserFiles: userId = %s, token = %s \n", userId, token));
+	public void deleteUserFiles(String userId) throws FilesException {
+		Log.info(String.format("SOAP deleteUserFiles: userId = %s\n", userId));
 
-		super.resultOrThrow( impl.deleteUserFiles(userId, token), FilesException::new);
+		super.resultOrThrow( impl.deleteUserFiles(userId), FilesException::new);
 	}
 }

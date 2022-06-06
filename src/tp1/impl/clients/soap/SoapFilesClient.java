@@ -36,7 +36,7 @@ public class SoapFilesClient extends SoapClient<SoapFiles> implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
-		return super.toJavaResult(() -> impl.deleteUserFiles(userId, token));
+	public Result<Void> deleteUserFiles(String userId) {
+		return super.toJavaResult(() -> impl.deleteUserFiles(userId));
 	}
 }

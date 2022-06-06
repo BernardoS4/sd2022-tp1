@@ -49,10 +49,9 @@ public class RestFilesClient extends RestClient implements Files {
 	}
 
 	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
+	public Result<Void> deleteUserFiles(String userId) {
 		Response r = target.path(USER)
 				.path(userId)
-				.queryParam(RestFiles.TOKEN, token)
 				.request()
 				.delete();
 		
