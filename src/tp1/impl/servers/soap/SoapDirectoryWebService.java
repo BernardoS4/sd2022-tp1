@@ -13,9 +13,9 @@ import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
-import tp1.impl.servers.common.JavaDirectory;
-import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import tp1.impl.servers.common.JavaRepDirectory;
+import tp1.impl.servers.common.JavaRepDirectory.ExtendedFileInfo;
+
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public class SoapDirectoryWebService extends SoapWebService implements SoapDirectory {
@@ -85,7 +85,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 		var res = impl.getFile(filename, userId, accUserId, password, DEFAULT_VERSION);
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
-			String fileId = JavaDirectory.fileId(filename, userId);
+			String fileId = JavaRepDirectory.fileId(filename, userId);
 			String token = GenerateToken.buildToken(fileId);
 			res = FilesClients.get(location).getFile(fileId, token);
 		}

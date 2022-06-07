@@ -8,7 +8,7 @@ import kafka.sync.SyncPoint;
 import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.rest.RestDirectory;
-import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaRepDirectory.ExtendedFileInfo;
 import util.JSON;
 
 

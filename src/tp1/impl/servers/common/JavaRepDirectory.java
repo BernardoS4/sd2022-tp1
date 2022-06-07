@@ -34,7 +34,6 @@ import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.discovery.Discovery;
-import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import util.JSON;
 
 public class JavaRepDirectory implements Directory {
@@ -55,7 +54,7 @@ public class JavaRepDirectory implements Directory {
 				}
 			});
 
-	final static Logger Log = Logger.getLogger(JavaDirectory.class.getName());
+	final static Logger Log = Logger.getLogger(JavaRepDirectory.class.getName());
 	final ExecutorService executor = Executors.newCachedThreadPool();
 
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
@@ -362,6 +361,8 @@ public class JavaRepDirectory implements Directory {
 			return fileCounts.getOrDefault(uri, new FileCounts(uri));
 	}
 
+	public static record ExtendedFileInfo(List<URI> uri, String fileId, FileInfo info) {
+	}
 
 	static record UserFiles(Set<String> owned, Set<String> shared) {
 

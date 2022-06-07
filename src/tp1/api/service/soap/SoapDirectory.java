@@ -5,7 +5,7 @@ import java.util.List;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 import tp1.api.FileInfo;
-import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaRepDirectory.ExtendedFileInfo;
 
 @WebService(serviceName=SoapDirectory.NAME, targetNamespace=SoapDirectory.NAMESPACE, endpointInterface=SoapDirectory.INTERFACE)
 public interface SoapDirectory {

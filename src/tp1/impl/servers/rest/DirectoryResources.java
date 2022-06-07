@@ -10,8 +10,8 @@ import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
 import tp1.api.service.rest.RestDirectory;
-import tp1.impl.servers.common.JavaDirectory;
-import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaRepDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaRepDirectory;
 import token.GenerateToken;
 
 @Singleton
@@ -23,7 +23,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 	final Directory impl;
 
 	public DirectoryResources() {
-		impl = new JavaDirectory();
+		impl = new JavaRepDirectory();
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class DirectoryResources extends RestResource implements RestDirectory {
 		var res = impl.getFile(filename, userId, accUserId, password, version);
 		if (res.error() == ErrorCode.REDIRECT) {
 			String location = res.errorValue();
-			String fileId = JavaDirectory.fileId(filename, userId);
+			String fileId = JavaRepDirectory.fileId(filename, userId);
 			String token = GenerateToken.buildToken(fileId);
 			if (!location.contains(REST)) {
 				res = FilesClients.get(location).getFile(fileId, token);

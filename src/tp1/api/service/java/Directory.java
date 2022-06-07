@@ -3,7 +3,8 @@ package tp1.api.service.java;
 import java.util.List;
 
 import tp1.api.FileInfo;
-import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaRepDirectory.ExtendedFileInfo;
+
 
 
 public interface Directory {
