@@ -6,6 +6,7 @@ import tp1.api.FileInfo;
 import token.GenerateToken;
 import java.util.logging.Logger;
 import jakarta.inject.Singleton;
+import kafka.sync.SyncPoint;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Directory;
 import tp1.api.service.rest.RestDirectory;
@@ -33,7 +34,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 				"REST writeFile: version = %d, filename = %s, data.length = %d, userId = %s, password = %s \n", version,
 				filename, data.length, userId, password));
 		
-			return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version), version);
+			return super.resultOrThrow(impl.writeFile(filename, data, userId, password, version), SyncPoint.getInstance().getVersion());
 	}
 
 	@Override
@@ -41,7 +42,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(
 				String.format("REST writeFileSec: version = %d, filename = %s, userId = %s\n", version, filename, userId));
 
-		super.resultOrThrow(impl.writeFileSec(filename, userId, file), version);
+		super.resultOrThrow(impl.writeFileSec(filename, userId, file), SyncPoint.getInstance().getVersion());
 	}
 
 	@Override
@@ -50,7 +51,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 				filename, userId, password));
 
 		
-			super.resultOrThrow(impl.deleteFile(filename, userId, password, version), version);
+			super.resultOrThrow(impl.deleteFile(filename, userId, password, version), SyncPoint.getInstance().getVersion());
 	}
 
 	@Override
@@ -58,7 +59,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST deleteFileSec: version = %d, filename = %s, userId = %s\n", version, filename,
 				userId));
 
-		super.resultOrThrow(impl.deleteFileSec(filename, userId), version);
+		super.resultOrThrow(impl.deleteFileSec(filename, userId), SyncPoint.getInstance().getVersion());
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 				filename, userId, userIdShare, password));
 
 		
-			super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version), version);
+			super.resultOrThrow(impl.shareFile(filename, userId, userIdShare, password, version), SyncPoint.getInstance().getVersion());
 	}
 
 	@Override
@@ -76,7 +77,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST shareFileSec: version = %d, filename = %s, userId = %s, userIdShare = %s\n", version,
 				filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare), version);
+		super.resultOrThrow(impl.shareFileSec(filename, userId, userIdShare), SyncPoint.getInstance().getVersion());
 	}
 
 	@Override
@@ -84,9 +85,8 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format(
 				"REST unshareFile: version = %d, filename = %s, userId = %s, userIdShare = %s, password =%s\n", version,
 				filename, userId, userIdShare, password));
-
 		
-			super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version), version);
+			super.resultOrThrow(impl.unshareFile(filename, userId, userIdShare, password, version), SyncPoint.getInstance().getVersion());
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(String.format("REST unshareFileSec: version = %d, filename = %s, userId = %s, userIdShare = %s\n",
 				version, filename, userId, userIdShare));
 
-		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare), version);
+		super.resultOrThrow(impl.unshareFileSec(filename, userId, userIdShare), SyncPoint.getInstance().getVersion());
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 			} else
 				res = Result.redirect(location + "?token=" + token);
 		}
-		return super.resultOrThrow(res, version);
+		return super.resultOrThrow(res, SyncPoint.getInstance().getVersion());
 
 	}
 
@@ -124,7 +124,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 			Log.info(String.format("REST lsFile: version = %d, userId = %s, password = %s\n", version, userId,
 					password));
 
-			return super.resultOrThrow(impl.lsFile(userId, password, version), version);
+			return super.resultOrThrow(impl.lsFile(userId, password, version), SyncPoint.getInstance().getVersion());
 		} finally {
 			System.err.println("TOOK:" + (System.currentTimeMillis() - T0));
 		}
@@ -135,7 +135,7 @@ public class DirectoryRepResources extends RestResource implements RestDirectory
 		Log.info(
 				String.format("REST deleteUserFiles: user = %s, password = %s\n", userId, password));
 
-		super.resultOrThrow(impl.deleteUserFiles(userId, password), 0L);
+		super.resultOrThrow(impl.deleteUserFiles(userId, password), SyncPoint.getInstance().getVersion());
 	}
 	
 }

@@ -8,6 +8,8 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import kafka.process.operations.RecordProcessor;
+
 public class KafkaSubscriber {
 	static public KafkaSubscriber createSubscriber(String brokers, List<String> topics, String mode) {
 

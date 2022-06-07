@@ -14,10 +14,7 @@ import dropbox.msgs.DeleteDirectoryV2Args;
 
 public class DeleteDirectory {
 
-	//private static final String apiKey = "nyekq63jvq28jsq";
-	//private static final String apiSecret = "cbsndqm28jogmbp";
-	//private static final String accessTokenStr = "sl.BIUwns933jo6Urn9ISbENp_2qgCYta9CRWbXH0q4dTFFXwjI8cdfVcEX5BJlMQ5JdZI3_Ps89DdPmXO3sPbr-4k4JJMQ9ucQoFvu_Z0TMfj9rErKi-MEKG4VbKY5wYJs3Sif1jtGJ8jA";
-	
+
 	private static final String DELETE_DIR_V2_URL = "https://api.dropboxapi.com/2/files/delete_v2";
 	
 	private static final int HTTP_SUCCESS = 200;

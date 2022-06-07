@@ -15,6 +15,7 @@ import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
 import tp1.impl.servers.common.JavaDirectory;
 import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaRepDirectory;
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public class SoapDirectoryWebService extends SoapWebService implements SoapDirectory {
@@ -25,7 +26,7 @@ public class SoapDirectoryWebService extends SoapWebService implements SoapDirec
 	private long DEFAULT_VERSION = 0L;
 
 	public SoapDirectoryWebService() {
-		impl = new JavaDirectory();
+		impl = new JavaRepDirectory();
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import kafka.KafkaSubscriber;
-import kafka.ProcessFilesOperation;
+import kafka.process.operations.ProcessFilesOperation;
 import token.GenerateToken;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;

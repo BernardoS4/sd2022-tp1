@@ -4,7 +4,7 @@ package tp1.impl.servers.common;
 import java.util.List;
 import kafka.KafkaPublisher;
 import kafka.KafkaSubscriber;
-import kafka.ProcessOperation;
+import kafka.process.operations.ProcessOperation;
 import kafka.sync.SyncPoint;
 
 public class ReplicationManager {

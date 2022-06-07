@@ -30,8 +30,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import kafka.KafkaSubscriber;
-import kafka.ProcessFilesOperation;
-import kafka.ProcessOperation;
+import kafka.process.operations.ProcessFilesOperation;
+import kafka.process.operations.ProcessOperation;
 import token.GenerateToken;
 import tp1.api.FileInfo;
 import tp1.api.User;

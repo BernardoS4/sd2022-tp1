@@ -1,4 +1,4 @@
-package kafka;
+package kafka.process.operations;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 

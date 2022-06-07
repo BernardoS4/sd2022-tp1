@@ -1,8 +1,9 @@
-package kafka;
+package kafka.process.operations;
 
 
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+
 import kafka.sync.SyncPoint;
 import tp1.api.service.rest.RestDirectory;
 import tp1.impl.servers.common.JavaFiles;

@@ -57,6 +57,10 @@ public class SyncPoint<T> {
 		version = n;
 		this.notifyAll();
 	}
+	
+	public synchronized Long getVersion() {
+		return version;
+	}
 
 	public synchronized String toString() {
 		return results.keySet().toString();
