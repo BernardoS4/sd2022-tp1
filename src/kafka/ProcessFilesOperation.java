@@ -22,7 +22,6 @@ public class ProcessFilesOperation implements RecordProcessor {
 	public void onReceive(ConsumerRecord<String, String> r) {
 		Map<String, String> opParams = JSON.decode(r.value());
 		String userId = JSON.decode(opParams.get(RestDirectory.USER_ID), String.class);
-		System.out.println("ENTREIIIIIIII OH PUTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " + r.key());
 		if(r.key().equals(RestDirectory.DELETE_USER_FILES))
 			SyncPoint.getInstance().setResult(r.offset(), jf.deleteUserFiles(userId));
 	}

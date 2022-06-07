@@ -268,8 +268,7 @@ public class JavaRepDirectory implements Directory {
 		if (file == null) {
 		
 			return error(NOT_FOUND);
-		}
-			
+		}	
 
 		var user = getUser(accUserId, password);
 		if (!user.isOK())

@@ -90,11 +90,12 @@ public class JavaUsers implements Users {
 			return error(FORBIDDEN);
 		else {			
 			users.remove(userId);
+			executor.execute(()->{
 			Map<String, String> opParams = new ConcurrentHashMap<>();
 			opParams.put(RestDirectory.USER_ID, JSON.encode(userId));
 			opParams.put(RestDirectory.PASSWORD, JSON.encode(password)); 
-			pub.publish(RestDirectory.DELETE_USER_FILES, JSON.encode(opParams));
-			
+			pub.publish(ReplicationManager.TOPIC, RestDirectory.DELETE_USER_FILES, JSON.encode(opParams));
+			});
 //			users.remove(userId);
 //            executor.execute(()->{
 //                DirectoryClients.get().deleteUserFiles(userId, password);

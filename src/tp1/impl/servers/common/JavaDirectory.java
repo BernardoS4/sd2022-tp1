@@ -29,6 +29,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import kafka.KafkaSubscriber;
+import kafka.ProcessFilesOperation;
+import kafka.ProcessOperation;
 import token.GenerateToken;
 import tp1.api.FileInfo;
 import tp1.api.User;
@@ -42,6 +45,7 @@ public class JavaDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
 	static final int MAX_URLS = 2;
+	private KafkaSubscriber ks;
 
 	final LoadingCache<UserInfo, Result<User>> users = CacheBuilder.newBuilder()
 			.expireAfterWrite(Duration.ofMillis(USER_CACHE_EXPIRATION)).build(new CacheLoader<>() {
@@ -61,6 +65,14 @@ public class JavaDirectory implements Directory {
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
 	final Map<String, UserFiles> userFiles = new ConcurrentHashMap<>();
 	final Map<URI, FileCounts> fileCounts = new ConcurrentHashMap<>();
+	
+	
+	public JavaDirectory() {
+		ks = KafkaSubscriber.createSubscriber(ReplicationManager.KAFKA_BROKERS, List.of(ReplicationManager.TOPIC), ReplicationManager.REPLAY_FROM_BEGINNING);
+		ks.start(false, new ProcessOperation(this));
+	}
+	
+	
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password, Long version) {
