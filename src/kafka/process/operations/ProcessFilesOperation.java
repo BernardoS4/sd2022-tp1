@@ -4,17 +4,17 @@ package kafka.process.operations;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import kafka.sync.SyncPoint;
-import tp1.impl.servers.common.JavaFiles;
+import tp1.api.service.java.Files;
 import util.JSON;
 import static util.SystemConstants.USER_ID;
 import static util.SystemConstants.DELETE_USER_FILES;;
 
 public class ProcessFilesOperation implements RecordProcessor {
 
-	private JavaFiles jf;
+	private Files jf;
 	
 	
-	public ProcessFilesOperation(JavaFiles jf) {
+	public ProcessFilesOperation(Files jf) {
 		this.jf = jf;
 	}
 	
