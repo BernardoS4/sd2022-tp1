@@ -7,7 +7,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
-import tp1.api.service.rest.RestFiles;
+import static util.SystemConstants.FILES_PATH;
+import static util.SystemConstants.TOKEN;
 
 
 public class RestFilesClient extends RestClient implements Files {
@@ -15,13 +16,13 @@ public class RestFilesClient extends RestClient implements Files {
 	private static final String USER = "user";
 
 	public RestFilesClient(URI serverUri) {
-		super(serverUri, RestFiles.PATH);
+		super(serverUri, FILES_PATH);
 	}
 	
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
 		Response r = target.path(fileId)
-				.queryParam(RestFiles.TOKEN, token)
+				.queryParam(TOKEN, token)
 				.request()
 				.accept( MediaType.APPLICATION_OCTET_STREAM)
 				.get();
@@ -31,7 +32,7 @@ public class RestFilesClient extends RestClient implements Files {
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
 		Response r = target.path(fileId)
-				.queryParam(RestFiles.TOKEN, token)
+				.queryParam(TOKEN, token)
 				.request()
 				.delete();
 		
@@ -41,7 +42,7 @@ public class RestFilesClient extends RestClient implements Files {
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		Response r = target.path(fileId)
-				.queryParam(RestFiles.TOKEN, token)
+				.queryParam(TOKEN, token)
 				.request()
 				.post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 		

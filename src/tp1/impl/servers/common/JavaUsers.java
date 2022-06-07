@@ -6,7 +6,7 @@ import static tp1.api.service.java.Result.ErrorCode.BAD_REQUEST;
 import static tp1.api.service.java.Result.ErrorCode.CONFLICT;
 import static tp1.api.service.java.Result.ErrorCode.FORBIDDEN;
 import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
-
+import static util.SystemConstants.*;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,10 +14,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import kafka.KafkaPublisher;
+import kafka.ReplicationManager;
 import tp1.api.User;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Users;
-import tp1.api.service.rest.RestDirectory;
 import util.JSON;
 
 
@@ -92,16 +92,10 @@ public class JavaUsers implements Users {
 			users.remove(userId);
 			executor.execute(()->{
 			Map<String, String> opParams = new ConcurrentHashMap<>();
-			opParams.put(RestDirectory.USER_ID, JSON.encode(userId));
-			opParams.put(RestDirectory.PASSWORD, JSON.encode(password)); 
-			pub.publish(ReplicationManager.TOPIC, RestDirectory.DELETE_USER_FILES, JSON.encode(opParams));
+			opParams.put(USER_ID, JSON.encode(userId));
+			opParams.put(PASSWORD, JSON.encode(password)); 
+			pub.publish(ReplicationManager.TOPIC, DELETE_USER_FILES, JSON.encode(opParams));
 			});
-//			users.remove(userId);
-//            executor.execute(()->{
-//                DirectoryClients.get().deleteUserFiles(userId, password);
-//                for( var uri : FilesClients.all())
-//                    FilesClients.get(uri).deleteUserFiles( userId, password);
-//            });
 			
 			return ok(user);
 		}

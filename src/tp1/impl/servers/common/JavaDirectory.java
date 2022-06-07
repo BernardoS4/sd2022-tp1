@@ -8,6 +8,7 @@ import static tp1.api.service.java.Result.ErrorCode.FORBIDDEN;
 import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 import static tp1.impl.clients.Clients.FilesClients;
 import static tp1.impl.clients.Clients.UsersClients;
+import static util.SystemConstants.*;
 import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayDeque;
@@ -26,17 +27,18 @@ import java.util.stream.Stream;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+
+import kafka.ReplicationManager;
 import token.GenerateToken;
 import tp1.api.FileInfo;
 import tp1.api.User;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.java.Result.ErrorCode;
-import tp1.api.service.rest.RestDirectory;
 import tp1.impl.discovery.Discovery;
 import util.JSON;
 
-public class JavaRepDirectory implements Directory {
+public class JavaDirectory implements Directory {
 
 	static final long USER_CACHE_EXPIRATION = 3000;
 	static final int MAX_URLS = 2;
@@ -54,7 +56,7 @@ public class JavaRepDirectory implements Directory {
 				}
 			});
 
-	final static Logger Log = Logger.getLogger(JavaRepDirectory.class.getName());
+	final static Logger Log = Logger.getLogger(JavaDirectory.class.getName());
 	final ExecutorService executor = Executors.newCachedThreadPool();
 
 	final Map<String, ExtendedFileInfo> files = new ConcurrentHashMap<>();
@@ -97,12 +99,12 @@ public class JavaRepDirectory implements Directory {
 		files.put(fileId, file);
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
-		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
-		opParams.put(RestDirectory.USER_ID, JSON.encode(userId));
-		opParams.put(RestDirectory.URIS, JSON.encode(uris.toArray(new URI[2])));
-		opParams.put(RestDirectory.FILEID, JSON.encode(fileId));
-		opParams.put(RestDirectory.INFO, JSON.encode(info)); 
-		repMan.publish(RestDirectory.WRITE_FILE, JSON.encode(opParams));
+		opParams.put(FILENAME, JSON.encode(filename)); 
+		opParams.put(USER_ID, JSON.encode(userId));
+		opParams.put(URIS, JSON.encode(uris.toArray(new URI[2])));
+		opParams.put(FILE_ID, JSON.encode(fileId));
+		opParams.put(INFO, JSON.encode(info)); 
+		repMan.publish(WRITE_FILE, JSON.encode(opParams));
 
 		if (countWrites > 0)
 			return ok(file.info());
@@ -152,9 +154,9 @@ public class JavaRepDirectory implements Directory {
 		});
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
-		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
-		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
-		repMan.publish(RestDirectory.DELETE_FILE, JSON.encode(opParams));
+		opParams.put(FILENAME, JSON.encode(filename)); 
+		opParams.put(USER_ID, JSON.encode(userId)); 
+		repMan.publish(DELETE_FILE, JSON.encode(opParams));
 
 		return ok();
 	}
@@ -198,10 +200,10 @@ public class JavaRepDirectory implements Directory {
 		}
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
-		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
-		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
-		opParams.put(RestDirectory.USER_ID_SHARE, JSON.encode(userIdShare)); 
-		repMan.publish(RestDirectory.SHARE_FILE, JSON.encode(opParams));
+		opParams.put(FILENAME, JSON.encode(filename)); 
+		opParams.put(USER_ID, JSON.encode(userId)); 
+		opParams.put(USER_ID_SHARE, JSON.encode(userIdShare)); 
+		repMan.publish(SHARE_FILE, JSON.encode(opParams));
 
 		return ok();
 	}
@@ -235,10 +237,10 @@ public class JavaRepDirectory implements Directory {
 			return error(user.error());
 
 		Map<String, String> opParams = new ConcurrentHashMap<>();
-		opParams.put(RestDirectory.FILENAME, JSON.encode(filename)); 
-		opParams.put(RestDirectory.USER_ID, JSON.encode(userId)); 
-		opParams.put(RestDirectory.USER_ID_SHARE, JSON.encode(userIdShare)); 
-		repMan.publish(RestDirectory.UNSHARE_FILE, JSON.encode(opParams));
+		opParams.put(FILENAME, JSON.encode(filename)); 
+		opParams.put(USER_ID, JSON.encode(userId)); 
+		opParams.put(USER_ID_SHARE, JSON.encode(userIdShare)); 
+		repMan.publish(UNSHARE_FILE, JSON.encode(opParams));
 
 		return ok();
 	}

@@ -2,9 +2,11 @@ package tp1.impl.servers.common;
 
 import static tp1.api.service.java.Result.error;
 import static tp1.api.service.java.Result.ok;
+import static tp1.api.service.java.Result.ErrorCode.FORBIDDEN;
 import static tp1.api.service.java.Result.ErrorCode.NOT_FOUND;
 
 import dropbox.Dropbox;
+import token.GenerateToken;
 import tp1.api.service.java.Files;
 import tp1.api.service.java.Result;
 
@@ -18,6 +20,7 @@ public class DropboxFiles implements Files {
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
+		//if(!GenerateToken.isTokenValid(token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
 		byte[] data = Dropbox.read(fileId);
 		return data != null ? ok(data) : error(NOT_FOUND);
@@ -25,6 +28,7 @@ public class DropboxFiles implements Files {
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
+		//if(!GenerateToken.isTokenValid(token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
 		boolean res = Dropbox.delete(fileId);
 		return res ? ok() : error(NOT_FOUND);
@@ -32,6 +36,7 @@ public class DropboxFiles implements Files {
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
+		//if(!GenerateToken.isTokenValid(token, fileId)) return error(FORBIDDEN);
 		fileId = fileId.replace(DELIMITER, "/");
 		Dropbox.write(fileId, data);
 		return ok();

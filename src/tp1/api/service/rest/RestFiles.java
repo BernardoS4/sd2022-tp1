@@ -9,15 +9,15 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import static util.SystemConstants.FILE_ID;
+import static util.SystemConstants.TOKEN;
+import static util.SystemConstants.FILES_PATH;
+import static util.SystemConstants.USER_ID;
 
 
-@Path(RestFiles.PATH)
+@Path(FILES_PATH)
 public interface RestFiles {
 
-	public static final String PATH = "/files";
-	public static final String TOKEN = "token";
-	public static final String FILE_ID = "fileId";
-	public static final String USER_ID = "userId";
 
 	/**
 	 * Write a file. If the file exists, overwrites the contents.

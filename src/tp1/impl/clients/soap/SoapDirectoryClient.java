@@ -10,7 +10,7 @@ import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
 import tp1.api.service.soap.SoapDirectory;
-import tp1.impl.servers.common.JavaRepDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 import util.Url;
 
 public class SoapDirectoryClient extends SoapClient<SoapDirectory> implements Directory {

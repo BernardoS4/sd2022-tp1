@@ -19,12 +19,10 @@ public class DirectorySoapServer extends AbstractSoapServer {
 		super(false, Log, Directory.SERVICE_NAME, PORT, new SoapDirectoryWebService());
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 
 		Debug.setLogLevel( Level.INFO, Debug.TP1);
 		TokenSecret.set( args.length > 0 ? args[0] : "");
-		//for(String s : args) Log.info(s);
-		//TokenSecret.set( args[0] );
 		new DirectorySoapServer().start();
 	}
 }

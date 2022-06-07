@@ -5,7 +5,7 @@ import java.util.List;
 import tp1.api.FileInfo;
 import tp1.api.service.java.Directory;
 import tp1.api.service.java.Result;
-import tp1.impl.servers.common.JavaRepDirectory.ExtendedFileInfo;
+import tp1.impl.servers.common.JavaDirectory.ExtendedFileInfo;
 
 public class RetryDirectoryClient extends RetryClient implements Directory {
 

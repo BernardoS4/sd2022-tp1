@@ -13,15 +13,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import tp1.api.User;
+import static util.SystemConstants.USERS_PATH;
+import static util.SystemConstants.USER_ID;
+import static util.SystemConstants.QUERY;
+import static util.SystemConstants.PASSWORD;
 
-@Path(RestUsers.PATH)
+@Path(USERS_PATH)
 public interface RestUsers {
-
-	static final String PATH="/users";
-	public static final String QUERY = "query";
-	public static final String USER_ID="userId";
-	public static final String PASSWORD ="password";
-	public static final String TOKEN="token";
 	
 	/**
 	 * Creates a new user.

@@ -36,7 +36,6 @@ public static final int PORT = 5678;
 		DropboxArguments.setApiKey(args[1]);
 		DropboxArguments.setApiSecret(args[2]);
 		DropboxArguments.setAccessTokenStr(args[3]);
-		Log.info("Flag: " + args[0] + " apiKey " + args[1] + " apiSecret " + args[2] + " accessTokenStr " + args[3]);
 
 		new DropboxRestServer().start();
 	}	

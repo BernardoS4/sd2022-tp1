@@ -1,6 +1,10 @@
 package token;
 
 public class GenerateToken {
+	
+	private static final String DELIMITER = "-";
+	
+	private GenerateToken() {}
 
 	// set to 10sec
 	private static final long EXPIRE_TIME = 1000 * 10;
@@ -8,7 +12,7 @@ public class GenerateToken {
 	public static String buildToken(String fileId) {
 		Long to = System.currentTimeMillis() + EXPIRE_TIME;
 		String hash = Hash.of(fileId, to, TokenSecret.get());
-		return fileId.concat("-").concat(to.toString()).concat("-").concat(hash);
+		return fileId.concat(DELIMITER).concat(to.toString()).concat(DELIMITER).concat(hash);
 	}
 	
 	public static boolean isTokenValid(String token, String fileId) {
@@ -24,6 +28,6 @@ public class GenerateToken {
 	}
 
 	private static String[] splitToken(String token) {
-		return token.split("-");
+		return token.split(DELIMITER);
 	}
 }

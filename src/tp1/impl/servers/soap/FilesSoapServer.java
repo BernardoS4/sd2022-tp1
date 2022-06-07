@@ -19,7 +19,7 @@ public class FilesSoapServer extends AbstractSoapServer {
 		super(false, Log, Files.SERVICE_NAME, PORT, new SoapFilesWebService());
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 
 		Debug.setLogLevel( Level.INFO, Debug.TP1);
 		TokenSecret.set( args.length > 0 ? args[0] : "");

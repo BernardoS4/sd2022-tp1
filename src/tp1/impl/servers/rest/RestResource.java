@@ -6,7 +6,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import tp1.api.service.java.Result;
-import tp1.api.service.rest.RestDirectory;
+import static util.SystemConstants.HEADER_VERSION;
 
 public class RestResource {
 
@@ -17,10 +17,10 @@ public class RestResource {
 	protected <T> T resultOrThrow(Result<T> result, Long version) {
 		if (result.isOK()) {
 			if(result.value() != null) {
-				throw new WebApplicationException(Response.ok().header(RestDirectory.HEADER_VERSION, version).entity(result.value()).build());
+				throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).entity(result.value()).build());
 			}
 			else 
-				throw new WebApplicationException(Response.noContent().header(RestDirectory.HEADER_VERSION, version).build());
+				throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, version).build());
 		}
 			
 		else
@@ -57,6 +57,6 @@ public class RestResource {
 
 	static private void doRedirect(Result<?> result, Long version) throws WebApplicationException {
 		var location = URI.create(result.errorValue());
-		throw new WebApplicationException(Response.temporaryRedirect(location).header(RestDirectory.HEADER_VERSION, version).build());
+		throw new WebApplicationException(Response.temporaryRedirect(location).header(HEADER_VERSION, version).build());
 	}
 }
